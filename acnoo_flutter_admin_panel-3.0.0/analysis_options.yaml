@@ -1,0 +1,9 @@
+analyzer:
+  errors:
+    unused_field: ignore
+    unused_element: ignore
+include: package:flutter_lints/flutter.yaml
+
+linter:
+  rules:
+    no_leading_underscores_for_local_identifiers: false
