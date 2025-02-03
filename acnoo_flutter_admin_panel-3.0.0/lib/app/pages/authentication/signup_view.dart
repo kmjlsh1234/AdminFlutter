@@ -1,4 +1,8 @@
 // 🐦 Flutter imports:
+import 'package:acnoo_flutter_admin_panel/app/core/error/custom_exception.dart';
+import 'package:acnoo_flutter_admin_panel/app/core/service/admin/admin_service.dart';
+import 'package:acnoo_flutter_admin_panel/app/core/utils/dio_factory.dart';
+import 'package:acnoo_flutter_admin_panel/app/models/admin/admin_join_param.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
@@ -11,6 +15,7 @@ import 'package:responsive_framework/responsive_framework.dart' as rf;
 import '../../../generated/l10n.dart' as l;
 import '../../core/helpers/fuctions/helper_functions.dart';
 import '../../core/static/static.dart';
+import '../../core/utils/error_dialog.dart';
 import '../../widgets/widgets.dart';
 
 class SignupView extends StatefulWidget {
@@ -22,6 +27,44 @@ class SignupView extends StatefulWidget {
 
 class _SignupViewState extends State<SignupView> {
   bool showPassword = false;
+
+  TextEditingController nameController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  TextEditingController passwordCheckController = TextEditingController();
+  TextEditingController mobileController = TextEditingController();
+
+  late AdminService adminService;
+
+  Future<void> join(BuildContext context) async {
+    try{
+      //TODO: 패스워드 확인이랑 대조하기
+
+      AdminJoinParam adminJoinParam = AdminJoinParam(
+          email: emailController.text,
+          password: passwordController.text,
+          name: nameController.text,
+          mobile: mobileController.text
+      );
+
+      bool isSuccess = await adminService.join(adminJoinParam);
+      showJoinSuccessDialog(context);
+    } on CustomException catch (e) {
+      ErrorDialog.showError(context, e.errorCode);
+    }
+  }
+
+  @override
+  void dispose(){
+    super.dispose();
+  }
+
+  @override
+  void initState(){
+    super.initState();
+    final dio = DioFactory.createDio(context);
+    adminService = AdminService(dio);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -183,6 +226,7 @@ class _SignupViewState extends State<SignupView> {
                                     //labelText: 'Full Name',
                                     labelText: lang.fullName,
                                     inputField: TextFormField(
+                                      controller: nameController,
                                       decoration: InputDecoration(
                                         // hintText: 'Enter full name',
                                         hintText: lang.enterFullName,
@@ -196,6 +240,7 @@ class _SignupViewState extends State<SignupView> {
                                     // labelText: 'Email',
                                     labelText: lang.email,
                                     inputField: TextFormField(
+                                      controller: emailController,
                                       decoration: InputDecoration(
                                         //hintText: 'Enter email address',
                                         hintText: lang.enterEmailAddress,
@@ -209,6 +254,7 @@ class _SignupViewState extends State<SignupView> {
                                     //labelText: 'Password',
                                     labelText: lang.password,
                                     inputField: TextFormField(
+                                      controller: passwordController,
                                       obscureText: !showPassword,
                                       decoration: InputDecoration(
                                         //hintText: 'Enter your password',
@@ -228,11 +274,49 @@ class _SignupViewState extends State<SignupView> {
                                   ),
                                   const SizedBox(height: 20),
 
+                                  TextFieldLabelWrapper(
+                                    //labelText: 'Password',
+                                    labelText: lang.passwordCheck,
+                                    inputField: TextFormField(
+                                      controller: passwordCheckController,
+                                      obscureText: !showPassword,
+                                      decoration: InputDecoration(
+                                        //hintText: 'Enter your password',
+                                        hintText: lang.enterYourPassword,
+                                        suffixIcon: IconButton(
+                                          onPressed: () => setState(
+                                                () => showPassword = !showPassword,
+                                          ),
+                                          icon: Icon(
+                                            showPassword
+                                                ? FeatherIcons.eye
+                                                : FeatherIcons.eyeOff,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 20),
+
+                                  TextFieldLabelWrapper(
+                                    // labelText: 'Mobile',
+                                    labelText: lang.phoneNumber,
+                                    inputField: TextFormField(
+                                      controller: mobileController,
+                                      decoration: InputDecoration(
+                                        //hintText: 'Enter mobile',
+                                        hintText: lang.enterPhone,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 20),
                                   // Submit Button
                                   SizedBox(
                                     width: double.maxFinite,
                                     child: ElevatedButton(
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        join(context);
+                                      },
                                       //child: const Text('Sign Up'),
                                       child: Text(lang.signUp),
                                     ),
@@ -268,6 +352,28 @@ class _SignupViewState extends State<SignupView> {
           ],
         ),
       ),
+    );
+  }
+
+  //회원가입 성공 팝업
+  void showJoinSuccessDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(''),
+          content: Text('회원가입 성공'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                GoRouter.of(context).go('/authentication/signin');// Close the dialog
+              },
+              child: Text('로그인 페이지로 이동'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

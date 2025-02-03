@@ -240,6 +240,16 @@ class S {
     );
   }
 
+  /// `PasswordCheck`
+  String get passwordCheck {
+    return Intl.message(
+      'PasswordCheck',
+      name: 'passwordCheck',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Enter your password`
   String get enterYourPassword {
     return Intl.message(
