@@ -2,7 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 
-import '../error/error_code.dart';
+import 'error_code.dart';
 
 class ErrorDialog {
 

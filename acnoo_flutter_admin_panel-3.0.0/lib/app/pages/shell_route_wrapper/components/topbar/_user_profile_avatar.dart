@@ -1,7 +1,47 @@
 part of '_topbar.dart';
 
 class UserProfileAvatar extends StatelessWidget {
-  const UserProfileAvatar({super.key});
+  const UserProfileAvatar({super.key, required this.adminService});
+
+  final AdminService adminService;
+
+  //로그아웃
+  Future<void> logout(BuildContext context) async {
+    try{
+      bool isSuccess = await adminService.logout();
+      if(isSuccess){
+        GoRouter.of(context).go('/authentication/signin');
+      } else{
+        throw CustomException(ErrorCode.UNKNOWN_ERROR);
+      }
+    } catch (e){
+      ErrorHandler.handleError(e, context);
+    }
+  }
+
+  //유저 프로필 조회
+  Future<void> showProfile(BuildContext context) async {
+    try{
+      Admin admin = await adminService.getAdmin();
+      showProfileDialog(context, admin);
+    } catch (e){
+      ErrorHandler.handleError(e, context);
+    }
+  }
+
+  void showProfileDialog(BuildContext context, Admin admin){
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return BackdropFilter(
+            filter: ImageFilter.blur(
+              sigmaX: 5,
+              sigmaY: 5,
+            ),
+            child: AdminProfileDialog(admin: admin));
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,7 +122,16 @@ class UserProfileAvatar extends StatelessWidget {
             );
           })
         ],
-        onChanged: (value) {},
+        onChanged: (value) {
+          switch(value){
+            case 0: //PROFILE
+              showProfile(context);
+              break;
+            case 1: //LOGOUT
+              logout(context);
+              break;
+          }
+        },
       ),
     );
   }

@@ -3,6 +3,7 @@ import 'package:acnoo_flutter_admin_panel/app/core/error/custom_exception.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/service/admin/admin_service.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/utils/dio_factory.dart';
 import 'package:acnoo_flutter_admin_panel/app/models/admin/admin_join_param.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
@@ -13,9 +14,11 @@ import 'package:responsive_framework/responsive_framework.dart' as rf;
 
 // 🌎 Project imports:
 import '../../../generated/l10n.dart' as l;
+import '../../core/error/error_code.dart';
+import '../../core/error/error_handler.dart';
 import '../../core/helpers/fuctions/helper_functions.dart';
 import '../../core/static/static.dart';
-import '../../core/utils/error_dialog.dart';
+import '../../core/error/error_dialog.dart';
 import '../../widgets/widgets.dart';
 
 class SignupView extends StatefulWidget {
@@ -34,11 +37,13 @@ class _SignupViewState extends State<SignupView> {
   TextEditingController passwordCheckController = TextEditingController();
   TextEditingController mobileController = TextEditingController();
 
-  late AdminService adminService;
+  final AdminService adminService = AdminService();
 
   Future<void> join(BuildContext context) async {
     try{
-      //TODO: 패스워드 확인이랑 대조하기
+      if(passwordController.text != passwordCheckController.text){
+        throw CustomException(ErrorCode.MISMATCH_PASSWORD);
+      }
 
       AdminJoinParam adminJoinParam = AdminJoinParam(
           email: emailController.text,
@@ -49,8 +54,8 @@ class _SignupViewState extends State<SignupView> {
 
       bool isSuccess = await adminService.join(adminJoinParam);
       showJoinSuccessDialog(context);
-    } on CustomException catch (e) {
-      ErrorDialog.showError(context, e.errorCode);
+    } catch (e){
+      ErrorHandler.handleError(e, context);
     }
   }
 
@@ -62,8 +67,6 @@ class _SignupViewState extends State<SignupView> {
   @override
   void initState(){
     super.initState();
-    final dio = DioFactory.createDio(context);
-    adminService = AdminService(dio);
   }
 
   @override

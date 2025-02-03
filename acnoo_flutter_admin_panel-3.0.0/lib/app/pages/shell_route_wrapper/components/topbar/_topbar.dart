@@ -1,7 +1,16 @@
 // 🐦 Flutter imports:
+import 'dart:ui';
+
+import 'package:acnoo_flutter_admin_panel/app/core/error/custom_exception.dart';
+import 'package:acnoo_flutter_admin_panel/app/core/error/error_code.dart';
+import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
+import 'package:acnoo_flutter_admin_panel/app/core/service/admin/admin_service.dart';
+import 'package:acnoo_flutter_admin_panel/app/core/utils/dio_factory.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/shell_route_wrapper/components/topbar/admin_profile_dialog.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 // 📦 Package imports:
 import 'package:provider/provider.dart';
@@ -12,6 +21,7 @@ import 'package:responsive_grid/responsive_grid.dart';
 import '../../../../../generated/l10n.dart' as l;
 import '../../../../core/static/static.dart';
 import '../../../../core/helpers/helpers.dart';
+import '../../../../models/admin/admin.dart';
 import '../../../../providers/providers.dart';
 import '../../../../widgets/widgets.dart';
 import '../language_dropdown/_language_dropdown.dart';
@@ -21,9 +31,10 @@ part '_toggle_theme.dart';
 part '_user_profile_avatar.dart';
 
 class TopBarWidget extends StatelessWidget implements PreferredSizeWidget {
-  const TopBarWidget({super.key, this.onMenuTap});
+  const TopBarWidget({super.key, this.onMenuTap, required this.adminService});
 
   final void Function()? onMenuTap;
+  final AdminService adminService;
 
   @override
   Widget build(BuildContext context) {
@@ -82,7 +93,7 @@ class TopBarWidget extends StatelessWidget implements PreferredSizeWidget {
         ),
 
         // User Avatar
-        const UserProfileAvatar(),
+        UserProfileAvatar(adminService: adminService),
         const SizedBox(width: 16),
       ],
     );
