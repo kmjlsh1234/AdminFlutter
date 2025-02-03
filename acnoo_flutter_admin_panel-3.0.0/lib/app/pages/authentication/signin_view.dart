@@ -1,4 +1,9 @@
 // 🐦 Flutter imports:
+import 'package:acnoo_flutter_admin_panel/app/core/service/admin/admin_service.dart';
+import 'package:acnoo_flutter_admin_panel/app/core/utils/error_dialog.dart';
+import 'package:acnoo_flutter_admin_panel/app/models/admin/login_view_model.dart';
+import 'package:dio/dio.dart';
+import 'package:either_dart/either.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
@@ -12,6 +17,8 @@ import '../../../dev_utils/dev_utils.dart';
 import '../../../generated/l10n.dart' as l;
 import '../../core/helpers/fuctions/helper_functions.dart';
 import '../../core/static/static.dart';
+import '../../core/utils/dio_factory.dart';
+import '../../models/admin/admin.dart';
 import '../../widgets/widgets.dart';
 
 class SigninView extends StatefulWidget {
@@ -24,6 +31,28 @@ class SigninView extends StatefulWidget {
 class _SigninViewState extends State<SigninView> {
   bool rememberMe = false;
   bool showPassword = false;
+  late AdminService adminService;
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  //로그인
+  Future<void> login(BuildContext context) async {
+    LoginViewModel loginViewModel = LoginViewModel(email: emailController.text, password: passwordController.text);
+    Admin result = await adminService.login(loginViewModel);
+    GoRouter.of(context).go('/dashboard');
+  }
+
+  @override
+  void dispose(){
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    final dio = DioFactory.createDio(context);
+    adminService = AdminService(dio);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -186,6 +215,7 @@ class _SigninViewState extends State<SigninView> {
                                     //labelText: 'Email',
                                     labelText: lang.email,
                                     inputField: TextFormField(
+                                      controller: emailController,
                                       decoration: InputDecoration(
                                         //hintText: 'Enter your email address',
                                         hintText: lang.enterYourEmailAddress,
@@ -200,6 +230,7 @@ class _SigninViewState extends State<SigninView> {
                                     labelText: lang.password,
                                     inputField: TextFormField(
                                       obscureText: !showPassword,
+                                      controller: passwordController,
                                       decoration: InputDecoration(
                                         //hintText: 'Enter your password',
                                         hintText: lang.enterYourPassword,
@@ -296,7 +327,9 @@ class _SigninViewState extends State<SigninView> {
                                   SizedBox(
                                     width: double.maxFinite,
                                     child: ElevatedButton(
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        login(context);
+                                      },
                                       // child: const Text('Sign In'),
                                       child: Text(lang.signIn),
                                     ),
