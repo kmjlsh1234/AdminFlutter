@@ -1,5 +1,6 @@
 enum ErrorCode {
   UNKNOWN_ERROR(0, '알수 없는 에러'),
+  JWT_TOKEN_MISSING(1, 'JWT토큰 오류'),
   //AUTH LOGIN
   LOGIN_FAILURE_NO_CREDENTIAL(140201, "로그인시 입력 정보가 올바르지 않음"),
   LOGIN_FAILURE_REQUIRED_PARAMETER(140202, "로그인시 필수 입력 정보가 없음"),
@@ -14,6 +15,7 @@ enum ErrorCode {
   FAILED_TO_JOIN_SAVE_ADMIN(140105, "회원가입 저장 실패"),
   PASSWORD_REGEX_VALIDATION(140106, "비밀번호 형식이 올바르지 않음(대소문자, 특수문자)"),
   INVALID_PASSWORD_LENGTH(140107, "비밀번호 길이가 올바르지 않음"),
+  MISMATCH_PASSWORD(140108, "입력한 비밀번호가 다릅니다. 다시 확인해주세요"),
   ;
 
   const ErrorCode(this.errorCode, this.message);

@@ -7582,6 +7582,37 @@ class S {
     );
   }
 
+  /// `Updated At`
+  String get updatedAt {
+    return Intl.message(
+      'UpdatedAt',
+      name: 'updatedAt',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Login At`
+  String get loginAt {
+    return Intl.message(
+      'LoginAt',
+      name: 'loginAt',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Logout At`
+  String get logoutAt {
+    return Intl.message(
+      'LogoutAt',
+      name: 'logoutAt',
+      desc: '',
+      args: [],
+    );
+  }
+
+
   /// `Withdraw`
   String get withdraw {
     return Intl.message(

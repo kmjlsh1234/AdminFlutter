@@ -1,4 +1,5 @@
 // 🐦 Flutter imports:
+import 'package:acnoo_flutter_admin_panel/app/core/service/admin/admin_service.dart';
 import 'package:flutter/material.dart';
 
 // 📦 Package imports:
@@ -22,7 +23,7 @@ class ShellRouteWrapper extends StatefulWidget {
 
 class _ShellRouteWrapperState extends State<ShellRouteWrapper> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
-
+  final AdminService adminService = AdminService();
   bool isLargeSidebarExpaned = true;
 
   @override
@@ -113,6 +114,7 @@ class _ShellRouteWrapperState extends State<ShellRouteWrapper> {
           return scaffoldKey.currentState?.openDrawer();
         }
       },
+      adminService: adminService,
     );
   }
 
