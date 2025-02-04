@@ -2750,6 +2750,16 @@ class S {
     );
   }
 
+  /// `Mod Admin`
+  String get modAdmin {
+    return Intl.message(
+      'Mod Admin',
+      name: 'modAdmin',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Previous`
   String get previous {
     return Intl.message(
@@ -3245,6 +3255,16 @@ class S {
     return Intl.message(
       'Please enter your email',
       name: 'pleaseEnterYourEmail',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please enter your password`
+  String get pleaseEnterYourPassword {
+    return Intl.message(
+      'Please enter your password',
+      name: 'pleaseEnterYourPassword',
       desc: '',
       args: [],
     );
@@ -6307,6 +6327,26 @@ class S {
     return Intl.message(
       'AI Voiceover',
       name: 'aIVoiceover',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// 'Admins'
+  String get admins {
+    return Intl.message(
+      'Admins',
+      name: 'admins',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Admins List`
+  String get adminsList {
+    return Intl.message(
+      'Admins List',
+      name: 'adminsList',
       desc: '',
       args: [],
     );
