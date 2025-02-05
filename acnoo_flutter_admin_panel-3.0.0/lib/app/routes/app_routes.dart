@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 // 🌎 Project imports:
+import '../pages/admin_manage_page/admin_info_view.dart';
+import '../pages/admin_manage_page/admin_list_view.dart';
 import '../pages/pages.dart';
 import '../providers/providers.dart';
 
@@ -11,6 +13,7 @@ abstract class AcnooAppRoutes {
   //--------------Navigator Keys--------------//
   static final _rootNavigatorKey = GlobalKey<NavigatorState>();
   static final _emailShellNavigatorKey = GlobalKey<NavigatorState>();
+
   //--------------Navigator Keys--------------//
 
   static const _initialPath = '/';
@@ -386,7 +389,46 @@ abstract class AcnooAppRoutes {
               ),
             ],
           ),
-
+          // Users Route
+          GoRoute(
+            path: '/admins',
+            redirect: (context, state) async {
+              if (state.fullPath == '/admins') {
+                return '/admins/admin-list';
+              }
+              return null;
+            },
+            routes: [
+              GoRoute(
+                path: 'admin-list',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: AdminsListView(),
+                ),
+              ),
+              GoRoute(
+                path: 'info/:id',
+                pageBuilder: (context, state) {
+                  final String id = state.pathParameters['id']!;
+                  final int adminId = int.parse(id);
+                  return NoTransitionPage<void>(
+                    child: AdminInfoView(adminId: adminId),
+                  );
+                },
+              ),
+              GoRoute(
+                path: 'user-grid',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: UsersGridView(),
+                ),
+              ),
+              GoRoute(
+                path: 'user-profile',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: UserProfileView(),
+                ),
+              ),
+            ],
+          ),
           // Users Route
           GoRoute(
             path: '/users',
