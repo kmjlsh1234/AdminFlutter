@@ -7632,6 +7632,16 @@ class S {
     );
   }
 
+  /// `Publish At`
+  String get publishAt {
+    return Intl.message(
+      'PublishAt',
+      name: 'publishAt',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Login At`
   String get loginAt {
     return Intl.message(
@@ -10862,6 +10872,85 @@ class S {
     return Intl.message(
       'Online Courses',
       name: 'onlineCourses',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Chip`
+  String get chip {
+    return Intl.message(
+      'Chip',
+      name: 'chip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Coin`
+  String get coin {
+    return Intl.message(
+      'Coin',
+      name: 'coin',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Diamond`
+  String get diamond {
+    return Intl.message(
+      'Diamond',
+      name: 'diamond',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `ChangeType`
+  String get changeType {
+    return Intl.message(
+      'ChangeType',
+      name: 'changeType',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `ChangeDesc`
+  String get changeDesc {
+    return Intl.message(
+      'ChangeDesc',
+      name: 'changeDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `ResultAmount`
+  String get resultAmount {
+    return Intl.message(
+      'ResultAmount',
+      name: 'resultAmount',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `AppVersion`
+  String get appVersion {
+    return Intl.message(
+      'AppVersion',
+      name: 'appVersion',
+      desc: '',
+      args: [],
+    );
+  }
+  /// `Board`
+  String get board {
+    return Intl.message(
+      'Board',
+      name: 'board',
       desc: '',
       args: [],
     );

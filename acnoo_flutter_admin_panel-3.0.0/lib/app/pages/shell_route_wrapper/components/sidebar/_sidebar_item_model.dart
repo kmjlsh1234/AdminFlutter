@@ -311,6 +311,18 @@ List<GroupedMenuModel> get _groupedMenus {
             ),
           ],
         ),
+        SidebarItemModel(
+          // name: 'AppVersion',
+          name: l.S.current.appVersion,
+          iconPath: 'assets/images/sidebar_icons/calendar.svg',
+          navigationPath: '/version',
+        ),
+        SidebarItemModel(
+          // name: 'Board',
+          name: l.S.current.board,
+          iconPath: 'assets/images/sidebar_icons/calendar.svg',
+          navigationPath: '/board',
+        ),
       ],
     ),
 

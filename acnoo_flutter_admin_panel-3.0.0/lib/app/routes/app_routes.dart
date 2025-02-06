@@ -6,7 +6,12 @@ import 'package:provider/provider.dart';
 // 🌎 Project imports:
 import '../pages/admin_manage_page/admin_info_view.dart';
 import '../pages/admin_manage_page/admin_list_view.dart';
+import '../pages/app_version_page/app_version_view.dart';
 import '../pages/pages.dart';
+import '../pages/user_manage_page/user_currency_record_view.dart';
+import '../pages/user_manage_page/user_currency_view.dart';
+import '../pages/user_manage_page/user_info_view.dart';
+import '../pages/user_manage_page/user_list_view.dart';
 import '../providers/providers.dart';
 
 abstract class AcnooAppRoutes {
@@ -389,7 +394,7 @@ abstract class AcnooAppRoutes {
               ),
             ],
           ),
-          // Users Route
+          // Admins Route
           GoRoute(
             path: '/admins',
             redirect: (context, state) async {
@@ -442,8 +447,38 @@ abstract class AcnooAppRoutes {
               GoRoute(
                 path: 'user-list',
                 pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: UsersListView(),
+                  child: UserListView(),
                 ),
+              ),
+              GoRoute(
+                path: 'info/:id',
+                pageBuilder: (context, state) {
+                  final String id = state.pathParameters['id']!;
+                  final int userId = int.parse(id);
+                  return NoTransitionPage<void>(
+                    child: UserInfoView(userId: userId),
+                  );
+                },
+              ),
+              GoRoute(
+                path: 'currency/:id',
+                pageBuilder: (context, state) {
+                  final String id = state.pathParameters['id']!;
+                  final int userId = int.parse(id);
+                  return NoTransitionPage<void>(
+                    child: UserCurrencyView(userId: userId),
+                  );
+                },
+              ),
+              GoRoute(
+                path: 'currency/record/:id',
+                pageBuilder: (context, state) {
+                  final String id = state.pathParameters['id']!;
+                  final int userId = int.parse(id);
+                  return NoTransitionPage<void>(
+                    child: UserCurrencyRecordView(userId: userId),
+                  );
+                },
               ),
               GoRoute(
                 path: 'user-grid',
@@ -459,7 +494,18 @@ abstract class AcnooAppRoutes {
               ),
             ],
           ),
-
+          GoRoute(
+            path: '/version',
+            pageBuilder: (context, state) => const NoTransitionPage<void>(
+              child: AppVersionView(),
+            ),
+          ),
+          GoRoute(
+            path: '/board',
+            pageBuilder: (context, state) => const NoTransitionPage<void>(
+              child: CalendarView(),
+            ),
+          ),
           //--------------Application Section--------------//
 
           //--------------Tables & Forms--------------//

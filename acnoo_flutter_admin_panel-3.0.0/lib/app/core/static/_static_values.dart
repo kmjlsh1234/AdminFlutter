@@ -7,6 +7,7 @@ abstract class AppDateConfig {
 
   static const appNumberOnlyDateFormat = 'dd/MM/yyyy';
   static const appMonthNameDateFormat = 'dd MMM yyyy';
+  static const localDateTimeFormat = 'yyyy-MM-ddTHH:mm:ss';
 }
 
 class AppLocale {
