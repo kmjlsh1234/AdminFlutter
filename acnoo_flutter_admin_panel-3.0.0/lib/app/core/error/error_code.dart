@@ -16,6 +16,12 @@ enum ErrorCode {
   PASSWORD_REGEX_VALIDATION(140106, "비밀번호 형식이 올바르지 않음(대소문자, 특수문자)"),
   INVALID_PASSWORD_LENGTH(140107, "비밀번호 길이가 올바르지 않음"),
   MISMATCH_PASSWORD(140108, "입력한 비밀번호가 다릅니다. 다시 확인해주세요"),
+
+  //APP_VERSION
+  APP_VERSION_NOT_EXIST(141101, "존재하지 않는 앱 버전"),
+  APP_VERSION_REGEX_VALIDATION(141102, "버전 형식이 맞지 않음"),
+  INVALID_VERSION_PARAMETER(141103, "이전 버전보다 낮음"),
+  NOT_FOUND_ANY_PUBLISH_VERSION(141104, "해당 버전을 제외하고 출시된 버전이 존재하지 않음"),
   ;
 
   const ErrorCode(this.errorCode, this.message);

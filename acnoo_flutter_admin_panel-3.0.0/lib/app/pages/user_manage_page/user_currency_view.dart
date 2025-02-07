@@ -1,29 +1,21 @@
 // 🐦 Flutter imports:
 // 🌎 Project imports:
+import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/user_currency_widget.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/user_info_nav_item.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/user_profile_widget.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/user_top_bar.dart';
 import 'package:acnoo_flutter_admin_panel/app/pages/users_page/user_profile/user_profile_details_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 // 📦 Package imports:
 import 'package:responsive_grid/responsive_grid.dart';
 
 import '../../../../generated/l10n.dart' as l;
 import '../../widgets/shadow_container/_shadow_container.dart';
-import 'admin_info_nav_item.dart';
-import 'admin_info_top_bar.dart';
-import 'admin_profile_widget.dart';
 
-class AdminInfoView extends StatelessWidget {
-  const AdminInfoView({super.key,required this.adminId});
-  final int adminId;
-
-  List<AdminInfoNavItem> get navItems {
-    return <AdminInfoNavItem>[
-      AdminInfoNavItem(title: 'profile', navigationPath: '/admins/info/${1}'),
-      AdminInfoNavItem(title: 'log', navigationPath: '/admins/info/${1}'),
-      AdminInfoNavItem(title: 'currency', navigationPath: '/admins/info/${1}'),
-      AdminInfoNavItem(title: 'currency Record', navigationPath: '/admins/info/${1}'),
-      AdminInfoNavItem(title: 'extra', navigationPath: '/admins/info/${1}'),
-    ];
-  }
+class UserCurrencyView extends StatelessWidget{
+  const UserCurrencyView({super.key, required this.userId});
+  final int userId;
 
   @override
   Widget build(BuildContext context) {
@@ -47,17 +39,17 @@ class AdminInfoView extends StatelessWidget {
     );
     return Scaffold(
       body: ShadowContainer(
-        customHeader: AdminInfoTopBarWidget(),
+        customHeader: UserTopBar(userId: userId),
         margin: EdgeInsetsDirectional.all(_innerSpacing),
         child: SingleChildScrollView(
           child: ShadowContainer(
             contentPadding: EdgeInsets.zero,
             showHeader: false,
-            child: AdminProfileWidget(
-                padding: _padding,
-                theme: theme,
-                textTheme: textTheme,
-                adminId: adminId
+            child: UserCurrencyWidget(
+              padding: 16,
+              theme: Theme.of(context),
+              textTheme: Theme.of(context).textTheme,
+              userId: userId,
             ),
           ),
         ),
