@@ -3,6 +3,8 @@ import 'dart:html';
 
 import 'package:dio/dio.dart';
 
+import '../app_config/app_config.dart';
+
 class DioFactory{
   static List<String> excludeURL = [
     '/admin/login',
@@ -23,7 +25,14 @@ class DioFactory{
                   options.headers['Authorization'] = '';
                 }
               }
-              options.headers['Content-Type'] = 'application/json';
+
+              if(!requestPath.contains('/file/mng/v1/')){
+                options.headers['Content-Type'] = 'application/json';
+              }
+              else{
+                options.headers['Content-Type'] = 'multipart/form-data';
+              }
+
               return handler.next(options); // 요청 계속 진행
             },
             onError: (DioException e, handler) {

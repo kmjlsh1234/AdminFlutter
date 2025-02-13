@@ -1,7 +1,9 @@
+import 'package:acnoo_flutter_admin_panel/app/models/user/user_mod_status_param.dart';
 import 'package:flutter/material.dart';
 import '../../../../generated/l10n.dart' as l;
 import 'package:responsive_framework/responsive_framework.dart' as rf;
 
+import '../../core/constants/user/user_status.dart';
 import '../../core/error/error_handler.dart';
 import '../../core/service/admin/admin_manage_service.dart';
 import '../../core/service/user/user_manage_service.dart';
@@ -13,49 +15,37 @@ import '../../models/user/user_mod_param.dart';
 import '../../models/user/user_profile.dart';
 
 class UserModDialog extends StatefulWidget {
-  const UserModDialog({super.key, required this.userDetail});
-  final UserDetail userDetail;
+  const UserModDialog({super.key, required this.userProfile});
+  final UserProfile userProfile;
   @override
   State<UserModDialog> createState() => _UserModDialogState();
 }
 
 class _UserModDialogState extends State<UserModDialog> {
-  String? _selectedPosition;
+  late String selectStatus;
 
-  List<String> get _positions => [
-    //'Manager',
-    l.S.current.manager,
-    //'Developer',
-    l.S.current.developer,
-    //'Designer',
-    l.S.current.designer,
-    //'Tester'
-    l.S.current.tester,
-  ];
+  List<String> get _statuses => UserStatus.values.map((e) => e.status).toList();
+
   final UserManageService userManageService = UserManageService();
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final TextEditingController mobileController = TextEditingController();
 
-  //유저 정보 변경
-  Future<void> modUser(BuildContext context) async {
+  //유저 상태 변경
+  Future<void> modUserStatus(BuildContext context) async {
     try {
-      UserModParam userModParam = UserModParam(null, mobileController.text, emailController.text, 'MEMBER');
-      UserProfile userProfile = await userManageService.modUser(widget.userDetail.userId, userModParam);
-      showModUserSuccessDialog(context);
+      UserModStatusParam userModStatusParam = UserModStatusParam(selectStatus);
+      await userManageService.modUserStatus(widget.userProfile.userId, userModStatusParam);
+      showModUserStatusSuccessDialog(context);
     } catch (e) {
       ErrorHandler.handleError(e, context);
     }
   }
 
-  void showModUserSuccessDialog(BuildContext context) {
+  void showModUserStatusSuccessDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(''),
-          content: Text('유저 정보 변경 성공'),
+          content: Text('유저 상태 변경 성공'),
           actions: [
             TextButton(
               onPressed: () {
@@ -73,9 +63,7 @@ class _UserModDialogState extends State<UserModDialog> {
   @override
   void initState() {
     super.initState();
-    nameController.text = widget.userDetail.nickname;
-    emailController.text = widget.userDetail.email;
-    mobileController.text = widget.userDetail.mobile;
+    selectStatus = widget.userProfile.status;
   }
 
   @override
@@ -160,82 +148,26 @@ class _UserModDialogState extends State<UserModDialog> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ///---------------- Text Field section
-                    Text(lang.fullName, style: textTheme.bodySmall),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: nameController,
-                      decoration: InputDecoration(
-                          hintText: lang.enterYourFullName,
-                          hintStyle: textTheme.bodySmall),
-                      validator: (value) => value?.isEmpty ?? true
-                          ? lang.pleaseEnterYourFullName
-                          : null,
-                    ),
                     const SizedBox(height: 20),
-                    Text(lang.email, style: textTheme.bodySmall),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: emailController,
-                      decoration: InputDecoration(
-                        //hintText: 'Enter Your Email',
-                          hintText: lang.enterYourEmail,
-                          hintStyle: textTheme.bodySmall),
-                      keyboardType: TextInputType.emailAddress,
-                      validator: (value) => value?.isEmpty ?? true
-                      //? 'Please enter your email'
-                          ? lang.pleaseEnterYourEmail
-                          : null,
-                    ),
-                    const SizedBox(height: 20),
-                    Text(lang.password, style: textTheme.bodySmall),
-                    const SizedBox(height: 20),
-                    TextFormField(
-                      controller: passwordController,
-                      decoration: InputDecoration(
-                        //hintText: 'Enter Your Password',
-                          hintText: lang.enterYourPassword,
-                          hintStyle: textTheme.bodySmall),
-                      keyboardType: TextInputType.visiblePassword,
-                      validator: (value) => value?.isEmpty ?? true
-                      //? 'Please enter your email'
-                          ? lang.pleaseEnterYourPassword
-                          : null,
-                    ),
-                    const SizedBox(height: 20),
-                    Text(lang.phoneNumber, style: textTheme.bodySmall),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: mobileController,
-                      decoration: InputDecoration(
-                        // hintText: 'Enter Your Phone Number',
-                          hintText: lang.enterYourPhoneNumber,
-                          hintStyle: textTheme.bodySmall),
-                      keyboardType: TextInputType.phone,
-                      validator: (value) => value?.isEmpty ?? true
-                      //? 'Please enter your phone number'
-                          ? lang.pleaseEnterYourPhoneNumber
-                          : null,
-                    ),
-                    const SizedBox(height: 20),
-                    Text(lang.position, style: textTheme.bodySmall),
+                    Text(lang.status, style: textTheme.bodySmall),
                     const SizedBox(height: 8),
                     DropdownButtonFormField<String>(
                       dropdownColor: theme.colorScheme.primaryContainer,
-                      value: _selectedPosition,
+                      value: selectStatus,
                       hint: Text(
-                        lang.selectPosition,
+                        lang.status,
                         //'Select Position',
                         style: textTheme.bodySmall,
                       ),
-                      items: _positions.map((position) {
+                      items: _statuses.map((status) {
                         return DropdownMenuItem<String>(
-                          value: position,
-                          child: Text(position),
+                          value: status,
+                          child: Text(status),
                         );
                       }).toList(),
                       onChanged: (value) {
                         setState(() {
-                          _selectedPosition = value;
+                          selectStatus = value.toString();
                         });
                       },
                       validator: (value) =>
@@ -274,7 +206,7 @@ class _UserModDialogState extends State<UserModDialog> {
                               padding: EdgeInsets.symmetric(
                                   horizontal: _sizeInfo.innerSpacing),
                             ),
-                            onPressed: () => modUser(context),
+                            onPressed: () => modUserStatus(context),
                             //label: const Text('Save'),
                             label: Text(lang.save),
                           )

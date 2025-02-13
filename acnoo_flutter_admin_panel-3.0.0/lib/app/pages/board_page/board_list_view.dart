@@ -1,64 +1,55 @@
 // 🐦 Flutter imports:
-import 'package:acnoo_flutter_admin_panel/app/core/service/app_version/app_version_service.dart';
-import 'package:acnoo_flutter_admin_panel/app/models/app_version/app_version.dart';
-import 'package:acnoo_flutter_admin_panel/app/models/app_version/app_version_search_param.dart';
-import 'package:acnoo_flutter_admin_panel/app/models/app_version/latest_app_version.dart';
-import 'package:acnoo_flutter_admin_panel/app/pages/app_version_page/app_version_add_popup.dart';
-import 'package:acnoo_flutter_admin_panel/app/pages/app_version_page/app_version_mod_popup.dart';
+import 'package:acnoo_flutter_admin_panel/app/models/board/board_search_param.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
-
 // 📦 Package imports:
 import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:iconly/iconly.dart';
 import 'package:responsive_grid/responsive_grid.dart';
 
 // 🌎 Project imports:
 import '../../../generated/l10n.dart' as l;
-import '../../core/constants/app_version/app_version_type.dart';
-import '../../core/constants/app_version/publish_status.dart';
+import '../../core/constants/board/board_status.dart';
+import '../../core/constants/board/board_type.dart';
 import '../../core/error/error_handler.dart';
 import '../../core/helpers/helpers.dart';
+import '../../core/service/board/board_service.dart';
 import '../../core/theme/_app_colors.dart';
+import '../../models/board/board.dart';
 import '../../widgets/widgets.dart';
 
-class AppVersionView extends StatefulWidget {
-  const AppVersionView({super.key});
+class BoardListView extends StatefulWidget {
+  const BoardListView({super.key});
 
   @override
-  State<AppVersionView> createState() => _AppVersionViewState();
+  State<BoardListView> createState() => _BoardListViewState();
 }
 
-class _AppVersionViewState extends State<AppVersionView>
-    with SingleTickerProviderStateMixin {
+class _BoardListViewState extends State<BoardListView> with SingleTickerProviderStateMixin {
   ///_____________________________________________________________________Variables_______________________________
 
-  late List<AppVersion> versionList = [];
-  LatestAppVersion latestAppVersion = LatestAppVersion();
+  late List<Board> versionList = [];
   late TabController _tabController;
   final ScrollController _scrollController = ScrollController();
-  final AppVersionService appVersionService = AppVersionService();
+  final BoardService boardService = BoardService();
 
-  List<String> get _title => AppVersionType.values.map((e) => e.type).toList();
-  AppVersionType appVersionType = AppVersionType.FORCE;
+  List<String> get _title => BoardType.values.map((e) => e.type).toList();
+  BoardType boardType = BoardType.NOTICE;
   int currentPage = 0;
   int rowsPerPage = 10;
   int totalPage = 0;
   String searchQuery = '';
   bool isLoading = true;
 
-  //앱버전 리스트 조회
-  Future<void> getAppVersionList(BuildContext context) async {
-    List<AppVersion> list = [];
+  //게시판 리스트 조회
+  Future<void> getBoardList(BuildContext context) async {
+    List<Board> list = [];
     try {
       setState(() => isLoading = true);
 
-      AppVersionSearchParam searchParam = AppVersionSearchParam(
-        appVersionType.type.toString(),
-        "CREATED_AT",
-        "DESC",
-      );
-      list = await appVersionService.getAppVersionList(searchParam);
+      BoardSearchParam boardSearchParam = BoardSearchParam(boardType.type, null, null, null, null, currentPage + 1, rowsPerPage);
+      list = await boardService.getBoardList(boardSearchParam);
     } catch (e) {
       ErrorHandler.handleError(e, context);
     }
@@ -68,18 +59,14 @@ class _AppVersionViewState extends State<AppVersionView>
     });
   }
 
-  //앱버전 리스트 갯수 조회
-  Future<void> getAppVersionListCount(BuildContext context) async {
+  //게시판 리스트 갯수 조회
+  Future<void> getBoardListCount(BuildContext context) async {
     int count = 0;
     try {
       setState(() => isLoading = true);
 
-      AppVersionSearchParam searchParam = AppVersionSearchParam(
-        appVersionType.type.toString(),
-        "CREATED_AT",
-        "DESC",
-      );
-      count = await appVersionService.getAppVersionListCount(searchParam);
+      BoardSearchParam boardSearchParam = BoardSearchParam(boardType.type, null, null, null, null, currentPage + 1, rowsPerPage);
+      count = await boardService.getBoardListCount(boardSearchParam);
     } catch (e) {
       ErrorHandler.handleError(e, context);
     }
@@ -89,25 +76,9 @@ class _AppVersionViewState extends State<AppVersionView>
     });
   }
 
-  //현재 출시 버전 조회
-  Future<void> getLatestAppVersion(BuildContext context) async {
-    setState(() => isLoading = true);
-    try {
-      latestAppVersion = await appVersionService.getLatestAppVersion();
-    } catch (e) {
-      ErrorHandler.handleError(e, context);
-    }
-    setState(() => isLoading = false);
-  }
-
-  Future<void> delAppVersion(BuildContext context, int id) async {
+  Future<void> delBoard(BuildContext context, int id) async {
     try{
-      bool isSuccess = await appVersionService.delAppVersion(id);
-      if(isSuccess){
-        getAppVersionList(context);
-        getAppVersionListCount(context);
-        getLatestAppVersion(context);
-      }
+
     }catch (e) {
       ErrorHandler.handleError(e, context);
     }
@@ -116,9 +87,8 @@ class _AppVersionViewState extends State<AppVersionView>
   @override
   void initState() {
     super.initState();
-    getAppVersionList(context);
-    getAppVersionListCount(context);
-    getLatestAppVersion(context);
+    getBoardList(context);
+    getBoardListCount(context);
     _tabController = TabController(length: _title.length, vsync: this);
   }
 
@@ -127,38 +97,6 @@ class _AppVersionViewState extends State<AppVersionView>
     _scrollController.dispose();
     _tabController.dispose();
     super.dispose();
-  }
-
-  ///_____________________________________________________________________Add_App_Version_____________________________
-  void showAddDialog(BuildContext context) async {
-    bool isAppVersionAdd = await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return const AppVersionAddDialog();
-      },
-    );
-
-    if (isAppVersionAdd) {
-      getAppVersionList(context);
-      getAppVersionListCount(context);
-      getLatestAppVersion(context);
-    }
-  }
-
-  ///_____________________________________________________________________Mod_App_Version_____________________________
-  void showModDialog(BuildContext context, AppVersion version) async {
-    bool isAppVersionMod = await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AppVersionModDialog(version: version);
-      },
-    );
-
-    if (isAppVersionMod) {
-      getAppVersionList(context);
-      getAppVersionListCount(context);
-      getLatestAppVersion(context);
-    }
   }
 
   @override
@@ -207,10 +145,9 @@ class _AppVersionViewState extends State<AppVersionView>
                                 unselectedLabelColor:
                                     theme.colorScheme.onTertiary,
                                 onTap: (value) => setState(() {
-                                  appVersionType = AppVersionType.values[value];
-                                  getAppVersionList(context);
-                                  getAppVersionListCount(context);
-                                  getLatestAppVersion(context);
+                                  boardType = BoardType.values[value];
+                                  getBoardList(context);
+                                  getBoardListCount(context);
                                 }),
                                 tabs: _title
                                     .map(
@@ -237,7 +174,7 @@ class _AppVersionViewState extends State<AppVersionView>
                                   children: [
                                     SizedBox(
                                       height: 36,
-                                      child: addAppVersion(textTheme, context),
+                                      child: addBoard(textTheme, context),
                                     ),
                                   ],
                                 ),
@@ -283,32 +220,6 @@ class _AppVersionViewState extends State<AppVersionView>
                                   ],
                                 ),
                               ),
-                              isTablet ? Container() : const Spacer(),
-                              // Ensures proper alignment by pushing the next element to the end
-                              SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    const SizedBox(width: 36),
-                                    Text(
-                                      'Force : ${latestAppVersion.forceUpdateVersion}',
-                                      textAlign: TextAlign.right,
-                                    ),
-                                    const SizedBox(width: 36),
-                                    Text(
-                                      'Induce : ${latestAppVersion.induceUpdateVersion}',
-                                      textAlign: TextAlign.right,
-                                    ),
-                                    const SizedBox(width: 36),
-                                    Text(
-                                      'Bundle : ${latestAppVersion.bundleUpdateVersion}',
-                                      textAlign: TextAlign.right,
-                                    ),
-                                  ],
-                                ),
-                              ),
                             ],
                           ),
 
@@ -346,7 +257,7 @@ class _AppVersionViewState extends State<AppVersionView>
   }
 
   ///_____________________________________________________________________add_AppVersion_button___________________________
-  ElevatedButton addAppVersion(TextTheme textTheme, BuildContext context) {
+  ElevatedButton addBoard(TextTheme textTheme, BuildContext context) {
     final lang = l.S.of(context);
     return ElevatedButton.icon(
       style: ElevatedButton.styleFrom(
@@ -354,7 +265,7 @@ class _AppVersionViewState extends State<AppVersionView>
       ),
       onPressed: () {
         setState(() {
-          showAddDialog(context);
+          GoRouter.of(context).go('/boards/write');
         });
       },
       label: Text(
@@ -381,7 +292,7 @@ class _AppVersionViewState extends State<AppVersionView>
     if (currentPage < totalPage - 1) {
       setState(() {
         currentPage++;
-        getAppVersionList(context);
+        getBoardList(context);
       });
     }
   }
@@ -391,7 +302,7 @@ class _AppVersionViewState extends State<AppVersionView>
     if (currentPage > 0) {
       setState(() {
         currentPage--;
-        getAppVersionList(context);
+        getBoardList(context);
       });
     }
   }
@@ -500,10 +411,9 @@ class _AppVersionViewState extends State<AppVersionView>
         showBottomBorder: true,
         columns: [
           DataColumn(label: Text('${lang.SL}.')),
-          DataColumn(label: Text(lang.appVersion)),
-          DataColumn(label: Text(lang.type)),
-          DataColumn(label: Text(lang.publishAt)),
-          DataColumn(label: Text(lang.status)),
+          DataColumn(label: Text(lang.title)),
+          DataColumn(label: Text(lang.boardType)),
+          DataColumn(label: Text(lang.boardStatus)),
           DataColumn(label: Text(lang.createdAt)),
           DataColumn(label: Text(lang.updatedAt)),
           DataColumn(label: Text(lang.actions)),
@@ -521,7 +431,7 @@ class _AppVersionViewState extends State<AppVersionView>
                 ),
                 DataCell(
                   Text(
-                    data.version,
+                    data.title,
                     maxLines: 1,
                   ),
                 ),
@@ -530,51 +440,37 @@ class _AppVersionViewState extends State<AppVersionView>
                     padding:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                     decoration: BoxDecoration(
-                      color: data.versionType == AppVersionType.FORCE.type
+                      color: data.boardType == BoardType.EVENT.type
                           ? AcnooAppColors.kWarning.withOpacity(0.2)
-                          : data.versionType == AppVersionType.INDUCE.type
-                              ? AcnooAppColors.kInfo20Op
-                              : data.versionType == AppVersionType.BUNDLE.type
-                                  ? AcnooAppColors.kPrimary500.withOpacity(0.2)
-                                  : AcnooAppColors.kSuccess.withOpacity(0.2),
+                          : AcnooAppColors.kInfo20Op,
                       borderRadius: BorderRadius.circular(4.0),
                     ),
                     child: Text(
-                      data.versionType,
+                      data.boardType,
                       maxLines: 1,
                       style: textTheme.bodySmall?.copyWith(
-                        color: data.versionType == AppVersionType.FORCE.type
+                        color: data.boardType == BoardType.EVENT.type
                             ? AcnooAppColors.kWarning
-                            : data.versionType == AppVersionType.INDUCE.type
-                                ? AcnooAppColors.kInfo
-                                : data.versionType == AppVersionType.BUNDLE.type
-                                    ? AcnooAppColors.kPrimary500
-                                    : AcnooAppColors.kSuccess,
+                            : AcnooAppColors.kInfo,
                       ),
                     ),
                   ),
                 ),
                 DataCell(
-                  Text(
-                    data.publishAt,
-                    maxLines: 1,
-                  ),
-                ),
-                DataCell(
                   Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                     decoration: BoxDecoration(
-                      color: data.publishStatus == PublishStatus.PUBLISH.status
+                      color: data.status == BoardStatus.PUBLISH.status
                           ? AcnooAppColors.kSuccess.withOpacity(0.2)
                           : AcnooAppColors.kError.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(16.0),
                     ),
                     child: Text(
-                      data.publishStatus,
+                      data.status,
                       style: textTheme.bodySmall?.copyWith(
                           color:
-                              data.publishStatus == PublishStatus.PUBLISH.status
+                              data.status == BoardStatus.PUBLISH.status
                                   ? AcnooAppColors.kSuccess
                                   : AcnooAppColors.kError),
                     ),
@@ -625,9 +521,9 @@ class _AppVersionViewState extends State<AppVersionView>
                         .toList(),
                     onSelected: (value) {
                       return switch (value) {
-                        /*'View'*/ //0 => _showDetailsDialog(context, data),
-                        /*'Edit'*/ 1 => showModDialog(context, data),
-                        /*'Delete'*/ 2 => delAppVersion(context, data.id),
+                        /*'View'*/ 0 => GoRouter.of(context).go('/boards/info/${data.id}'),
+                        /*'Edit'*/ 1 => print('123'),//showModDialog(context, data),
+                        /*'Delete'*/ 2 => print('123'),//delAppVersion(context, data.id),
                         _ => null,
                       };
                     },

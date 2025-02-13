@@ -1,6 +1,7 @@
 enum ErrorCode {
   UNKNOWN_ERROR(0, '알수 없는 에러'),
   JWT_TOKEN_MISSING(1, 'JWT토큰 오류'),
+  FAIL_TO_CONVERT_FILE(2, '파일 변환 오류'),
   //AUTH LOGIN
   LOGIN_FAILURE_NO_CREDENTIAL(140201, "로그인시 입력 정보가 올바르지 않음"),
   LOGIN_FAILURE_REQUIRED_PARAMETER(140202, "로그인시 필수 입력 정보가 없음"),

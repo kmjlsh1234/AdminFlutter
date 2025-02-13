@@ -23,7 +23,7 @@ UserDetail _$UserDetailFromJson(Map<String, dynamic> json) => UserDetail(
       json['agreePrivacy'] as bool,
       json['agreeSensitive'] as bool,
       json['agreeMarketing'] as bool,
-      json['marketingModifiedAt'] as String,
+      json['marketingModifiedAt'] as String?,
     );
 
 Map<String, dynamic> _$UserDetailToJson(UserDetail instance) =>

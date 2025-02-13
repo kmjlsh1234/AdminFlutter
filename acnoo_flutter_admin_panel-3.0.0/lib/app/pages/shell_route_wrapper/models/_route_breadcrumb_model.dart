@@ -247,6 +247,18 @@ Map<String, RouteBreadcrumbModel> get routerParam {
       parentRoute: 'Application / Users',
       childRoute: 'Users List',
     ),
+    '/users/drop-out-user-list': RouteBreadcrumbModel(
+      //title: 'Drop Out Users List',
+      title: l.S.current.dropOutUsersList,
+      parentRoute: 'Application / DropOutUsers',
+      childRoute: 'Drop Out Users List',
+    ),
+    '/users/block-user-list': RouteBreadcrumbModel(
+      //title: 'Block Users List',
+      title: l.S.current.blockUsersList,
+      parentRoute: 'Application / BlockUsers',
+      childRoute: 'Block Users List',
+    ),
     '/users/user-grid': RouteBreadcrumbModel(
       //title: 'Users Grid',
       title: l.S.current.usersGrid,

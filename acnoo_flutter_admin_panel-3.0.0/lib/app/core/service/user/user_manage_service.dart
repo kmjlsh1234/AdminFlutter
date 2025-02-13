@@ -1,4 +1,7 @@
+
 import 'package:acnoo_flutter_admin_panel/app/models/user/user_mod_param.dart';
+import 'package:acnoo_flutter_admin_panel/app/models/user/user_mod_status_param.dart';
+import 'package:retrofit/retrofit.dart';
 
 import '../../../models/common/count_vo.dart';
 import '../../../models/user/user_detail.dart';
@@ -29,5 +32,11 @@ class UserManageService{
   //유저 정보 수정
   Future<UserProfile> modUser(int userId, UserModParam userModParam) async {
     return await client.modUser(userId, userModParam);
+  }
+
+  //유저 상태 변경
+  Future<bool> modUserStatus(int userId, UserModStatusParam userModStatusParam) async {
+    HttpResponse res = await client.modUserStatus(userId, userModStatusParam);
+    return res.response.statusCode == 200;
   }
 }
