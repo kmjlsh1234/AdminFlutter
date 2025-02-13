@@ -1,7 +1,7 @@
 enum UserSearchType{
   NONE("NONE"),
   EMAIL("EMAIL"),
-  NAME("NAME"),
+  NICKNAME("NICKNAME"),
   MOBILE("MOBILE"),
   ;
   const UserSearchType(this.searchType);

@@ -4,6 +4,8 @@ import 'dart:ui';
 // 🐦 Flutter imports:
 import 'package:acnoo_flutter_admin_panel/app/core/constants/user/user_search_date_type.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/admin_manage_page/admin_mod_popup.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/user_mod_popup.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -16,6 +18,7 @@ import '../../core/constants/user/user_search_type.dart';
 import '../../core/helpers/field_styles/_dropdown_styles.dart';
 import '../../core/service/user/user_manage_service.dart';
 import '../../core/theme/_app_colors.dart';
+import '../../models/user/user_detail.dart';
 import '../../models/user/user_profile.dart';
 import '../../models/user/user_search_param.dart';
 import '../../widgets/pagination_widgets/_pagination_widget.dart';
@@ -109,6 +112,26 @@ class _UserListViewState extends State<UserListView> {
       totalPage = (count / _rowsPerPage).ceil();
       isLoading = false;
     });
+  }
+
+  void showFormDialog(BuildContext context, UserProfile userProfile) async {
+    bool isUserStatusMod = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return BackdropFilter(
+            filter: ImageFilter.blur(
+              sigmaX: 5,
+              sigmaY: 5,
+            ),
+            child: UserModDialog(userProfile: userProfile)
+        );
+      },
+    );
+
+    if(isUserStatusMod){
+      getUserList(context);
+      getUserListCount(context);
+    }
   }
 
   @override
@@ -438,10 +461,7 @@ class _UserListViewState extends State<UserListView> {
                     onSelected: (action) {
                       switch (action) {
                         case 'Edit':
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                content: Text('${lang.edit} ${data.nickname}')),
-                          );
+                          showFormDialog(context, data);
                           break;
                         case 'View':
                           GoRouter.of(context).go('/users/info/${data.userId}');

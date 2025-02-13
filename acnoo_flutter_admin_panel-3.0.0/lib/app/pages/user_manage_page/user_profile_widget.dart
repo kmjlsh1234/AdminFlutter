@@ -49,24 +49,6 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
     });
   }
 
-  void showFormDialog(BuildContext context) async {
-    bool isUserMod = await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return BackdropFilter(
-            filter: ImageFilter.blur(
-              sigmaX: 5,
-              sigmaY: 5,
-            ),
-            child: UserModDialog(userDetail: userDetail));
-      },
-    );
-
-    if(isUserMod){
-      getUserDetail(context);
-    }
-  }
-
   @override
   void initState() {
     super.initState();
@@ -86,98 +68,101 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
           padding: EdgeInsets.all(widget._padding),
           child: isLoading
               ? const Center(child: CircularProgressIndicator())
-              : userDetail == null
-                  ? Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text(
-                          lang.Error, // 데이터 없을 때 메시지
-                          style: textTheme.bodyLarge,
-                        ),
-                      ),
-                    )
-                  : Container(
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.primaryContainer,
-                        borderRadius: BorderRadius.circular(8.0),
-                        border: Border.all(
-                          color: theme.colorScheme.outline,
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildProfileDetailRow(
-                              '${lang.fullName}', userDetail.nickname, textTheme),
-                          Divider(
-                            color: theme.colorScheme.outline,
-                            height: 0.0,
-                          ),
-                          _buildProfileDetailRow(
-                              lang.email, userDetail.email, textTheme),
-                          Divider(
-                            color: theme.colorScheme.outline,
-                            height: 0.0,
-                          ),
-                          _buildProfileDetailRow(
-                              lang.phoneNumber, userDetail.mobile, textTheme),
-                          Divider(
-                            color: theme.colorScheme.outline,
-                            height: 0.0,
-                          ),
-                          _buildProfileDetailRow(
-                              lang.loginAt, userDetail.loginAt, textTheme),
-                          Divider(
-                            color: theme.colorScheme.outline,
-                            height: 0.0,
-                          ),
-                          _buildProfileDetailRow(
-                              lang.createdAt, userDetail.createdAt, textTheme),
-                          Divider(
-                            color: theme.colorScheme.outline,
-                            height: 0.0,
-                          ),
-                          _buildProfileDetailRow(lang.updatedAt, userDetail.updatedAt, textTheme),
-                        ],
-                      ),
+              : Container(
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(8.0),
+                    border: Border.all(
+                      color: theme.colorScheme.outline,
                     ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildProfileDetailRow(
+                          '${lang.fullName}', userDetail.nickname, textTheme),
+                      Divider(
+                        color: theme.colorScheme.outline,
+                        height: 0.0,
+                      ),
+                      buildProfileDetailRow(
+                          lang.email, userDetail.email, textTheme),
+                      Divider(
+                        color: theme.colorScheme.outline,
+                        height: 0.0,
+                      ),
+                      buildProfileDetailRow(
+                          lang.phoneNumber, userDetail.mobile, textTheme),
+                      Divider(
+                        color: theme.colorScheme.outline,
+                        height: 0.0,
+                      ),
+                      buildProfileDetailRow(
+                          lang.status, userDetail.status, textTheme),
+                      Divider(
+                        color: theme.colorScheme.outline,
+                        height: 0.0,
+                      ),
+                      buildProfileDetailRow(
+                          lang.type, userDetail.userType, textTheme),
+                      Divider(
+                        color: theme.colorScheme.outline,
+                        height: 0.0,
+                      ),
+                      buildProfileDetailRow(
+                          lang.loginAt, userDetail.loginAt, textTheme),
+                      Divider(
+                        color: theme.colorScheme.outline,
+                        height: 0.0,
+                      ),
+                      buildProfileDetailRow(
+                          lang.logoutAt, userDetail.logoutAt, textTheme),
+                      Divider(
+                        color: theme.colorScheme.outline,
+                        height: 0.0,
+                      ),
+                      buildProfileDetailRow(
+                          lang.createdAt, userDetail.createdAt, textTheme),
+                      Divider(
+                        color: theme.colorScheme.outline,
+                        height: 0.0,
+                      ),
+                      buildProfileDetailRow(
+                          lang.updatedAt, userDetail.updatedAt, textTheme),
+                      Divider(
+                        color: theme.colorScheme.outline,
+                        height: 0.0,
+                      ),
+                      buildProfileDetailCheckBoxRow(lang.agreeTerm, userDetail.agreeTerm, textTheme),
+                      Divider(
+                        color: theme.colorScheme.outline,
+                        height: 0.0,
+                      ),
+                      buildProfileDetailCheckBoxRow(lang.agreePrivacy, userDetail.agreePrivacy, textTheme),
+                      Divider(
+                        color: theme.colorScheme.outline,
+                        height: 0.0,
+                      ),
+                      buildProfileDetailCheckBoxRow(lang.agreeSensitive, userDetail.agreeSensitive, textTheme),
+                      Divider(
+                        color: theme.colorScheme.outline,
+                        height: 0.0,
+                      ),
+                      buildProfileDetailCheckBoxRow(lang.agreeMarketing, userDetail.agreeMarketing, textTheme),
+                      Divider(
+                        color: theme.colorScheme.outline,
+                        height: 0.0,
+                      ),
+                      buildProfileDetailRow(lang.marketingModifiedAt, userDetail.marketingModifiedAt, textTheme),
+                    ],
+                  ),
+                ),
         ),
-        Padding(
-          padding: EdgeInsets.all(widget._padding),
-          child: Container(
-            color: theme.colorScheme.primaryContainer,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                modAdminButton(textTheme),
-              ],
-            ),
-          )
-        )
       ],
     );
   }
 
-  ElevatedButton modAdminButton(TextTheme textTheme) {
-    final lang = l.S.of(context);
-    return ElevatedButton.icon(
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.fromLTRB(14, 8, 14, 8),
-      ),
-      onPressed: () {
-        showFormDialog(context);
-      },
-      label: Text(
-        lang.modAdmin,
-        style: textTheme.bodySmall?.copyWith(
-          color: AcnooAppColors.kWhiteColor,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildProfileDetailRow(
+  Widget buildProfileDetailRow(
       String label, String? value, TextTheme textTheme) {
     return Padding(
       padding: EdgeInsets.all(widget._padding),
@@ -203,7 +188,7 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                 const SizedBox(width: 8.0),
                 Flexible(
                   child: Text(
-                    value??"EMPTY",
+                    value ?? "EMPTY",
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
                     style: textTheme.bodyLarge,
@@ -211,6 +196,36 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildProfileDetailCheckBoxRow(String label, bool value, TextTheme textTheme) {
+    return Padding(
+      padding: EdgeInsets.all(10),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 1,
+            child: Text(
+              label,
+              style: textTheme.bodyLarge,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
+          ),
+
+          Expanded(
+              flex: 3,
+              child: Row(
+                  children: [
+                    Checkbox(
+                      value: value, onChanged: (bool? value) {  },
+                    ),
+                  ]
+              )
           ),
         ],
       ),

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:acnoo_flutter_admin_panel/app/core/error/custom_exception.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +11,7 @@ import 'error_code.dart';
 class ErrorHandler{
 
   static void handleError<E>(E e, BuildContext context){
+    log(e.toString());
     if(e is DioException){
       if(e.response != null){
         if(e.response?.statusCode == 401) {

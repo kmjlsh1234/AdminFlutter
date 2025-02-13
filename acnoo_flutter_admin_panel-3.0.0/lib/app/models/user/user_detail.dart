@@ -23,7 +23,8 @@ class UserDetail{
   final bool agreePrivacy;
   final bool agreeSensitive;
   final bool agreeMarketing;
-  final String marketingModifiedAt;
+  @JsonKey(includeIfNull: true)
+  final String? marketingModifiedAt;
 
   UserDetail(
       this.userId,

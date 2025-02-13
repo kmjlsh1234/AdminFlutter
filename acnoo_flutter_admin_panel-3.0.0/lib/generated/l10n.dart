@@ -700,6 +700,16 @@ class S {
     );
   }
 
+  /// `Content`
+  String get content {
+    return Intl.message(
+      'Content',
+      name: 'content',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Enter title`
   String get enterTitle {
     return Intl.message(
@@ -785,6 +795,16 @@ class S {
     return Intl.message(
       'Description',
       name: 'description',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Attributes`
+  String get attributes {
+    return Intl.message(
+      'Attributes',
+      name: 'attributes',
       desc: '',
       args: [],
     );
@@ -1715,6 +1735,16 @@ class S {
     return Intl.message(
       'Registered On',
       name: 'registeredOn',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `User Id`
+  String get userId {
+    return Intl.message(
+      'UserId',
+      name: 'userId',
       desc: '',
       args: [],
     );
@@ -2925,6 +2955,16 @@ class S {
     return Intl.message(
       'Name',
       name: 'name',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sku`
+  String get sku {
+    return Intl.message(
+      'Sku',
+      name: 'sku',
       desc: '',
       args: [],
     );
@@ -6372,6 +6412,26 @@ class S {
     );
   }
 
+  /// `Drop Out Users List`
+  String get dropOutUsersList {
+    return Intl.message(
+      'Drop Out Users List',
+      name: 'dropOutUsersList',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Block Users List`
+  String get blockUsersList {
+    return Intl.message(
+      'Block Users List',
+      name: 'blockUsersList',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Users Grid`
   String get usersGrid {
     return Intl.message(
@@ -6867,6 +6927,46 @@ class S {
     return Intl.message(
       'Agreement to Terms',
       name: 'agreementToTerms',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `AgreeTerm`
+  String get agreeTerm {
+    return Intl.message(
+      'AgreeTerm',
+      name: 'agreeTerm',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `AgreePrivacy`
+  String get agreePrivacy {
+    return Intl.message(
+      'AgreePrivacy',
+      name: 'agreePrivacy',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `AgreeSensitive`
+  String get agreeSensitive {
+    return Intl.message(
+      'AgreeSensitive',
+      name: 'agreeSensitive',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `AgreeMarketing`
+  String get agreeMarketing {
+    return Intl.message(
+      'AgreeMarketing',
+      name: 'agreeMarketing',
       desc: '',
       args: [],
     );
@@ -7632,6 +7732,16 @@ class S {
     );
   }
 
+  /// `Drop At`
+  String get dropAt {
+    return Intl.message(
+      'DropAt',
+      name: 'dropAt',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Publish At`
   String get publishAt {
     return Intl.message(
@@ -7641,7 +7751,15 @@ class S {
       args: [],
     );
   }
-
+  /// `MarketingModifiedAt`
+  String get marketingModifiedAt {
+    return Intl.message(
+      'MarketingModifiedAt',
+      name: 'marketingModifiedAt',
+      desc: '',
+      args: [],
+    );
+  }
   /// `Login At`
   String get loginAt {
     return Intl.message(
@@ -10946,11 +11064,62 @@ class S {
       args: [],
     );
   }
+
+  /// `Shop`
+  String get shop {
+    return Intl.message(
+      'Shop',
+      name: 'shop',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `itemUnit`
+  String get itemUnit {
+    return Intl.message(
+      'ItemUnit',
+      name: 'itemUnit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `product`
+  String get bundle {
+    return Intl.message(
+      'Bundle',
+      name: 'bundle',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Board`
   String get board {
     return Intl.message(
       'Board',
       name: 'board',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Board Type`
+  String get boardType {
+    return Intl.message(
+      'Board Type',
+      name: 'boardType',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Board Status`
+  String get boardStatus {
+    return Intl.message(
+      'Board Status',
+      name: 'boardStatus',
       desc: '',
       args: [],
     );

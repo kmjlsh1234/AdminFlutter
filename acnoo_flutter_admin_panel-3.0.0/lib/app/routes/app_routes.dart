@@ -1,4 +1,7 @@
 // 📦 Package imports:
+import 'package:acnoo_flutter_admin_panel/app/pages/board_page/board_write_view.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/drop_out_user_page/drop_out_user_list_view.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/shop/item_unit/item_unit_list_view.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -6,8 +9,12 @@ import 'package:provider/provider.dart';
 // 🌎 Project imports:
 import '../pages/admin_manage_page/admin_info_view.dart';
 import '../pages/admin_manage_page/admin_list_view.dart';
-import '../pages/app_version_page/app_version_view.dart';
+import '../pages/app_version_page/app_version_list_view.dart';
+import '../pages/board_page/board_info_view.dart';
+import '../pages/board_page/board_list_view.dart';
 import '../pages/pages.dart';
+import '../pages/shop/category/category_list_view.dart';
+import '../pages/shop/item_unit/item_unit_info_view.dart';
 import '../pages/user_manage_page/user_currency_record_view.dart';
 import '../pages/user_manage_page/user_currency_view.dart';
 import '../pages/user_manage_page/user_info_view.dart';
@@ -451,6 +458,18 @@ abstract class AcnooAppRoutes {
                 ),
               ),
               GoRoute(
+                path: 'user-block-list',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: UserListView(),
+                ),
+              ),
+              GoRoute(
+                path: 'drop-out-user-list',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: DropOutUserListView(),
+                ),
+              ),
+              GoRoute(
                 path: 'info/:id',
                 pageBuilder: (context, state) {
                   final String id = state.pathParameters['id']!;
@@ -497,14 +516,96 @@ abstract class AcnooAppRoutes {
           GoRoute(
             path: '/version',
             pageBuilder: (context, state) => const NoTransitionPage<void>(
-              child: AppVersionView(),
+              child: AppVersionListView(),
             ),
           ),
           GoRoute(
-            path: '/board',
-            pageBuilder: (context, state) => const NoTransitionPage<void>(
-              child: CalendarView(),
-            ),
+            path: '/boards',
+            redirect: (context, state) async {
+              if (state.fullPath == '/boards') {
+                return '/boards/board-list';
+              }
+              return null;
+            },
+            routes: [
+              GoRoute(
+                path: 'board-list',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: BoardListView(),
+                ),
+              ),
+              GoRoute(
+                path: 'write',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: BoardWriteView(),
+                ),
+              ),
+              GoRoute(
+                path: 'info/:id',
+                pageBuilder: (context, state) {
+                  final String id = state.pathParameters['id']!;
+                  final int boardId = int.parse(id);
+                  return NoTransitionPage<void>(
+                    child: BoardInfoView(boardId: boardId),
+                  );
+                },
+              ),
+            ],
+          ),
+          GoRoute(
+            path: '/shops',
+            redirect: (context, state) async {
+              if (state.fullPath == '/shops') {
+                return '/shops/bundle-list';
+              }
+              return null;
+            },
+            routes: [
+              GoRoute(
+                path: 'bundle-list',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: BoardListView(),
+                ),
+              ),
+              GoRoute(
+                path: 'product-list',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: BoardWriteView(),
+                ),
+              ),
+              GoRoute(
+                path: 'item-list',
+                pageBuilder: (context, state) {
+                  final String id = state.pathParameters['id']!;
+                  final int boardId = int.parse(id);
+                  return NoTransitionPage<void>(
+                    child: BoardInfoView(boardId: boardId),
+                  );
+                },
+              ),
+              GoRoute(
+                path: 'item-unit-list',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: ItemUnitListView(),
+                ),
+              ),
+              GoRoute(
+                path: 'item-unit/info/:id',
+                pageBuilder: (context, state) {
+                  final String id = state.pathParameters['id']!;
+                  final int unitId = int.parse(id);
+                  return NoTransitionPage<void>(
+                    child: ItemUnitInfoView(unitId: unitId),
+                  );
+                },
+              ),
+              GoRoute(
+                path: 'category-list',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: CategoryListView(),
+                ),
+              ),
+            ],
           ),
           //--------------Application Section--------------//
 

@@ -362,42 +362,7 @@ class _ProjectsViewState extends State<ProjectsView>
                           ),
 
                     //______________________________________________________________________Data_table__________________
-                    isMobile || isTablet
-                        ? RawScrollbar(
-                            padding: const EdgeInsets.only(left: 18),
-                            trackBorderColor: theme.colorScheme.surface,
-                            trackVisibility: true,
-                            scrollbarOrientation: ScrollbarOrientation.bottom,
-                            controller: _scrollController,
-                            thumbVisibility: true,
-                            thickness: 8.0,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                SingleChildScrollView(
-                                  controller: _scrollController,
-                                  scrollDirection: Axis.horizontal,
-                                  child: ConstrainedBox(
-                                    constraints: BoxConstraints(
-                                      minWidth: constraints.maxWidth,
-                                    ),
-                                    child: Padding(
-                                      padding: EdgeInsets.only(top: _padding),
-                                      child: userListDataTable(context),
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.all(_padding),
-                                  child: Text(
-                                    '${lang.showing} ${_currentPage * _rowsPerPage + 1} ${lang.to} ${_currentPage * _rowsPerPage + _currentPageData.length} ${lang.OF} ${_filteredData.length} ${lang.entries}',
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                        : SingleChildScrollView(
+                    SingleChildScrollView(
                             controller: _scrollController,
                             scrollDirection: Axis.horizontal,
                             child: ConstrainedBox(
