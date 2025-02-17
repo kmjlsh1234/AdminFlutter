@@ -9,21 +9,21 @@ part of 'currency_record_search_param.dart';
 CurrencyRecordSearchParam _$CurrencyRecordSearchParamFromJson(
         Map<String, dynamic> json) =>
     CurrencyRecordSearchParam(
-      (json['userId'] as num).toInt(),
-      json['changeType'] as String?,
-      json['startDate'] as String?,
-      json['endDate'] as String?,
-      (json['page'] as num).toInt(),
-      (json['limit'] as num).toInt(),
+      userId: (json['userId'] as num).toInt(),
+      changeType: json['changeType'] as String?,
+      startDate: json['startDate'] as String?,
+      endDate: json['endDate'] as String?,
+      page: (json['page'] as num).toInt(),
+      limit: (json['limit'] as num).toInt(),
     );
 
 Map<String, dynamic> _$CurrencyRecordSearchParamToJson(
         CurrencyRecordSearchParam instance) =>
     <String, dynamic>{
+      'page': instance.page,
+      'limit': instance.limit,
       'userId': instance.userId,
       'changeType': instance.changeType,
       'startDate': instance.startDate,
       'endDate': instance.endDate,
-      'page': instance.page,
-      'limit': instance.limit,
     };

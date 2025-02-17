@@ -10,8 +10,8 @@ import 'package:responsive_grid/responsive_grid.dart';
 
 // 🌎 Project imports:
 import '../../../generated/l10n.dart' as l;
-import '../../core/constants/board/board_status.dart';
-import '../../core/constants/board/board_type.dart';
+import '../../constants/board/board_status.dart';
+import '../../constants/board/board_type.dart';
 import '../../core/error/error_handler.dart';
 import '../../core/helpers/helpers.dart';
 import '../../core/service/board/board_service.dart';
@@ -34,8 +34,8 @@ class _BoardListViewState extends State<BoardListView> with SingleTickerProvider
   final ScrollController _scrollController = ScrollController();
   final BoardService boardService = BoardService();
 
-  List<String> get _title => BoardType.values.map((e) => e.type).toList();
-  BoardType boardType = BoardType.NOTICE;
+  List<String> get _title => BoardType.values.map((e) => e.value).toList();
+  BoardType boardType = BoardType.notice;
   int currentPage = 0;
   int rowsPerPage = 10;
   int totalPage = 0;
@@ -48,7 +48,7 @@ class _BoardListViewState extends State<BoardListView> with SingleTickerProvider
     try {
       setState(() => isLoading = true);
 
-      BoardSearchParam boardSearchParam = BoardSearchParam(boardType.type, null, null, null, null, currentPage + 1, rowsPerPage);
+      BoardSearchParam boardSearchParam = BoardSearchParam(boardType.value, null, null, null, null, currentPage + 1, rowsPerPage);
       list = await boardService.getBoardList(boardSearchParam);
     } catch (e) {
       ErrorHandler.handleError(e, context);
@@ -65,7 +65,7 @@ class _BoardListViewState extends State<BoardListView> with SingleTickerProvider
     try {
       setState(() => isLoading = true);
 
-      BoardSearchParam boardSearchParam = BoardSearchParam(boardType.type, null, null, null, null, currentPage + 1, rowsPerPage);
+      BoardSearchParam boardSearchParam = BoardSearchParam(boardType.value, null, null, null, null, currentPage + 1, rowsPerPage);
       count = await boardService.getBoardListCount(boardSearchParam);
     } catch (e) {
       ErrorHandler.handleError(e, context);
@@ -440,7 +440,7 @@ class _BoardListViewState extends State<BoardListView> with SingleTickerProvider
                     padding:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                     decoration: BoxDecoration(
-                      color: data.boardType == BoardType.EVENT.type
+                      color: data.boardType == BoardType.event.value
                           ? AcnooAppColors.kWarning.withOpacity(0.2)
                           : AcnooAppColors.kInfo20Op,
                       borderRadius: BorderRadius.circular(4.0),
@@ -449,7 +449,7 @@ class _BoardListViewState extends State<BoardListView> with SingleTickerProvider
                       data.boardType,
                       maxLines: 1,
                       style: textTheme.bodySmall?.copyWith(
-                        color: data.boardType == BoardType.EVENT.type
+                        color: data.boardType == BoardType.event.value
                             ? AcnooAppColors.kWarning
                             : AcnooAppColors.kInfo,
                       ),
@@ -461,7 +461,7 @@ class _BoardListViewState extends State<BoardListView> with SingleTickerProvider
                     padding:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                     decoration: BoxDecoration(
-                      color: data.status == BoardStatus.PUBLISH.status
+                      color: data.status == BoardStatus.publish.value
                           ? AcnooAppColors.kSuccess.withOpacity(0.2)
                           : AcnooAppColors.kError.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(16.0),
@@ -470,7 +470,7 @@ class _BoardListViewState extends State<BoardListView> with SingleTickerProvider
                       data.status,
                       style: textTheme.bodySmall?.copyWith(
                           color:
-                              data.status == BoardStatus.PUBLISH.status
+                              data.status == BoardStatus.publish.value
                                   ? AcnooAppColors.kSuccess
                                   : AcnooAppColors.kError),
                     ),

@@ -1,27 +1,19 @@
 // 🎯 Dart imports:
-import 'dart:ui';
-
-// 🐦 Flutter imports:
-import 'package:acnoo_flutter_admin_panel/app/core/constants/user/user_search_date_type.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 // 📦 Package imports:
 import 'package:iconly/iconly.dart';
 import 'package:responsive_framework/responsive_framework.dart' as rf;
+
 // 🌎 Project imports:
 import '../../../../generated/l10n.dart' as l;
-import '../../core/constants/user/drop_out_user_search_type.dart';
-import '../../core/constants/user/user_search_type.dart';
+import '../../constants/user/drop_out_user_search_type.dart';
 import '../../core/helpers/field_styles/_dropdown_styles.dart';
 import '../../core/service/user/drop_out_user_service.dart';
-import '../../core/service/user/user_manage_service.dart';
 import '../../core/theme/_app_colors.dart';
 import '../../models/user/drop_out_user.dart';
 import '../../models/user/drop_out_user_search_param.dart';
-import '../../models/user/user_profile.dart';
-import '../../models/user/user_search_param.dart';
 import '../../widgets/pagination_widgets/_pagination_widget.dart';
 import '../../widgets/shadow_container/_shadow_container.dart';
 
@@ -42,7 +34,7 @@ class _DropOutUserListViewState extends State<DropOutUserListView> {
   int currentPage = 0;
   int _rowsPerPage = 10;
   int totalPage = 0;
-  DropOutUserSearchType searchType = DropOutUserSearchType.NONE;
+  DropOutUserSearchType searchType = DropOutUserSearchType.none;
   String searchQuery = '';
 
   bool isLoading = true;
@@ -68,7 +60,7 @@ class _DropOutUserListViewState extends State<DropOutUserListView> {
     try {
       setState(() => isLoading = true);
       DropOutUserSearchParam dropOutUserSearchParam = DropOutUserSearchParam(
-          (searchType == DropOutUserSearchType.NONE) ? null : searchType.type,
+          (searchType == DropOutUserSearchType.none) ? null : searchType.value,
           searchQuery,
           startDateController.text,
           endDateController.text,
@@ -93,7 +85,7 @@ class _DropOutUserListViewState extends State<DropOutUserListView> {
     try {
       setState(() => isLoading = true);
       DropOutUserSearchParam dropOutUserSearchParam = DropOutUserSearchParam(
-          (searchType == DropOutUserSearchType.NONE) ? null : searchType.type,
+          (searchType == DropOutUserSearchType.none) ? null : searchType.value,
           searchQuery,
           startDateController.text,
           endDateController.text,
@@ -358,7 +350,7 @@ class _DropOutUserListViewState extends State<DropOutUserListView> {
           return DropdownMenuItem<DropOutUserSearchType>(
             value: value,
             child: Text(
-              value.type,
+              value.value,
               style: textTheme.bodySmall,
             ),
           );

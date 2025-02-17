@@ -8,14 +8,14 @@ part of 'diamond_record.dart';
 
 DiamondRecord _$DiamondRecordFromJson(Map<String, dynamic> json) =>
     DiamondRecord(
-      (json['id'] as num).toInt(),
-      (json['userId'] as num).toInt(),
-      json['changeType'] as String,
-      (json['changeDiamond'] as num).toInt(),
-      (json['resultDiamond'] as num).toInt(),
-      json['changeDesc'] as String,
-      json['idempotentKey'] as String,
-      json['createdAt'] as String,
+      id: (json['id'] as num).toInt(),
+      userId: (json['userId'] as num).toInt(),
+      changeType: json['changeType'] as String,
+      changeDiamond: (json['changeDiamond'] as num).toInt(),
+      resultDiamond: (json['resultDiamond'] as num).toInt(),
+      changeDesc: json['changeDesc'] as String,
+      idempotentKey: json['idempotentKey'] as String,
+      createdAt: DateTime.parse(json['createdAt'] as String),
     );
 
 Map<String, dynamic> _$DiamondRecordToJson(DiamondRecord instance) =>
@@ -23,9 +23,9 @@ Map<String, dynamic> _$DiamondRecordToJson(DiamondRecord instance) =>
       'id': instance.id,
       'userId': instance.userId,
       'changeType': instance.changeType,
-      'changeDiamond': instance.changeDiamond,
-      'resultDiamond': instance.resultDiamond,
       'changeDesc': instance.changeDesc,
       'idempotentKey': instance.idempotentKey,
-      'createdAt': instance.createdAt,
+      'createdAt': instance.createdAt.toIso8601String(),
+      'changeDiamond': instance.changeDiamond,
+      'resultDiamond': instance.resultDiamond,
     };

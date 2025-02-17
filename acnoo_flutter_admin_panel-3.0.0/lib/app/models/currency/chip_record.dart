@@ -1,17 +1,33 @@
+import 'package:acnoo_flutter_admin_panel/app/models/currency/base_currency_record.dart';
 import 'package:json_annotation/json_annotation.dart';
+
 part 'chip_record.g.dart';
-@JsonSerializable()
-class ChipRecord{
-  final int id;
-  final int userId;
-  final String changeType;
+
+@JsonSerializable(includeIfNull: false)
+class ChipRecord extends BaseCurrencyRecord{
   final int changeChip;
   final int resultChip;
-  final String changeDesc;
-  final String idempotentKey;
-  final String createdAt;
 
-  ChipRecord(this.id, this.userId, this.changeType, this.changeChip, this.resultChip, this.changeDesc, this.idempotentKey, this.createdAt);
+  ChipRecord({
+    required int id,
+    required int userId,
+    required String changeType,
+    required this.changeChip,
+    required this.resultChip,
+    required String changeDesc,
+    required String idempotentKey,
+    required DateTime createdAt,
+  }) : super(
+    id: id,
+    userId: userId,
+    changeType: changeType,
+    changeAmount: changeChip,
+    resultAmount: resultChip,
+    changeDesc: changeDesc,
+    idempotentKey: idempotentKey,
+    createdAt: createdAt,
+  );
+
   factory ChipRecord.fromJson(Map<String, dynamic> json) => _$ChipRecordFromJson(json);
   Map<String, dynamic> toJson() => _$ChipRecordToJson(this);
 }

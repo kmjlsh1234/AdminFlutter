@@ -7,8 +7,8 @@ part of 'chip.dart';
 // **************************************************************************
 
 Chip _$ChipFromJson(Map<String, dynamic> json) => Chip(
-      (json['userId'] as num).toInt(),
-      (json['amount'] as num).toInt(),
+      userId: (json['userId'] as num).toInt(),
+      amount: (json['amount'] as num).toInt(),
     );
 
 Map<String, dynamic> _$ChipToJson(Chip instance) => <String, dynamic>{

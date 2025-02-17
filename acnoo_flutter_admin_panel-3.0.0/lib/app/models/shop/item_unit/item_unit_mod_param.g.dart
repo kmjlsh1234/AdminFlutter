@@ -8,12 +8,12 @@ part of 'item_unit_mod_param.dart';
 
 ItemUnitModParam _$ItemUnitModParamFromJson(Map<String, dynamic> json) =>
     ItemUnitModParam(
-      json['sku'] as String?,
-      json['name'] as String?,
-      json['image'] as String?,
-      json['description'] as String?,
-      json['attributes'] as String?,
-      json['type'] as String?,
+      sku: json['sku'] as String?,
+      name: json['name'] as String?,
+      image: json['image'] as String?,
+      description: json['description'] as String?,
+      attributes: json['attributes'] as String?,
+      type: json['type'] as String?,
     );
 
 Map<String, dynamic> _$ItemUnitModParamToJson(ItemUnitModParam instance) =>

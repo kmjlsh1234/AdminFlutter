@@ -8,8 +8,8 @@ part of 'category_add_param.dart';
 
 CategoryAddParam _$CategoryAddParamFromJson(Map<String, dynamic> json) =>
     CategoryAddParam(
-      json['name'] as String,
-      json['description'] as String,
+      name: json['name'] as String,
+      description: json['description'] as String,
     );
 
 Map<String, dynamic> _$CategoryAddParamToJson(CategoryAddParam instance) =>

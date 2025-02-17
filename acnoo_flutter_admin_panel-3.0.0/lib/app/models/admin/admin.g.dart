@@ -13,9 +13,11 @@ Admin _$AdminFromJson(Map<String, dynamic> json) => Admin(
       email: json['email'] as String,
       name: json['name'] as String,
       mobile: json['mobile'] as String,
-      loginAt: json['loginAt'] as String?,
-      createdAt: json['createdAt'] as String,
-      updatedAt: json['updatedAt'] as String,
+      loginAt: json['loginAt'] == null
+          ? null
+          : DateTime.parse(json['loginAt'] as String),
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      updatedAt: DateTime.parse(json['updatedAt'] as String),
     );
 
 Map<String, dynamic> _$AdminToJson(Admin instance) => <String, dynamic>{
@@ -25,7 +27,7 @@ Map<String, dynamic> _$AdminToJson(Admin instance) => <String, dynamic>{
       'email': instance.email,
       'name': instance.name,
       'mobile': instance.mobile,
-      'loginAt': instance.loginAt,
-      'createdAt': instance.createdAt,
-      'updatedAt': instance.updatedAt,
+      'loginAt': instance.loginAt?.toIso8601String(),
+      'createdAt': instance.createdAt.toIso8601String(),
+      'updatedAt': instance.updatedAt.toIso8601String(),
     };

@@ -1,23 +1,31 @@
 // 📦 Package imports:
 import 'package:acnoo_flutter_admin_panel/app/pages/board_page/board_write_view.dart';
 import 'package:acnoo_flutter_admin_panel/app/pages/drop_out_user_page/drop_out_user_list_view.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/shop/bundle/bundle_list_view.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/shop/item/item_add_view.dart';
 import 'package:acnoo_flutter_admin_panel/app/pages/shop/item_unit/item_unit_list_view.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/shop/product/product_add_view.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/shop/product/product_info_view.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/user_currency_record_view.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 // 🌎 Project imports:
-import '../pages/admin_manage_page/admin_info_view.dart';
+import '../pages/shop/bundle/bundle_add_view.dart';
+import '../pages/shop/bundle/bundle_info_view.dart';
+import '../pages/shop/item/item_info_view.dart';
+import '../pages/shop/product/products_list_view.dart';
+import '../pages/user_manage_page/user_profile_view.dart' as userMng;
+import '../pages/admin_manage_page/admin_profile_view.dart';
 import '../pages/admin_manage_page/admin_list_view.dart';
 import '../pages/app_version_page/app_version_list_view.dart';
 import '../pages/board_page/board_info_view.dart';
 import '../pages/board_page/board_list_view.dart';
 import '../pages/pages.dart';
 import '../pages/shop/category/category_list_view.dart';
-import '../pages/shop/item_unit/item_unit_info_view.dart';
-import '../pages/user_manage_page/user_currency_record_view.dart';
+import '../pages/shop/item/item_list_view.dart';
 import '../pages/user_manage_page/user_currency_view.dart';
-import '../pages/user_manage_page/user_info_view.dart';
 import '../pages/user_manage_page/user_list_view.dart';
 import '../providers/providers.dart';
 
@@ -42,7 +50,7 @@ abstract class AcnooAppRoutes {
           if (state.uri.queryParameters['rtl'] == 'true') {
             _appLangProvider.isRTL = true;
           }
-          return '/dashboard/ecommerce-admin';
+          return '/admins/admin-list';
         },
       ),
 
@@ -418,26 +426,14 @@ abstract class AcnooAppRoutes {
                 ),
               ),
               GoRoute(
-                path: 'info/:id',
+                path: 'profile/:id',
                 pageBuilder: (context, state) {
                   final String id = state.pathParameters['id']!;
                   final int adminId = int.parse(id);
                   return NoTransitionPage<void>(
-                    child: AdminInfoView(adminId: adminId),
+                    child: AdminProfileView(adminId: adminId),
                   );
                 },
-              ),
-              GoRoute(
-                path: 'user-grid',
-                pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: UsersGridView(),
-                ),
-              ),
-              GoRoute(
-                path: 'user-profile',
-                pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: UserProfileView(),
-                ),
               ),
             ],
           ),
@@ -470,12 +466,12 @@ abstract class AcnooAppRoutes {
                 ),
               ),
               GoRoute(
-                path: 'info/:id',
+                path: 'profile/:id',
                 pageBuilder: (context, state) {
                   final String id = state.pathParameters['id']!;
                   final int userId = int.parse(id);
                   return NoTransitionPage<void>(
-                    child: UserInfoView(userId: userId),
+                    child: userMng.UserProfileView(userId: userId),
                   );
                 },
               ),
@@ -495,7 +491,7 @@ abstract class AcnooAppRoutes {
                   final String id = state.pathParameters['id']!;
                   final int userId = int.parse(id);
                   return NoTransitionPage<void>(
-                    child: UserCurrencyRecordView(userId: userId),
+                    child: UserCurrencyRecordView(userId: userId)
                   );
                 },
               ),
@@ -562,24 +558,90 @@ abstract class AcnooAppRoutes {
             },
             routes: [
               GoRoute(
-                path: 'bundle-list',
-                pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: BoardListView(),
-                ),
+                path: '/bundles',
+                redirect: (context, state) async {
+                  if (state.fullPath == '/bundles') {
+                    return 'bundle-list';
+                  }
+                  return null;
+                },
+                routes: [
+                  GoRoute(
+                    path: 'bundle-list',
+                    pageBuilder: (context, state) => const NoTransitionPage<void>(
+                      child: BundleListView(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'info/:id',
+                    pageBuilder: (context, state) {
+                      final String id = state.pathParameters['id']!;
+                      final int bundleId = int.parse(id);
+                      return NoTransitionPage<void>(
+                        child: BundleInfoView(bundleId: bundleId),
+                      );
+                    },
+                  ),
+                  GoRoute(
+                    path: 'add',
+                    pageBuilder: (context, state) => const NoTransitionPage<void>(
+                      child: BundleAddView(),
+                    ),
+                  ),
+                ],
               ),
               GoRoute(
-                path: 'product-list',
-                pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: BoardWriteView(),
-                ),
+                path: '/products',
+                redirect: (context, state) async {
+                  if (state.fullPath == '/products') {
+                    return 'products-list';
+                  }
+                  return null;
+                },
+                routes: [
+                  GoRoute(
+                    path: 'products-list',
+                    pageBuilder: (context, state) => const NoTransitionPage<void>(
+                      child: ProductsListView(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'info/:id',
+                    pageBuilder: (context, state) {
+                      final String id = state.pathParameters['id']!;
+                      final int productId = int.parse(id);
+                      return NoTransitionPage<void>(
+                        child: ProductInfoView(productId: productId),
+                      );
+                    },
+                  ),
+                  GoRoute(
+                    path: 'add',
+                    pageBuilder: (context, state) => const NoTransitionPage<void>(
+                      child: ProductAddView(),
+                    ),
+                  ),
+                ],
               ),
               GoRoute(
                 path: 'item-list',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: ItemListView(),
+                ),
+              ),
+              GoRoute(
+                path: 'items/add',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: ItemAddView(),
+                ),
+              ),
+              GoRoute(
+                path: 'item/info/:id',
                 pageBuilder: (context, state) {
                   final String id = state.pathParameters['id']!;
-                  final int boardId = int.parse(id);
+                  final int itemId = int.parse(id);
                   return NoTransitionPage<void>(
-                    child: BoardInfoView(boardId: boardId),
+                    child: ItemInfoView(itemId: itemId),
                   );
                 },
               ),
@@ -590,20 +652,57 @@ abstract class AcnooAppRoutes {
                 ),
               ),
               GoRoute(
-                path: 'item-unit/info/:id',
-                pageBuilder: (context, state) {
-                  final String id = state.pathParameters['id']!;
-                  final int unitId = int.parse(id);
-                  return NoTransitionPage<void>(
-                    child: ItemUnitInfoView(unitId: unitId),
-                  );
-                },
-              ),
-              GoRoute(
                 path: 'category-list',
                 pageBuilder: (context, state) => const NoTransitionPage<void>(
                   child: CategoryListView(),
                 ),
+              ),
+              GoRoute(
+                path: '/menus',
+                redirect: (context, state) async {
+                  if (state.fullPath == '/menus') {
+                    return '/menus/menu-list';
+                  }
+                  return null;
+                },
+                routes: [
+                  GoRoute(
+                    path: 'menu-list',
+                    pageBuilder: (context, state) => const NoTransitionPage<void>(
+                      child: AdminsListView(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'role-list',
+                    pageBuilder: (context, state) {
+                      final String id = state.pathParameters['id']!;
+                      final int adminId = int.parse(id);
+                      return NoTransitionPage<void>(
+                        child: AdminProfileView(adminId: adminId),
+                      );
+                    },
+                  ),
+                  GoRoute(
+                    path: 'privilege-list',
+                    pageBuilder: (context, state) {
+                      final String id = state.pathParameters['id']!;
+                      final int adminId = int.parse(id);
+                      return NoTransitionPage<void>(
+                        child: AdminProfileView(adminId: adminId),
+                      );
+                    },
+                  ),
+                  GoRoute(
+                    path: 'role-privilege-list',
+                    pageBuilder: (context, state) {
+                      final String id = state.pathParameters['id']!;
+                      final int adminId = int.parse(id);
+                      return NoTransitionPage<void>(
+                        child: AdminProfileView(adminId: adminId),
+                      );
+                    },
+                  ),
+                ],
               ),
             ],
           ),

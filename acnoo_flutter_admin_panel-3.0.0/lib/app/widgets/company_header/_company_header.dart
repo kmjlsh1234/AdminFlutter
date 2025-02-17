@@ -30,7 +30,7 @@ class CompanyHeaderWidget extends StatelessWidget {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
-        onTap: onTap ?? () => context.go('/dashboard/ecommerce-admin'),
+        onTap: onTap ?? () => context.go('/admins/admin-list'),
         child: Container(
           padding: const EdgeInsetsDirectional.all(16),
           height: rf.ResponsiveValue<double?>(

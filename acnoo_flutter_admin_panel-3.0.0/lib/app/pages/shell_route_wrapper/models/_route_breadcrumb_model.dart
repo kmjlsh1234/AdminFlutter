@@ -241,6 +241,12 @@ Map<String, RouteBreadcrumbModel> get routerParam {
       parentRoute: 'Application / Open AI',
       childRoute: 'AI Voiceover',
     ),
+    '/admins/admin-list': RouteBreadcrumbModel(
+      //title: 'Admins List',
+      title: l.S.current.adminsList,
+      parentRoute: 'Application / Admins',
+      childRoute: '',
+    ),
     '/users/user-list': RouteBreadcrumbModel(
       //title: 'Users List',
       title: l.S.current.usersList,

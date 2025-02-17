@@ -7,14 +7,14 @@ part of 'coin_record.dart';
 // **************************************************************************
 
 CoinRecord _$CoinRecordFromJson(Map<String, dynamic> json) => CoinRecord(
-      (json['id'] as num).toInt(),
-      (json['userId'] as num).toInt(),
-      json['changeType'] as String,
-      (json['changeCoin'] as num).toInt(),
-      (json['resultCoin'] as num).toInt(),
-      json['changeDesc'] as String,
-      json['idempotentKey'] as String,
-      json['createdAt'] as String,
+      id: (json['id'] as num).toInt(),
+      userId: (json['userId'] as num).toInt(),
+      changeType: json['changeType'] as String,
+      changeCoin: (json['changeCoin'] as num).toInt(),
+      resultCoin: (json['resultCoin'] as num).toInt(),
+      changeDesc: json['changeDesc'] as String,
+      idempotentKey: json['idempotentKey'] as String,
+      createdAt: DateTime.parse(json['createdAt'] as String),
     );
 
 Map<String, dynamic> _$CoinRecordToJson(CoinRecord instance) =>
@@ -22,9 +22,9 @@ Map<String, dynamic> _$CoinRecordToJson(CoinRecord instance) =>
       'id': instance.id,
       'userId': instance.userId,
       'changeType': instance.changeType,
-      'changeCoin': instance.changeCoin,
-      'resultCoin': instance.resultCoin,
       'changeDesc': instance.changeDesc,
       'idempotentKey': instance.idempotentKey,
-      'createdAt': instance.createdAt,
+      'createdAt': instance.createdAt.toIso8601String(),
+      'changeCoin': instance.changeCoin,
+      'resultCoin': instance.resultCoin,
     };

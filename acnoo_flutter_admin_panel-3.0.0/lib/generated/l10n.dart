@@ -350,6 +350,26 @@ class S {
     );
   }
 
+  /// `PeriodType`
+  String get periodType {
+    return Intl.message(
+      'PeriodType',
+      name: 'periodType',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `ProductType`
+  String get productType {
+    return Intl.message(
+      'ProductType',
+      name: 'productType',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `S M`
   String get sM {
     return Intl.message(
@@ -805,6 +825,54 @@ class S {
     return Intl.message(
       'Attributes',
       name: 'attributes',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `num`
+  String get num {
+    return Intl.message(
+      'Num',
+      name: 'num',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `StockQuantity`
+  String get stockQuantity {
+    return Intl.message(
+      'StockQuantity',
+      name: 'stockQuantity',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Count Per Person`
+  String get countPerPerson {
+    return Intl.message(
+      'Count Per Person',
+      name: 'countPerPerson',
+      desc: '',
+      args: [],
+    );
+  }
+
+  String get period {
+    return Intl.message(
+      'Period',
+      name: 'period',
+      desc: '',
+      args: [],
+    );
+  }
+
+  String get expiration {
+    return Intl.message(
+      'Expiration',
+      name: 'expiration',
       desc: '',
       args: [],
     );
@@ -2780,11 +2848,151 @@ class S {
     );
   }
 
+  /// `Add New Admin`
+  String get addNewAdmin {
+    return Intl.message(
+      'Add New Admin',
+      name: 'addNewAdmin',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add New Version`
+  String get addNewVersion {
+    return Intl.message(
+      'Add New Version',
+      name: 'addNewVersion',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add New Category`
+  String get addNewCategory {
+    return Intl.message(
+      'Add New Category',
+      name: 'addNewCategory',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add New ItemUnit`
+  String get addNewItemUnit {
+    return Intl.message(
+      'Add New ItemUnit',
+      name: 'addNewItemUnit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add New Item`
+  String get addNewItem {
+    return Intl.message(
+      'Add New Item',
+      name: 'addNewItem',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add New Product`
+  String get addNewProduct {
+    return Intl.message(
+      'Add New Product',
+      name: 'addNewProduct',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add New Product Option`
+  String get addNewProductOption {
+    return Intl.message(
+      'Add New Product Option',
+      name: 'addNewProductOption',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add New Bundle`
+  String get addNewBundle {
+    return Intl.message(
+      'Add New Bundle',
+      name: 'addNewBundle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add New Bundle Currency`
+  String get addNewBundleCurrency {
+    return Intl.message(
+      'Add New Bundle Currency',
+      name: 'addNewBundleCurrency',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add New Bundle Item`
+  String get addNewBundleItem {
+    return Intl.message(
+      'Add New Bundle Item',
+      name: 'addNewBundleItem',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Mod Admin`
   String get modAdmin {
     return Intl.message(
       'Mod Admin',
       name: 'modAdmin',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Mod ItemUnit`
+  String get modItemUnit {
+    return Intl.message(
+      'Mod ItemUnit',
+      name: 'modItemUnit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Mod Item`
+  String get modItem {
+    return Intl.message(
+      'Mod Item',
+      name: 'modItem',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Mod Product`
+  String get modProduct {
+    return Intl.message(
+      'Mod Product',
+      name: 'modProduct',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Mod Product Option`
+  String get modProductOption {
+    return Intl.message(
+      'Mod Product Option',
+      name: 'modProductOption',
       desc: '',
       args: [],
     );
@@ -2855,6 +3063,16 @@ class S {
     return Intl.message(
       'Edit',
       name: 'edit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Edit Status`
+  String get editStatus {
+    return Intl.message(
+      'Edit Status',
+      name: 'editStatus',
       desc: '',
       args: [],
     );
@@ -2965,6 +3183,16 @@ class S {
     return Intl.message(
       'Sku',
       name: 'sku',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `ItemUnitSku`
+  String get itemUnitSku {
+    return Intl.message(
+      'ItemUnitSku',
+      name: 'itemUnitSku',
       desc: '',
       args: [],
     );
@@ -3215,6 +3443,16 @@ class S {
     return Intl.message(
       'Form Dialog',
       name: 'formDialog',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `thumbnail`
+  String get thumbnail {
+    return Intl.message(
+      'Thumbnail',
+      name: 'thumbnail',
       desc: '',
       args: [],
     );
@@ -3845,6 +4083,16 @@ class S {
     return Intl.message(
       'Amount',
       name: 'amount',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Origin Amount`
+  String get originAmount {
+    return Intl.message(
+      'Origin Amount',
+      name: 'originAmount',
       desc: '',
       args: [],
     );
@@ -7760,6 +8008,17 @@ class S {
       args: [],
     );
   }
+
+  /// `Init At`
+  String get initAt {
+    return Intl.message(
+      'InitAt',
+      name: 'initAt',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Login At`
   String get loginAt {
     return Intl.message(
@@ -9835,6 +10094,16 @@ class S {
     );
   }
 
+  /// `Origin Price`
+  String get originPrice {
+    return Intl.message(
+      'Origin Price',
+      name: 'originPrice',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Quantity`
   String get quantity {
     return Intl.message(
@@ -10030,6 +10299,16 @@ class S {
     return Intl.message(
       'Product',
       name: 'product',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Product Option`
+  String get productOption {
+    return Intl.message(
+      'ProductOption',
+      name: 'productOption',
       desc: '',
       args: [],
     );
@@ -11065,6 +11344,46 @@ class S {
     );
   }
 
+  /// `Menu`
+  String get menu {
+    return Intl.message(
+      'Menu',
+      name: 'menu',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Role`
+  String get role {
+    return Intl.message(
+      'Role',
+      name: 'renu',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Previlege`
+  String get privilege {
+    return Intl.message(
+      'Privilege',
+      name: 'privilege',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `RolePrevilege`
+  String get rolePrivilege {
+    return Intl.message(
+      'RolePrivilege',
+      name: 'rolePrivilege',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Shop`
   String get shop {
     return Intl.message(
@@ -11085,11 +11404,31 @@ class S {
     );
   }
 
-  /// `product`
+  /// `Bundle`
   String get bundle {
     return Intl.message(
       'Bundle',
       name: 'bundle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Bundle Currency`
+  String get bundleCurrency {
+    return Intl.message(
+      'Bundle Currency',
+      name: 'bundleCurrency',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Bundle Item`
+  String get bundleItem {
+    return Intl.message(
+      'Bundle Item',
+      name: 'bundleItem',
       desc: '',
       args: [],
     );

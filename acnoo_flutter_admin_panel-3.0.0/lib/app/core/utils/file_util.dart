@@ -1,4 +1,5 @@
 import 'dart:developer';
+
 import 'package:acnoo_flutter_admin_panel/app/core/error/custom_exception.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -17,7 +18,7 @@ class FileUtil{
     throw CustomException(ErrorCode.FAIL_TO_CONVERT_FILE);
   }
 
-  //Blob URL을 Unit8List로 변환
+  //Blob URL을 Uint8List로 변환
   static Future<Uint8List> fetchBlobImage(String blobUrl) async {
     final response = await http.get(Uri.parse(blobUrl));
     if (response.statusCode == 200) {
