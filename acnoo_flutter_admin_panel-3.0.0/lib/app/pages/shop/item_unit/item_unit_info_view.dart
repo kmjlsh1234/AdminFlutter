@@ -18,6 +18,7 @@ import 'package:iconly/iconly.dart';
 import 'package:responsive_framework/responsive_framework.dart' as rf;
 import 'package:responsive_grid/responsive_grid.dart';
 
+import '../../../core/theme/_app_colors.dart';
 import '../../../models/shop/item_unit/item_unit.dart';
 import '../../../widgets/shadow_container/_shadow_container.dart';
 
@@ -124,11 +125,39 @@ class _ItemUnitInfoViewState extends State<ItemUnitInfoView> {
               ],
             ),
           ),
+          const SizedBox(height: 16),
+          Container(
+            color: theme.colorScheme.primaryContainer,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                modAdminButton(textTheme),
+              ],
+            ),
+          )
         ],
       ),
     );
   }
 
+  ElevatedButton modAdminButton(TextTheme textTheme) {
+    final lang = l.S.of(context);
+    return ElevatedButton.icon(
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.fromLTRB(14, 8, 14, 8),
+      ),
+      onPressed: () {
+        //showFormDialog(context);
+      },
+      label: Text(
+        lang.modAdmin,
+        style: textTheme.bodySmall?.copyWith(
+          color: AcnooAppColors.kWhiteColor,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
 
   Widget _buildDivider(ThemeData theme) {
     return Divider(
@@ -139,7 +168,7 @@ class _ItemUnitInfoViewState extends State<ItemUnitInfoView> {
   Widget buildProfileDetailRow(
       String label, String? value, TextTheme textTheme) {
     return Padding(
-      padding: EdgeInsets.all(16),
+      padding: EdgeInsets.all(5),
       child: Row(
         children: [
           Expanded(

@@ -264,6 +264,13 @@ List<GroupedMenuModel> get _groupedMenus {
           ],
         ),
         SidebarItemModel(
+          // name: 'Admins',
+          name: l.S.current.admins,
+          iconPath: 'assets/images/sidebar_icons/users-group.svg',
+          navigationPath: '/admins',
+        ),
+        /*
+        SidebarItemModel(
           //name: 'Admins',
           name: l.S.current.admins,
           iconPath: 'assets/images/sidebar_icons/users-group.svg',
@@ -275,18 +282,9 @@ List<GroupedMenuModel> get _groupedMenus {
               name: l.S.current.adminsList,
               navigationPath: "admin-list",
             ),
-            SidebarSubmenuModel(
-              //name: "Users Grid",
-              name: l.S.current.usersGrid,
-              navigationPath: "user-grid",
-            ),
-            SidebarSubmenuModel(
-              //name: "User Profile",
-              name: l.S.current.userProfile,
-              navigationPath: "user-profile",
-            ),
           ],
         ),
+        */
         SidebarItemModel(
           //name: 'Users',
           name: l.S.current.users,
@@ -348,7 +346,7 @@ List<GroupedMenuModel> get _groupedMenus {
             SidebarSubmenuModel(
               //name: "itemUnit",
               name: l.S.current.itemUnit,
-              navigationPath: "item-Unit-list",
+              navigationPath: "item-unit-list",
             ),
             SidebarSubmenuModel(
               //name: "category",

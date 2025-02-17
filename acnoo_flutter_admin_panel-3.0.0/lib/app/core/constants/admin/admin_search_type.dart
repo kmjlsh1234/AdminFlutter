@@ -4,7 +4,7 @@ enum AdminSearchType{
   NAME("NAME"),
   MOBILE("MOBILE"),
   ;
-  const AdminSearchType(this.searchType);
+  const AdminSearchType(this.value);
 
-  final String searchType;
+  final String value;
 }

@@ -3,119 +3,109 @@ import 'dart:ui';
 
 // 🐦 Flutter imports:
 import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
-import 'package:acnoo_flutter_admin_panel/app/core/service/admin/admin_manage_service.dart';
-import 'package:acnoo_flutter_admin_panel/app/models/admin/admin_mod_status_param.dart';
-import 'package:acnoo_flutter_admin_panel/app/pages/admin_manage_page/admin_mod_status_popup.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
 // 📦 Package imports:
 import 'package:iconly/iconly.dart';
 import 'package:responsive_framework/responsive_framework.dart' as rf;
 
 // 🌎 Project imports:
 import '../../../../generated/l10n.dart' as l;
-import '../../core/constants/admin/admin_search_type.dart';
-import '../../core/helpers/field_styles/_dropdown_styles.dart';
-import '../../core/theme/_app_colors.dart';
-import '../../core/utils/size_config.dart';
-import '../../models/admin/admin.dart';
-import '../../models/admin/admin_search_param.dart';
-import '../../widgets/pagination_widgets/_pagination_widget.dart';
-import '../../widgets/shadow_container/_shadow_container.dart';
-import 'admin_add_popup.dart';
+import '../../../core/constants/shop/item/item_search_type.dart';
+import '../../../core/constants/shop/item_unit/item_unit_type.dart';
+import '../../../core/helpers/field_styles/_dropdown_styles.dart';
+import '../../../core/service/shop/item/item_service.dart';
+import '../../../core/theme/_app_colors.dart';
+import '../../../models/shop/item/item.dart';
+import '../../../models/shop/item/item_search_param.dart';
+import '../../../widgets/pagination_widgets/_pagination_widget.dart';
+import '../../../widgets/shadow_container/_shadow_container.dart';
+import '../item_unit/add_item_unit_popup.dart';
+import 'add_item_popup.dart';
 
-class AdminsListView extends StatefulWidget {
-  const AdminsListView({super.key});
+class ItemListView extends StatefulWidget {
+  const ItemListView({super.key});
 
   @override
-  State<AdminsListView> createState() => _AdminsListViewState();
+  State<ItemListView> createState() => _ItemListViewState();
 }
 
-class _AdminsListViewState extends State<AdminsListView> {
-  final ScrollController scrollController = ScrollController();
-  final AdminManageService adminManageService = AdminManageService();
-  List<Admin> adminList = [];
-
-  //Paging_Property
+class _ItemListViewState extends State<ItemListView> {
+  ///_____________________________________________________________________Variables_______________________________
+  final ItemService itemService = ItemService();
+  late List<Item> itemList = [];
+  final ScrollController _scrollController = ScrollController();
   int currentPage = 0;
-  int rowsPerPage = 10;
+  int _rowsPerPage = 10;
   int totalPage = 0;
 
-  //Search_Property
-  String? searchType;
-  String? searchValue;
-
+  ItemSearchType searchType = ItemSearchType.NONE;
+  String searchQuery = '';
   bool isLoading = true;
-
-  //유저 리스트 조회
-  Future<void> getAdminList(BuildContext context) async {
-    List<Admin> list = [];
-    try {
-      setState(() => isLoading = true);
-      AdminSearchParam adminSearchParam = AdminSearchParam(searchType, searchValue, currentPage + 1, rowsPerPage);
-      list = await adminManageService.getAdminList(adminSearchParam);
-    } catch (e) {
-      ErrorHandler.handleError(e, context);
-    }
-    setState(() {
-      adminList = list;
-      isLoading = false;
-    });
-  }
-
-  //유저 리스트 갯수 조회
-  Future<void> getAdminListCount(BuildContext context) async {
-    int count = 0;
-    try {
-      setState(() => isLoading = true);
-      AdminSearchParam adminSearchParam = AdminSearchParam(searchType, searchValue, currentPage + 1, rowsPerPage);
-      count = await adminManageService.getAdminListCount(adminSearchParam);
-    } catch (e) {
-      ErrorHandler.handleError(e, context);
-    }
-    setState(() {
-      totalPage = (count / rowsPerPage).ceil();
-      isLoading = false;
-    });
-  }
 
   @override
   void initState() {
     super.initState();
-    getAdminList(context);
-    getAdminListCount(context);
+    getItemList(context);
+    getItemListCount(context);
   }
 
   @override
   void dispose() {
-    scrollController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
-  ///_____________________________________________________________________Add_User_____________________________
-  void showAddFormDialog(BuildContext context) async {
-    bool isUserAdd = await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return BackdropFilter(
-            filter: ImageFilter.blur(
-              sigmaX: 5,
-              sigmaY: 5,
-            ),
-            child: const AddAdminDialog());
-      },
-    );
+  ///_____________________________________________________________________api Functions__________________________________
 
-    if(isUserAdd){
-      getAdminList(context);
-      getAdminListCount(context);
+  //아이템 리스트 조회
+  Future<void> getItemList(BuildContext context) async {
+    List<Item> list = [];
+    try {
+      setState(() => isLoading = true);
+      ItemSearchParam itemSearchParam = ItemSearchParam(
+          null,
+          null,
+          null,
+          currentPage + 1,
+          _rowsPerPage
+      );
+      list = await itemService.getItemList(itemSearchParam);
+    } catch (e) {
+      ErrorHandler.handleError(e, context);
     }
+    setState(() {
+      itemList = list;
+      isLoading = false;
+    });
   }
 
-  void showModStatusFormDialog(BuildContext context, Admin admin) async {
-    bool isModStatus = await showDialog(
+  //아이템 리스트 갯수 조회
+  Future<void> getItemListCount(BuildContext context) async {
+    int count = 0;
+    try {
+      setState(() => isLoading = true);
+      ItemSearchParam itemSearchParam = ItemSearchParam(
+          null,
+          null,
+          null,
+          currentPage + 1,
+          _rowsPerPage
+      );
+      count = await itemService.getItemListCount(itemSearchParam);
+    } catch (e) {
+      ErrorHandler.handleError(e, context);
+    }
+    setState(() {
+      totalPage = (count / _rowsPerPage).ceil();
+      isLoading = false;
+    });
+  }
+
+  ///_____________________________________________________________________Add_Item_____________________________
+  void showAddFormDialog(BuildContext context) async {
+    bool isItemAdd = await showDialog(
       context: context,
       builder: (BuildContext context) {
         return BackdropFilter(
@@ -123,19 +113,52 @@ class _AdminsListViewState extends State<AdminsListView> {
               sigmaX: 5,
               sigmaY: 5,
             ),
-            child: AdminModStatusDialog(admin: admin));
+            child: const AddItemDialog());
       },
     );
 
-    if(isModStatus){
-      getAdminList(context);
-      getAdminListCount(context);
+    if(isItemAdd){
+      getItemList(context);
+      getItemListCount(context);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final _sizeInfo = SizeConfig.getSizeInfo(context);
+    final _sizeInfo = rf.ResponsiveValue<_SizeInfo>(
+      context,
+      conditionalValues: [
+        const rf.Condition.between(
+          start: 0,
+          end: 480,
+          value: _SizeInfo(
+            alertFontSize: 12,
+            padding: EdgeInsets.all(16),
+            innerSpacing: 16,
+          ),
+        ),
+        const rf.Condition.between(
+          start: 481,
+          end: 576,
+          value: _SizeInfo(
+            alertFontSize: 14,
+            padding: EdgeInsets.all(16),
+            innerSpacing: 16,
+          ),
+        ),
+        const rf.Condition.between(
+          start: 577,
+          end: 992,
+          value: _SizeInfo(
+            alertFontSize: 14,
+            padding: EdgeInsets.all(16),
+            innerSpacing: 16,
+          ),
+        ),
+      ],
+      defaultValue: const _SizeInfo(),
+    ).value;
+
     TextTheme textTheme = Theme.of(context).textTheme;
     final theme = Theme.of(context);
 
@@ -175,14 +198,46 @@ class _AdminsListViewState extends State<AdminsListView> {
                             child: searchFormField(textTheme: textTheme),
                           ),
                           Spacer(flex: isTablet || isMobile ? 1 : 2),
-                          addUserButton(textTheme),
+                          addItemButton(textTheme),
                         ],
                       ),
                     ),
 
                     //______________________________________________________________________Data_table__________________
-                    SingleChildScrollView(
-                            controller: scrollController,
+                    isMobile || isTablet
+                        ? RawScrollbar(
+                            padding: const EdgeInsets.only(left: 18),
+                            trackBorderColor: theme.colorScheme.surface,
+                            trackVisibility: true,
+                            scrollbarOrientation: ScrollbarOrientation.bottom,
+                            controller: _scrollController,
+                            thumbVisibility: true,
+                            thickness: 8.0,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SingleChildScrollView(
+                                  controller: _scrollController,
+                                  scrollDirection: Axis.horizontal,
+                                  child: ConstrainedBox(
+                                    constraints: BoxConstraints(
+                                      minWidth: constraints.maxWidth,
+                                    ),
+                                    child: userListDataTable(context),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: _sizeInfo.padding,
+                                  child: Text(
+                                    '${l.S.of(context).showing} ${currentPage * _rowsPerPage + 1} ${l.S.of(context).to} ${currentPage * _rowsPerPage + itemList.length} ${l.S.of(context).OF} ${itemList.length} ${l.S.of(context).entries}',
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        : SingleChildScrollView(
+                            controller: _scrollController,
                             scrollDirection: Axis.horizontal,
                             child: ConstrainedBox(
                               constraints: BoxConstraints(
@@ -195,7 +250,9 @@ class _AdminsListViewState extends State<AdminsListView> {
                           ),
 
                     //______________________________________________________________________footer__________________
-                    Padding(
+                    isTablet || isMobile
+                        ? const SizedBox.shrink()
+                        : Padding(
                             padding: _sizeInfo.padding,
                             child: paginatedSection(theme, textTheme),
                           ),
@@ -209,8 +266,8 @@ class _AdminsListViewState extends State<AdminsListView> {
     );
   }
 
-  ///_____________________________________________________________________add_user_button___________________________
-  ElevatedButton addUserButton(TextTheme textTheme) {
+  ///_____________________________________________________________________add_Item_button___________________________
+  ElevatedButton addItemButton(TextTheme textTheme) {
     final lang = l.S.of(context);
     return ElevatedButton.icon(
       style: ElevatedButton.styleFrom(
@@ -222,7 +279,8 @@ class _AdminsListViewState extends State<AdminsListView> {
         });
       },
       label: Text(
-        lang.addNewAdmin,
+        lang.addNewUser,
+        //'Add New User',
         style: textTheme.bodySmall?.copyWith(
           color: AcnooAppColors.kWhiteColor,
           fontWeight: FontWeight.bold,
@@ -238,20 +296,33 @@ class _AdminsListViewState extends State<AdminsListView> {
   }
 
   ///_____________________________________________________________________pagination_functions_______________________
+  int get _totalPages => (itemList.length / _rowsPerPage).ceil();
+
+  ///_____________________________________select_dropdown_val_________
+  void _setRowsPerPage(int value) {
+    setState(() {
+      _rowsPerPage = value;
+      currentPage = 0;
+    });
+  }
 
   ///_____________________________________go_next_page________________
-  void goToNextPage() {
-    if (currentPage < totalPage - 1) {
-      currentPage++;
-      getAdminList(context);
+  void _goToNextPage() {
+    if (currentPage < _totalPages - 1) {
+      setState(() {
+        currentPage++;
+        getItemList(context);
+      });
     }
   }
 
   ///_____________________________________go_previous_page____________
-  void goToPreviousPage() {
+  void _goToPreviousPage() {
     if (currentPage > 0) {
-      currentPage--;
-      getAdminList(context);
+      setState(() {
+        currentPage--;
+        getItemList(context);
+      });
     }
   }
 
@@ -263,15 +334,15 @@ class _AdminsListViewState extends State<AdminsListView> {
       children: [
         Expanded(
           child: Text(
-            '${l.S.of(context).showing} ${currentPage * rowsPerPage + 1} ${l.S.of(context).to} ${currentPage * rowsPerPage + adminList.length} ${l.S.of(context).OF} ${adminList.length} ${l.S.of(context).entries}',
+            '${l.S.of(context).showing} ${currentPage * _rowsPerPage + 1} ${l.S.of(context).to} ${currentPage * _rowsPerPage + itemList.length} ${l.S.of(context).OF} ${itemList.length} ${l.S.of(context).entries}',
             overflow: TextOverflow.ellipsis,
           ),
         ),
         DataTablePaginator(
           currentPage: currentPage + 1,
-          totalPages: totalPage,
-          onPreviousTap: goToPreviousPage,
-          onNextTap: goToNextPage,
+          totalPages: _totalPages,
+          onPreviousTap: _goToPreviousPage,
+          onNextTap: _goToNextPage,
         )
       ],
     );
@@ -293,27 +364,29 @@ class _AdminsListViewState extends State<AdminsListView> {
               borderRadius: BorderRadius.circular(6.0),
             ),
             child: ElevatedButton(
-              onPressed: () => {
-                getAdminList(context),
-                getAdminListCount(context)
-              },
+              onPressed: () => getItemList(context),
               child: const Icon(IconlyLight.search,
                   color: AcnooAppColors.kWhiteColor),
             )),
       ),
       onChanged: (value) {
-        searchValue = value;
+        searchQuery = value;
       },
     );
   }
 
   ///_______________________________________________________________DropDownList___________________________________
-  Container showingSearchTypeDropDown({required bool isTablet, required bool isMobile, required TextTheme textTheme}) {
+  Container showingSearchTypeDropDown(
+      {required bool isTablet,
+      required bool isMobile,
+      required TextTheme textTheme}) {
     final _dropdownStyle = AcnooDropdownStyle(context);
+    //final theme = Theme.of(context);
+    final lang = l.S.of(context);
     return Container(
       constraints: const BoxConstraints(maxWidth: 100, minWidth: 100),
-      child: DropdownButtonFormField2<String>(
-        hint: Text('검색 조건'),
+      child: DropdownButtonFormField2<ItemSearchType>(
+        hint: Text('SearchType'),
         style: _dropdownStyle.textStyle,
         iconStyleData: _dropdownStyle.iconStyle,
         buttonStyleData: _dropdownStyle.buttonStyle,
@@ -321,9 +394,9 @@ class _AdminsListViewState extends State<AdminsListView> {
         menuItemStyleData: _dropdownStyle.menuItemStyle,
         isExpanded: true,
         value: searchType,
-        items: AdminSearchType.values.map((AdminSearchType searchType) {
-          return DropdownMenuItem<String>(
-            value: searchType.value,
+        items: ItemSearchType.values.map((ItemSearchType searchType) {
+          return DropdownMenuItem<ItemSearchType>(
+            value: searchType,
             child: Text(
               searchType.value,
               style: textTheme.bodySmall,
@@ -332,7 +405,7 @@ class _AdminsListViewState extends State<AdminsListView> {
         }).toList(),
         onChanged: (value) {
           if (value != null) {
-            searchType = (value == AdminSearchType.NONE.value) ? "" : value;
+            searchType = value;
           }
         },
       ),
@@ -358,45 +431,28 @@ class _AdminsListViewState extends State<AdminsListView> {
         showBottomBorder: true,
         columns: [
           DataColumn(label: Text(lang.serial)),
-          DataColumn(label: Text(lang.registeredOn)),
-          DataColumn(label: Text(lang.userName)),
-          DataColumn(label: Text(lang.email)),
-          DataColumn(label: Text(lang.phone)),
-          DataColumn(label: Text(lang.position)),
-          DataColumn(label: Text(lang.status)),
+          DataColumn(label: Text(lang.category)),
+          DataColumn(label: Text(lang.itemUnit)),
+          DataColumn(label: Text(lang.sku)),
+          DataColumn(label: Text(lang.name)),
+          DataColumn(label: Text(lang.type)),
+          DataColumn(label: Text(lang.createdAt)),
+          DataColumn(label: Text(lang.updatedAt)),
           DataColumn(label: Text(lang.actions)),
         ],
-        rows: adminList.map(
+        rows: itemList.map(
           (data) {
             return DataRow(
               color: WidgetStateColor.transparent,
               cells: [
-                DataCell(Text(data.adminId.toString())),
-                DataCell(Text(data.createdAt)),
-                ///////////////////////-----------------------------나중에 Text(DateFormat('d MMM yyyy').format(data.createdAt))이렇게 바꾸기),
+                DataCell(Text(data.id.toString())),
+                DataCell(Text(data.categoryId.toString())),
+                DataCell(Text(data.itemUnitId.toString())),
+                DataCell(Text(data.sku)),
                 DataCell(Text(data.name)),
-                DataCell(Text(data.email)),
-                DataCell(Text(data.mobile)),
-                DataCell(Text(data.roleId.toString())),
-                DataCell(
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: data.status == 'Active'
-                          ? AcnooAppColors.kSuccess.withOpacity(0.2)
-                          : AcnooAppColors.kError.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(16.0),
-                    ),
-                    child: Text(
-                      data.status,
-                      style: textTheme.bodySmall?.copyWith(
-                          color: data.status == 'Active'
-                              ? AcnooAppColors.kSuccess
-                              : AcnooAppColors.kError),
-                    ),
-                  ),
-                ),
+                DataCell(Text(data.currencyType)),
+                DataCell(Text(data.createdAt.toString())),
+                DataCell(Text(data.updatedAt.toString())),
                 DataCell(
                   PopupMenuButton<String>(
                     iconColor: theme.colorScheme.onTertiary,
@@ -404,13 +460,16 @@ class _AdminsListViewState extends State<AdminsListView> {
                     onSelected: (action) {
                       switch (action) {
                         case 'Edit':
-                          showModStatusFormDialog(context,data);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text('${lang.edit} ${data.name}')),
+                          );
                           break;
                         case 'View':
-                          GoRouter.of(context).go('/admins/info/${data.adminId}');
+                          GoRouter.of(context).go('/shops/item/info/${data.id}');
                           break;
                         case 'Delete':
-                          setState(() {});
+
                           break;
                       }
                     },
@@ -449,5 +508,14 @@ class _AdminsListViewState extends State<AdminsListView> {
   }
 }
 
+class _SizeInfo {
+  final double? alertFontSize;
+  final EdgeInsetsGeometry padding;
+  final double innerSpacing;
 
-
+  const _SizeInfo({
+    this.alertFontSize = 18,
+    this.padding = const EdgeInsets.all(24),
+    this.innerSpacing = 24,
+  });
+}

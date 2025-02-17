@@ -18,7 +18,6 @@ import '../../core/error/error_code.dart';
 import '../../core/error/error_handler.dart';
 import '../../core/helpers/fuctions/helper_functions.dart';
 import '../../core/static/static.dart';
-import '../../core/error/error_dialog.dart';
 import '../../widgets/widgets.dart';
 
 class SignupView extends StatefulWidget {

@@ -1,68 +1,45 @@
-// 🐦 Flutter imports:
-import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
-import 'package:acnoo_flutter_admin_panel/app/core/service/admin/admin_manage_service.dart';
-import 'package:acnoo_flutter_admin_panel/app/models/admin/admin_add_param.dart';
+import 'package:acnoo_flutter_admin_panel/app/models/admin/admin_mod_status_param.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-
-// 📦 Package imports:
+import '../../../../generated/l10n.dart' as l;
 import 'package:responsive_framework/responsive_framework.dart' as rf;
 
-// 🌎 Project imports:
-import '../../../../generated/l10n.dart' as l;
+import '../../core/constants/admin/admin_status.dart';
+import '../../core/error/error_handler.dart';
+import '../../core/service/admin/admin_manage_service.dart';
 import '../../core/theme/_app_colors.dart';
 import '../../models/admin/admin.dart';
+import '../../models/admin/admin_mod_param.dart';
 
-class AddAdminDialog extends StatefulWidget {
-  const AddAdminDialog({super.key});
-
+class AdminModStatusDialog extends StatefulWidget {
+  const AdminModStatusDialog({super.key, required this.admin});
+  final Admin admin;
   @override
-  State<AddAdminDialog> createState() => _AddAdminDialogState();
+  State<AdminModStatusDialog> createState() => _AdminModStatusDialogState();
 }
 
-class _AddAdminDialogState extends State<AddAdminDialog> {
-  String? _selectedPosition;
-
-  List<String> get _positions => [
-        //'Manager',
-        l.S.current.manager,
-        //'Developer',
-        l.S.current.developer,
-        //'Designer',
-        l.S.current.designer,
-        //'Tester'
-        l.S.current.tester,
-      ];
-
+class _AdminModStatusDialogState extends State<AdminModStatusDialog> {
+  String adminStatus = "";
+  List<String> get _status => AdminStatus.values.map((e) => e.adminStatus).toList();
   final AdminManageService adminManageService = AdminManageService();
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final TextEditingController mobileController = TextEditingController();
 
-  //관리자 추가
-  Future<void> addAdmin(BuildContext context) async {
+  //관리자 상태 변경
+  Future<void> modAdminStatus(BuildContext context) async {
     try {
-      AdminAddParam adminAddParam = AdminAddParam(
-          roleId: 1,
-          name: nameController.text,
-          email: emailController.text,
-          password: passwordController.text,
-          mobile: mobileController.text);
-      Admin admin = await adminManageService.addAdmin(adminAddParam);
-      showAddAdminSuccessDialog(context);
+      AdminModStatusParam adminModStatusParam = AdminModStatusParam(adminStatus);
+      bool isSuccess = await adminManageService.modAdminStatus(widget.admin.adminId, adminModStatusParam);
+      showSuccessDialog(context);
     } catch (e) {
       ErrorHandler.handleError(e, context);
     }
   }
 
-  void showAddAdminSuccessDialog(BuildContext context) {
+  void showSuccessDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(''),
-          content: Text('관리자 추가 성공'),
+          content: Text('관리자 상태 변경 성공'),
           actions: [
             TextButton(
               onPressed: () {
@@ -75,6 +52,12 @@ class _AddAdminDialogState extends State<AddAdminDialog> {
         );
       },
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    adminStatus = widget.admin.status;
   }
 
   @override
@@ -159,86 +142,28 @@ class _AddAdminDialogState extends State<AddAdminDialog> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ///---------------- Text Field section
-                    Text(lang.fullName, style: textTheme.bodySmall),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: nameController,
-                      decoration: InputDecoration(
-                          hintText: lang.enterYourFullName,
-                          hintStyle: textTheme.bodySmall),
-                      validator: (value) => value?.isEmpty ?? true
-                          ? lang.pleaseEnterYourFullName
-                          : null,
-                    ),
-                    const SizedBox(height: 20),
-                    Text(lang.email, style: textTheme.bodySmall),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: emailController,
-                      decoration: InputDecoration(
-                          //hintText: 'Enter Your Email',
-                          hintText: lang.enterYourEmail,
-                          hintStyle: textTheme.bodySmall),
-                      keyboardType: TextInputType.emailAddress,
-                      validator: (value) => value?.isEmpty ?? true
-                          //? 'Please enter your email'
-                          ? lang.pleaseEnterYourEmail
-                          : null,
-                    ),
-                    const SizedBox(height: 20),
-                    Text(lang.password, style: textTheme.bodySmall),
-                    const SizedBox(height: 20),
-                    TextFormField(
-                      controller: passwordController,
-                      decoration: InputDecoration(
-                          //hintText: 'Enter Your Password',
-                          hintText: lang.enterYourPassword,
-                          hintStyle: textTheme.bodySmall),
-                      keyboardType: TextInputType.visiblePassword,
-                      validator: (value) => value?.isEmpty ?? true
-                          //? 'Please enter your email'
-                          ? lang.pleaseEnterYourPassword
-                          : null,
-                    ),
-                    const SizedBox(height: 20),
-                    Text(lang.phoneNumber, style: textTheme.bodySmall),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: mobileController,
-                      decoration: InputDecoration(
-                          // hintText: 'Enter Your Phone Number',
-                          hintText: lang.enterYourPhoneNumber,
-                          hintStyle: textTheme.bodySmall),
-                      keyboardType: TextInputType.phone,
-                      validator: (value) => value?.isEmpty ?? true
-                          //? 'Please enter your phone number'
-                          ? lang.pleaseEnterYourPhoneNumber
-                          : null,
-                    ),
-                    const SizedBox(height: 20),
-                    Text(lang.position, style: textTheme.bodySmall),
+                    Text(lang.status, style: textTheme.bodySmall),
                     const SizedBox(height: 8),
                     DropdownButtonFormField<String>(
                       dropdownColor: theme.colorScheme.primaryContainer,
-                      value: _selectedPosition,
+                      value: adminStatus,
                       hint: Text(
-                        lang.selectPosition,
-                        //'Select Position',
+                        lang.selectYouStatus,
                         style: textTheme.bodySmall,
                       ),
-                      items: _positions.map((position) {
+                      items: _status.map((status) {
                         return DropdownMenuItem<String>(
-                          value: position,
-                          child: Text(position),
+                          value: status,
+                          child: Text(status),
                         );
                       }).toList(),
                       onChanged: (value) {
                         setState(() {
-                          _selectedPosition = value;
+                          adminStatus = value??"NORMAL";
                         });
                       },
                       validator: (value) =>
-                          value == null ? lang.pleaseSelectAPosition : null,
+                      value == null ? lang.pleaseSelectAPosition : null,
                     ),
                     const SizedBox(height: 24),
 
@@ -254,7 +179,7 @@ class _AddAdminDialogState extends State<AddAdminDialog> {
                                 padding: EdgeInsets.symmetric(
                                     horizontal: _sizeInfo.innerSpacing),
                                 backgroundColor:
-                                    theme.colorScheme.primaryContainer,
+                                theme.colorScheme.primaryContainer,
                                 textStyle: textTheme.bodySmall
                                     ?.copyWith(color: AcnooAppColors.kError),
                                 side: const BorderSide(
@@ -273,7 +198,7 @@ class _AddAdminDialogState extends State<AddAdminDialog> {
                               padding: EdgeInsets.symmetric(
                                   horizontal: _sizeInfo.innerSpacing),
                             ),
-                            onPressed: () => addAdmin(context),
+                            onPressed: () => modAdminStatus(context),
                             //label: const Text('Save'),
                             label: Text(lang.save),
                           )

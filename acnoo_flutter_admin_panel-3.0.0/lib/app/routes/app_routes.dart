@@ -14,6 +14,7 @@ import '../pages/board_page/board_info_view.dart';
 import '../pages/board_page/board_list_view.dart';
 import '../pages/pages.dart';
 import '../pages/shop/category/category_list_view.dart';
+import '../pages/shop/item/item_list_view.dart';
 import '../pages/shop/item_unit/item_unit_info_view.dart';
 import '../pages/user_manage_page/user_currency_record_view.dart';
 import '../pages/user_manage_page/user_currency_view.dart';
@@ -427,18 +428,6 @@ abstract class AcnooAppRoutes {
                   );
                 },
               ),
-              GoRoute(
-                path: 'user-grid',
-                pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: UsersGridView(),
-                ),
-              ),
-              GoRoute(
-                path: 'user-profile',
-                pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: UserProfileView(),
-                ),
-              ),
             ],
           ),
           // Users Route
@@ -575,11 +564,17 @@ abstract class AcnooAppRoutes {
               ),
               GoRoute(
                 path: 'item-list',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: ItemListView(),
+                ),
+              ),
+              GoRoute(
+                path: 'item/info/:id',
                 pageBuilder: (context, state) {
                   final String id = state.pathParameters['id']!;
-                  final int boardId = int.parse(id);
+                  final int unitId = int.parse(id);
                   return NoTransitionPage<void>(
-                    child: BoardInfoView(boardId: boardId),
+                    child: ItemUnitInfoView(unitId: unitId),
                   );
                 },
               ),

@@ -134,6 +134,32 @@ class _AdminManageClient implements AdminManageClient {
   }
 
   @override
+  Future<HttpResponse<dynamic>> modAdminStatus(
+    int adminId,
+    AdminModStatusParam adminModStatusParam,
+  ) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(adminModStatusParam.toJson());
+    final _options = _setStreamType<HttpResponse<dynamic>>(
+      Options(method: 'PUT', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/admin/v1/admins/${adminId}/status',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch(_options);
+    final _value = _result.data;
+    final httpResponse = HttpResponse(_value, _result);
+    return httpResponse;
+  }
+
+  @override
   Future<Admin> getAdmin(int adminId) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};

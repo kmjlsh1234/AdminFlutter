@@ -16,6 +16,11 @@ class CategoryService{
     return await client.getCategory(categoryId);
   }
 
+  //카테고리 목록 모두 조회
+  Future<List<Category>> getAllCategoryList() async {
+    return await client.getAllCategoryList();
+  }
+
   //카테고리 목록 조회
   Future<List<Category>> getCategoryList(PagingParam pagingParam) async {
     return await client.getCategoryList(pagingParam);

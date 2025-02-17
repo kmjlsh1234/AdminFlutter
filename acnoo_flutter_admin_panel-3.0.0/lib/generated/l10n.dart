@@ -350,6 +350,16 @@ class S {
     );
   }
 
+  /// `PeriodType`
+  String get periodType {
+    return Intl.message(
+      'PeriodType',
+      name: 'periodType',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `S M`
   String get sM {
     return Intl.message(
@@ -805,6 +815,44 @@ class S {
     return Intl.message(
       'Attributes',
       name: 'attributes',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `num`
+  String get num {
+    return Intl.message(
+      'Num',
+      name: 'num',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `StockQuantity`
+  String get stockQuantity {
+    return Intl.message(
+      'StockQuantity',
+      name: 'stockQuantity',
+      desc: '',
+      args: [],
+    );
+  }
+
+  String get period {
+    return Intl.message(
+      'Period',
+      name: 'period',
+      desc: '',
+      args: [],
+    );
+  }
+
+  String get expiration {
+    return Intl.message(
+      'Expiration',
+      name: 'expiration',
       desc: '',
       args: [],
     );
@@ -2780,6 +2828,16 @@ class S {
     );
   }
 
+  /// `Add New Admin`
+  String get addNewAdmin {
+    return Intl.message(
+      'Add New Admin',
+      name: 'addNewAdmin',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Mod Admin`
   String get modAdmin {
     return Intl.message(
@@ -2965,6 +3023,16 @@ class S {
     return Intl.message(
       'Sku',
       name: 'sku',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `ItemUnitSku`
+  String get itemUnitSku {
+    return Intl.message(
+      'ItemUnitSku',
+      name: 'itemUnitSku',
       desc: '',
       args: [],
     );
@@ -3215,6 +3283,16 @@ class S {
     return Intl.message(
       'Form Dialog',
       name: 'formDialog',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `thumbnail`
+  String get thumbnail {
+    return Intl.message(
+      'Thumbnail',
+      name: 'thumbnail',
       desc: '',
       args: [],
     );

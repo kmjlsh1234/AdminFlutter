@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'category_client.dart';
+part of 'item_client.dart';
 
 // **************************************************************************
 // RetrofitGenerator
@@ -8,8 +8,8 @@ part of 'category_client.dart';
 
 // ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers,unused_element,unnecessary_string_interpolations
 
-class _CategoryClient implements CategoryClient {
-  _CategoryClient(this._dio, {this.baseUrl, this.errorLogger}) {
+class _ItemClient implements ItemClient {
+  _ItemClient(this._dio, {this.baseUrl, this.errorLogger}) {
     baseUrl ??= 'http://localhost:38084';
   }
 
@@ -20,25 +20,25 @@ class _CategoryClient implements CategoryClient {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<Category> getCategory(int categoryId) async {
+  Future<Item> getItem(int itemId) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<Category>(
+    final _options = _setStreamType<Item>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/admin/v1/categories/${categoryId}',
+            '/admin/v1/items/${itemId}',
             queryParameters: queryParameters,
             data: _data,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Category _value;
+    late Item _value;
     try {
-      _value = Category.fromJson(_result.data!);
+      _value = Item.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
@@ -47,27 +47,27 @@ class _CategoryClient implements CategoryClient {
   }
 
   @override
-  Future<List<Category>> getCategoryList(PagingParam pagingParam) async {
+  Future<List<Item>> getItemList(ItemSearchParam itemSearchParam) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
-    _data.addAll(pagingParam.toJson());
-    final _options = _setStreamType<List<Category>>(
+    _data.addAll(itemSearchParam.toJson());
+    final _options = _setStreamType<List<Item>>(
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/admin/v1/categories/list',
+            '/admin/v1/items/list',
             queryParameters: queryParameters,
             data: _data,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<List<dynamic>>(_options);
-    late List<Category> _value;
+    late List<Item> _value;
     try {
       _value = _result.data!
-          .map((dynamic i) => Category.fromJson(i as Map<String, dynamic>))
+          .map((dynamic i) => Item.fromJson(i as Map<String, dynamic>))
           .toList();
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
@@ -77,45 +77,17 @@ class _CategoryClient implements CategoryClient {
   }
 
   @override
-  Future<List<Category>> getAllCategoryList() async {
+  Future<CountVo> getItemListCount(ItemSearchParam itemSearchParam) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<List<Category>>(
-      Options(method: 'GET', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/admin/v1/categories/list/all',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<List<dynamic>>(_options);
-    late List<Category> _value;
-    try {
-      _value = _result.data!
-          .map((dynamic i) => Category.fromJson(i as Map<String, dynamic>))
-          .toList();
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<CountVo> getUserListCount() async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
+    final _data = <String, dynamic>{};
+    _data.addAll(itemSearchParam.toJson());
     final _options = _setStreamType<CountVo>(
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/admin/v1/categories/list/count',
+            '/admin/v1/items/list/count',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -133,84 +105,31 @@ class _CategoryClient implements CategoryClient {
   }
 
   @override
-  Future<Category> addCategory(CategoryAddParam categoryAddParam) async {
+  Future<Item> addItem(ItemAddParam itemAddParam) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
-    _data.addAll(categoryAddParam.toJson());
-    final _options = _setStreamType<Category>(
+    _data.addAll(itemAddParam.toJson());
+    final _options = _setStreamType<Item>(
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/admin/v1/categories',
+            '/admin/v1/items',
             queryParameters: queryParameters,
             data: _data,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Category _value;
+    late Item _value;
     try {
-      _value = Category.fromJson(_result.data!);
+      _value = Item.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
     }
     return _value;
-  }
-
-  @override
-  Future<Category> modCategory(
-    int categoryId,
-    CategoryModParam categoryModParam,
-  ) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
-    final _data = <String, dynamic>{};
-    _data.addAll(categoryModParam.toJson());
-    final _options = _setStreamType<Category>(
-      Options(method: 'PUT', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/admin/v1/categories/${categoryId}',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Category _value;
-    try {
-      _value = Category.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<HttpResponse<dynamic>> delCategory(int categoryId) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<HttpResponse<dynamic>>(
-      Options(method: 'DELETE', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/admin/v1/categories/${categoryId}',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch(_options);
-    final _value = _result.data;
-    final httpResponse = HttpResponse(_value, _result);
-    return httpResponse;
   }
 
   RequestOptions _setStreamType<T>(RequestOptions requestOptions) {

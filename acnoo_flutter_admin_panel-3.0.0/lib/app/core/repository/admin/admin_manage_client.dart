@@ -4,6 +4,7 @@ import 'package:retrofit/retrofit.dart';
 import '../../../models/admin/admin.dart';
 import '../../../models/admin/admin_add_param.dart';
 import '../../../models/admin/admin_mod_param.dart';
+import '../../../models/admin/admin_mod_status_param.dart';
 import '../../../models/admin/admin_search_param.dart';
 import '../../../models/common/count_vo.dart';
 import '../../app_config/app_config.dart';
@@ -25,6 +26,9 @@ abstract class AdminManageClient {
 
   @PUT("/admin/v1/admins/{adminId}")
   Future<Admin> modAdmin(@Path() int adminId, @Body() AdminModParam adminModParam);
+
+  @PUT("/admin/v1/admins/{adminId}/status")
+  Future<HttpResponse> modAdminStatus(@Path() int adminId, @Body() AdminModStatusParam adminModStatusParam);
 
   @GET("/admin/v1/admins/{adminId}")
   Future<Admin> getAdmin(@Path() int adminId);
