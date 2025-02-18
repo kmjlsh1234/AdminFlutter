@@ -11,9 +11,9 @@ class FileServerClient{
 
   //파일 업로드
   Future<String> uploadFile(FileCategory fileCategory, FileType fileType, FormData data) async {
-    String url = "${AppConfig.fileServerUrl}/file/mng/v1/${AppConfig.admin_file_server_key}/upload/${fileCategory.category}/${fileType.type}";
+    String url = "${AppConfig.fileServerUrl}/file/mng/v1/${AppConfig.admin_file_server_key}/upload/${fileCategory.value}/${fileType.value}";
     Response res = await dio.post(url, data: data);
     String path = res.data['path'] ?? () => throw CustomException(ErrorCode.FAIL_TO_CONVERT_FILE);
-    return "${AppConfig.fileServerUrl}/file/mng/v1/${AppConfig.admin_file_server_key}/download/${fileCategory.category}/${fileType.type}?path=$path";
+    return "${AppConfig.fileServerUrl}/file/mng/v1/${AppConfig.admin_file_server_key}/download/${fileCategory.value}/${fileType.value}?path=$path";
   }
 }

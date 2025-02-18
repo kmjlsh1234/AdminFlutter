@@ -1,8 +1,8 @@
 enum FileType{
-  IMAGE('image'),
-  CSV('csv'),
+  image('image'),
+  csv('csv'),
   ;
-  final String type;
 
-  const FileType(this.type);
+  final String value;
+  const FileType(this.value);
 }

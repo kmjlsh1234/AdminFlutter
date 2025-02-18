@@ -26,7 +26,7 @@ class _AppVersionAddDialogState extends State<AppVersionAddDialog> {
   String? selectType;
   String? selectStatus;
 
-  List<String> get _types => AppVersionType.values.map((e) => e.type).toList();
+  List<String> get _types => AppVersionType.values.map((e) => e.value).toList();
   
   final AppVersionService appVersionService = AppVersionService();
   final TextEditingController versionController = TextEditingController();

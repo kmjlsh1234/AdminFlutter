@@ -20,7 +20,7 @@ class AdminManageService{
 
   //ADMIN 리스트 조회
   Future<List<Admin>> getAdminList(AdminSearchParam adminSearchParam) async {
-    if(adminSearchParam.searchType == AdminSearchType.NONE.value){
+    if(adminSearchParam.searchType == AdminSearchType.none.value){
       adminSearchParam.searchType = null;
     }
     return await client.getAdminList(adminSearchParam);
@@ -28,7 +28,7 @@ class AdminManageService{
 
   //ADMIN 리스트 갯수
   Future<int> getAdminListCount(AdminSearchParam adminSearchParam) async {
-    if(adminSearchParam.searchType == AdminSearchType.NONE.value){
+    if(adminSearchParam.searchType == AdminSearchType.none.value){
       adminSearchParam.searchType = null;
     }
 

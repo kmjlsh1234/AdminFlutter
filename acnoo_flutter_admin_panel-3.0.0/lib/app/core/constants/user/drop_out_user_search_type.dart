@@ -1,9 +1,9 @@
 enum DropOutUserSearchType{
-  NONE("NONE"),
-  EMAIL("EMAIL"),
-  MOBILE("MOBILE"),
+  none("NONE"),
+  email("EMAIL"),
+  mobile("MOBILE"),
   ;
-  const DropOutUserSearchType(this.type);
 
-  final String type;
+  final String value;
+  const DropOutUserSearchType(this.value);
 }

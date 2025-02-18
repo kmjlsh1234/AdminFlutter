@@ -36,19 +36,19 @@ class _UserListViewState extends State<UserListView> {
   List<UserProfile> userList = [];
   bool isLoading = true;
 
-  //InputField
-  final TextEditingController startDateController = TextEditingController();
-  final TextEditingController endDateController = TextEditingController();
-
   //Paging
   int currentPage = 0;
   int rowsPerPage = 10;
   int totalPage = 0;
 
-  //Search
-  UserSearchType searchType = UserSearchType.NONE; //NONE, EMAIL, NICKNAME, MOBILE
-  UserSearchDateType searchDateType = UserSearchDateType.NONE; //CREATED_AT, UPDATED_AT,
+  //Search_Type
+  UserSearchType searchType = UserSearchType.none;
   String searchValue = '';
+
+  //Search_Date
+  UserSearchDateType searchDateType = UserSearchDateType.none;
+  final TextEditingController startDateController = TextEditingController();
+  final TextEditingController endDateController = TextEditingController();
 
   //유저 리스트 조회
   Future<void> getUserList(BuildContext context) async {
@@ -84,9 +84,9 @@ class _UserListViewState extends State<UserListView> {
 
   UserSearchParam getUserSearchParam(){
     return UserSearchParam(
-        searchType == UserSearchType.NONE ? null : searchType.value,
+        searchType == UserSearchType.none ? null : searchType.value,
         searchValue,
-        searchDateType == UserSearchDateType.NONE ? null : searchDateType.value,
+        searchDateType == UserSearchDateType.none ? null : searchDateType.value,
         startDateController.text,
         endDateController.text,
         currentPage + 1,
@@ -249,7 +249,7 @@ class _UserListViewState extends State<UserListView> {
           );
         }).toList(),
         onChanged: (value) {
-          searchType = value??UserSearchType.NONE;
+          searchType = value??UserSearchType.none;
         },
       ),
     );

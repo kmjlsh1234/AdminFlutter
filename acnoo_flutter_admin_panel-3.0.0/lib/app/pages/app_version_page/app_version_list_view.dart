@@ -37,8 +37,8 @@ class _AppVersionListViewState extends State<AppVersionListView> with SingleTick
 
   LatestAppVersion latestAppVersion = LatestAppVersion();
 
-  List<String> get versionTypes => AppVersionType.values.map((e) => e.type).toList();
-  AppVersionType appVersionType = AppVersionType.FORCE;
+  List<String> get versionTypes => AppVersionType.values.map((e) => e.value).toList();
+  AppVersionType appVersionType = AppVersionType.force;
 
   //Paging
   int currentPage = 0;
@@ -54,7 +54,7 @@ class _AppVersionListViewState extends State<AppVersionListView> with SingleTick
       setState(() => isLoading = true);
 
       AppVersionSearchParam searchParam = AppVersionSearchParam(
-        appVersionType.type.toString(),
+        appVersionType.value.toString(),
         "CREATED_AT",
         "DESC",
       );
@@ -75,7 +75,7 @@ class _AppVersionListViewState extends State<AppVersionListView> with SingleTick
       setState(() => isLoading = true);
 
       AppVersionSearchParam searchParam = AppVersionSearchParam(
-        appVersionType.type.toString(),
+        appVersionType.value.toString(),
         "CREATED_AT",
         "DESC",
       );
@@ -124,9 +124,9 @@ class _AppVersionListViewState extends State<AppVersionListView> with SingleTick
 
   @override
   void dispose() {
+    super.dispose();
     scrollController.dispose();
     tabController.dispose();
-    super.dispose();
   }
 
   ///_____________________________________________________________________Mod_App_Version_____________________________
@@ -503,11 +503,11 @@ class _AppVersionListViewState extends State<AppVersionListView> with SingleTick
                     padding:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                     decoration: BoxDecoration(
-                      color: data.versionType == AppVersionType.FORCE.type
+                      color: data.versionType == AppVersionType.force.value
                           ? AcnooAppColors.kWarning.withOpacity(0.2)
-                          : data.versionType == AppVersionType.INDUCE.type
+                          : data.versionType == AppVersionType.induce.value
                               ? AcnooAppColors.kInfo20Op
-                              : data.versionType == AppVersionType.BUNDLE.type
+                              : data.versionType == AppVersionType.bundle.value
                                   ? AcnooAppColors.kPrimary500.withOpacity(0.2)
                                   : AcnooAppColors.kSuccess.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(4.0),
@@ -516,11 +516,11 @@ class _AppVersionListViewState extends State<AppVersionListView> with SingleTick
                       data.versionType,
                       maxLines: 1,
                       style: textTheme.bodySmall?.copyWith(
-                        color: data.versionType == AppVersionType.FORCE.type
+                        color: data.versionType == AppVersionType.force.value
                             ? AcnooAppColors.kWarning
-                            : data.versionType == AppVersionType.INDUCE.type
+                            : data.versionType == AppVersionType.induce.value
                                 ? AcnooAppColors.kInfo
-                                : data.versionType == AppVersionType.BUNDLE.type
+                                : data.versionType == AppVersionType.bundle.value
                                     ? AcnooAppColors.kPrimary500
                                     : AcnooAppColors.kSuccess,
                       ),
@@ -538,7 +538,7 @@ class _AppVersionListViewState extends State<AppVersionListView> with SingleTick
                     padding:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                     decoration: BoxDecoration(
-                      color: data.publishStatus == PublishStatus.PUBLISH.status
+                      color: data.publishStatus == PublishStatus.publish.value
                           ? AcnooAppColors.kSuccess.withOpacity(0.2)
                           : AcnooAppColors.kError.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(16.0),
@@ -547,7 +547,7 @@ class _AppVersionListViewState extends State<AppVersionListView> with SingleTick
                       data.publishStatus,
                       style: textTheme.bodySmall?.copyWith(
                           color:
-                              data.publishStatus == PublishStatus.PUBLISH.status
+                              data.publishStatus == PublishStatus.publish.value
                                   ? AcnooAppColors.kSuccess
                                   : AcnooAppColors.kError),
                     ),

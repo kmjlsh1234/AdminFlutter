@@ -1,8 +1,8 @@
 enum UserMenu{
-  PROFILE('PROFILE'),
-  CURRENCY('CURRENCY'),
-  CURRENCY_RECORD('CURRENCY_RECORD'),
-  LOG('LOG'),
+  profile('PROFILE'),
+  currency('CURRENCY'),
+  currencyRecord('CURRENCY_RECORD'),
+  log('LOG'),
   ;
 
   final String value;

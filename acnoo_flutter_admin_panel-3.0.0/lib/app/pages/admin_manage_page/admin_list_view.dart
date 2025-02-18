@@ -34,7 +34,7 @@ class _AdminsListViewState extends State<AdminsListView> {
   final ScrollController scrollController = ScrollController();
   final AdminManageService adminManageService = AdminManageService();
 
-  List<Admin> adminList = [];
+  late List<Admin> adminList;
   bool isLoading = true;
 
   //Paging
@@ -43,11 +43,12 @@ class _AdminsListViewState extends State<AdminsListView> {
   int totalPage = 0;
 
   //Search
-  AdminSearchType searchType = AdminSearchType.NONE; //NONE, EMAIL, NAME, MOBILE
+  AdminSearchType searchType = AdminSearchType.none;
   String searchValue = "";
 
+
   //ADMIN 리스트 조회
-  Future<void> getAdminList(BuildContext context) async {
+  Future<void> getAdminList() async {
     List<Admin> list = [];
     try {
       AdminSearchParam adminSearchParam = AdminSearchParam(
@@ -64,7 +65,7 @@ class _AdminsListViewState extends State<AdminsListView> {
   }
 
   //ADMIN 리스트 갯수 조회
-  Future<void> getAdminListCount(BuildContext context) async {
+  Future<void> getAdminListCount() async {
     int count = 0;
     try {
       AdminSearchParam adminSearchParam = AdminSearchParam(
@@ -83,15 +84,15 @@ class _AdminsListViewState extends State<AdminsListView> {
   //LIST + COUNT
   Future<void> searchListWithCount() async {
     setState(() => isLoading = true);
-    await getAdminList(context);
-    await getAdminListCount(context);
+    await getAdminList();
+    await getAdminListCount();
     setState(() => isLoading = false);
   }
 
   //LIST
   Future<void> searchList() async {
     setState(() => isLoading = true);
-    await getAdminList(context);
+    await getAdminList();
     setState(() => isLoading = false);
   }
 
@@ -113,6 +114,7 @@ class _AdminsListViewState extends State<AdminsListView> {
     TextTheme textTheme = Theme.of(context).textTheme;
     final theme = Theme.of(context);
     final lang = l.S.of(context);
+
     return Scaffold(
       body: Padding(
         padding: _sizeInfo.padding,
@@ -233,7 +235,7 @@ class _AdminsListViewState extends State<AdminsListView> {
   void goToNextPage() {
     if (currentPage < totalPage - 1) {
       currentPage++;
-      getAdminList(context);
+      getAdminList();
     }
   }
 
@@ -241,7 +243,7 @@ class _AdminsListViewState extends State<AdminsListView> {
   void goToPreviousPage() {
     if (currentPage > 0) {
       currentPage--;
-      getAdminList(context);
+      getAdminList();
     }
   }
 
@@ -290,7 +292,7 @@ class _AdminsListViewState extends State<AdminsListView> {
           );
         }).toList(),
         onChanged: (value) {
-          searchType = value??AdminSearchType.NONE;
+          searchType = value??AdminSearchType.none;
         },
       ),
     );
@@ -361,8 +363,7 @@ class _AdminsListViewState extends State<AdminsListView> {
                           showModStatusFormDialog(context, data);
                           break;
                         case 'View':
-                          GoRouter.of(context)
-                              .go('/admins/info/${data.adminId}');
+                          GoRouter.of(context).go('/admins/profile/${data.adminId}');
                           break;
                         case 'Delete':
                           setState(() {});

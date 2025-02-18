@@ -1,10 +1,10 @@
 enum UserSearchType{
-  NONE("NONE"),
-  EMAIL("EMAIL"),
-  NICKNAME("NICKNAME"),
-  MOBILE("MOBILE"),
+  none("NONE"),
+  email("EMAIL"),
+  nickname("NICKNAME"),
+  mobile("MOBILE"),
   ;
-  const UserSearchType(this.value);
 
   final String value;
+  const UserSearchType(this.value);
 }

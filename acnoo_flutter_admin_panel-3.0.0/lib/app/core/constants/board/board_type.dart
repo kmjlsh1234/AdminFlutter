@@ -1,8 +1,8 @@
 enum BoardType{
-  NOTICE('NOTICE'),
-  EVENT('EVENT'),
+  notice('NOTICE'),
+  event('EVENT'),
   ;
-  final String type;
 
-  const BoardType(this.type);
+  final String value;
+  const BoardType(this.value);
 }

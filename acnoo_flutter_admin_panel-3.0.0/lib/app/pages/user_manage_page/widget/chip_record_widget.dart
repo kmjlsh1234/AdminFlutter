@@ -34,7 +34,7 @@ class _ChipRecordWidgetState extends State<ChipRecordWidget>{
   int currentPage = 0;
   int rowsPerPage = 10;
   int totalPage = 1;
-  ChangeType changeType = ChangeType.NONE;
+  ChangeType changeType = ChangeType.none;
   String searchQuery = '';
   bool isLoading = true;
 
@@ -43,7 +43,7 @@ class _ChipRecordWidgetState extends State<ChipRecordWidget>{
     try{
       setState(() => isLoading = true);
       CurrencyRecordSearchParam currencyRecordSearchParam = CurrencyRecordSearchParam(
-          widget.userId,changeType== ChangeType.NONE ? null : changeType.changeType.toString(),
+          widget.userId,changeType== ChangeType.none ? null : changeType.value,
           startDateController.text,
           endDateController.text,
           currentPage + 1,
@@ -62,7 +62,7 @@ class _ChipRecordWidgetState extends State<ChipRecordWidget>{
     try{
       setState(() => isLoading = true);
       CurrencyRecordSearchParam currencyRecordSearchParam = CurrencyRecordSearchParam(
-          widget.userId,changeType== ChangeType.NONE ? null : changeType.changeType.toString(),
+          widget.userId,changeType== ChangeType.none ? null : changeType.value,
           startDateController.text,
           endDateController.text,
           currentPage + 1,
@@ -303,11 +303,11 @@ class _ChipRecordWidgetState extends State<ChipRecordWidget>{
         menuItemStyleData: _dropdownStyle.menuItemStyle,
         isExpanded: true,
         value: changeType,
-        items: ChangeType.values.map((ChangeType value) {
+        items: ChangeType.values.map((ChangeType changeType) {
           return DropdownMenuItem<ChangeType>(
-            value: value,
+            value: changeType,
             child: Text(
-              value.changeType.toString(),
+              changeType.value,
               style: textTheme.bodySmall,
             ),
           );

@@ -1,5 +1,8 @@
 enum ImageSelectType{
-  THUMBNAIL,
-  IMAGE,
+  thumbnail('THUMBNAIL'),
+  image('IMAGE'),
   ;
+
+  final String value;
+  const ImageSelectType(this.value);
 }

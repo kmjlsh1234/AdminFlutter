@@ -13,7 +13,6 @@ import 'package:responsive_framework/responsive_framework.dart' as rf;
 // 🌎 Project imports:
 import '../../../../generated/l10n.dart' as l;
 import '../../../core/constants/shop/item/item_search_type.dart';
-import '../../../core/constants/shop/item_unit/item_unit_type.dart';
 import '../../../core/helpers/field_styles/_dropdown_styles.dart';
 import '../../../core/service/shop/item/item_service.dart';
 import '../../../core/theme/_app_colors.dart';
@@ -21,7 +20,6 @@ import '../../../models/shop/item/item.dart';
 import '../../../models/shop/item/item_search_param.dart';
 import '../../../widgets/pagination_widgets/_pagination_widget.dart';
 import '../../../widgets/shadow_container/_shadow_container.dart';
-import '../item_unit/add_item_unit_popup.dart';
 import 'add_item_popup.dart';
 
 class ItemListView extends StatefulWidget {
@@ -40,7 +38,7 @@ class _ItemListViewState extends State<ItemListView> {
   int _rowsPerPage = 10;
   int totalPage = 0;
 
-  ItemSearchType searchType = ItemSearchType.NONE;
+  ItemSearchType searchType = ItemSearchType.none;
   String searchQuery = '';
   bool isLoading = true;
 

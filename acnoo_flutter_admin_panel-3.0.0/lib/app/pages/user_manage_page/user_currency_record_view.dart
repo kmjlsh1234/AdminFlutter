@@ -21,14 +21,14 @@ class UserCurrencyRecordView extends StatefulWidget {
 }
 
 class _UserCurrencyRecordViewState extends State<UserCurrencyRecordView> {
-  UserMenu currentMenu = UserMenu.CURRENCY_RECORD;
-  CurrencyType currentCurrency = CurrencyType.CHIP;
+  UserMenu currentMenu = UserMenu.currencyRecord;
+  CurrencyType currentCurrency = CurrencyType.chip;
 
 
   void selectCurrency(String value){
     CurrencyType currencyType = CurrencyType.values.firstWhere(
           (type) => type.value == value,
-      orElse: () => CurrencyType.CHIP,
+      orElse: () => CurrencyType.chip,
     );
     setState(() => currentCurrency = currencyType);
   }
@@ -118,15 +118,15 @@ class _UserCurrencyRecordViewState extends State<UserCurrencyRecordView> {
 
   Widget selectWidget(BoxConstraints constraints){
     switch(currentCurrency){
-      case CurrencyType.CHIP:
+      case CurrencyType.chip:
         return ChipRecordWidget(userId: widget.userId, constraints: constraints);
-      case CurrencyType.DIAMOND:
+      case CurrencyType.diamond:
         return DiamondRecordWidget(userId: widget.userId, constraints: constraints);
-      case CurrencyType.COIN:
+      case CurrencyType.coin:
         return CoinRecordWidget(userId: widget.userId, constraints: constraints);
-      case CurrencyType.FREE:
+      case CurrencyType.free:
         return ChipRecordWidget(userId: widget.userId, constraints: constraints);
-      case CurrencyType.EVENT:
+      case CurrencyType.event:
         return ChipRecordWidget(userId: widget.userId, constraints: constraints);
     }
   }

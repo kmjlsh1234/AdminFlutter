@@ -1,8 +1,8 @@
 enum FileCategory{
-  PROFILE('profile'),
-  RESOURCE('resource'),
+  profile('profile'),
+  resource('resource'),
   ;
-  final String category;
 
-  const FileCategory(this.category);
+  final String value;
+  const FileCategory(this.value);
 }

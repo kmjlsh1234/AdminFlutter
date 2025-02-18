@@ -1,9 +1,9 @@
 enum ItemSearchType{
-  NONE('NONE'),
-  NAME('NAME'),
-  SKU('SKU'),
+  none('NONE'),
+  name('NAME'),
+  sku('SKU'),
   ;
-  final String value;
 
+  final String value;
   const ItemSearchType(this.value);
 }

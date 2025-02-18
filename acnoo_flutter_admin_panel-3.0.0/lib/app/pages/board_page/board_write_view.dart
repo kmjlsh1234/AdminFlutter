@@ -36,8 +36,8 @@ class _BoardWriteViewState extends State<BoardWriteView> {
   final BoardService boardService = BoardService();
   final FileService fileService = FileService();
 
-  BoardType selectType = BoardType.NOTICE;
-  BoardStatus selectStatus = BoardStatus.PUBLISH;
+  BoardType selectType = BoardType.notice;
+  BoardStatus selectStatus = BoardStatus.publish;
 
   List<String> imageUrls = [];
 
@@ -59,7 +59,7 @@ class _BoardWriteViewState extends State<BoardWriteView> {
           MultipartFile multipartFile = MultipartFile.fromBytes(imageBytes, filename: filename);
           FormData formData = FormData.fromMap({"file": multipartFile});
 
-          String savePath = await fileService.uploadFile(FileCategory.PROFILE, FileType.IMAGE, formData);
+          String savePath = await fileService.uploadFile(FileCategory.profile, FileType.image, formData);
           uploadedImageURLs.add(savePath);
         }
 
@@ -72,17 +72,13 @@ class _BoardWriteViewState extends State<BoardWriteView> {
       }
 
       // TODO: ADMIN서버에 게시판 저장
-      BoardAddParam boardAddParam = BoardAddParam(titleController.text, html, selectType.type, selectStatus.status, null);
+      BoardAddParam boardAddParam = BoardAddParam(titleController.text, html, selectType.value, selectStatus.value, null);
       Board board = await boardService.addBoard(boardAddParam);
       showAddBoardSuccessDialog(context);
     } catch (e){
       ErrorHandler.handleError(e, context);
     }
   }
-
-
-
-
 
   Future<void> selectImage(String image) async{
     imageUrls.add(image);
@@ -185,9 +181,9 @@ class _BoardWriteViewState extends State<BoardWriteView> {
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                buildStatusCheckbox(BoardStatus.PUBLISH),
+                                buildStatusCheckbox(BoardStatus.publish),
                                 const SizedBox(width: 10),
-                                buildStatusCheckbox(BoardStatus.NOT_PUBLISH),
+                                buildStatusCheckbox(BoardStatus.notPublish),
                               ],
                             ),
                           ),
@@ -196,9 +192,9 @@ class _BoardWriteViewState extends State<BoardWriteView> {
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                buildTypeCheckbox(BoardType.NOTICE),
+                                buildTypeCheckbox(BoardType.notice),
                                 const SizedBox(width: 10),
-                                buildTypeCheckbox(BoardType.EVENT),
+                                buildTypeCheckbox(BoardType.event),
                               ],
                             ),
                           ),
@@ -357,7 +353,7 @@ class _BoardWriteViewState extends State<BoardWriteView> {
           },
         ),
         const SizedBox(width: 4.0),
-        Text(boardStatus.status),
+        Text(boardStatus.value),
       ],
     );
   }
@@ -375,13 +371,13 @@ class _BoardWriteViewState extends State<BoardWriteView> {
               });
             } else if (selectType == boardType) {
               setState(() {
-                selectType = boardType; // Deselect if it's the current selected one
+                selectType = boardType;
               });
             }
           },
         ),
         const SizedBox(width: 4.0),
-        Text(boardType.type),
+        Text(boardType.value),
       ],
     );
   }

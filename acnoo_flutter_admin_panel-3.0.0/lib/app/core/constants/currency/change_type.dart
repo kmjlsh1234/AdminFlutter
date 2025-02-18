@@ -1,9 +1,9 @@
 enum ChangeType{
-  NONE('NONE'),
-  ADD('ADD'),
-  USE('USE'),
+  none('NONE'),
+  add('ADD'),
+  use('USE'),
   ;
-  const ChangeType(this.changeType);
 
-  final String changeType;
+  final String value;
+  const ChangeType(this.value);
 }

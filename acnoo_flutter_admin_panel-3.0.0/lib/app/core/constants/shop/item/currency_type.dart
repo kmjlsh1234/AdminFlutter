@@ -1,12 +1,11 @@
 enum CurrencyType{
-  DIAMOND('DIAMOND'),
-  COIN('COIN'),
-  CHIP('CHIP'),
-  FREE('FREE'),
-  EVENT('EVENT'),
+  diamond('DIAMOND'),
+  coin('COIN'),
+  chip('CHIP'),
+  free('FREE'),
+  event('EVENT'),
   ;
 
   final String value;
-
   const CurrencyType(this.value);
 }

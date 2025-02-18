@@ -22,20 +22,20 @@ class _UserNavTabBarState extends State<UserNavTabBar> with SingleTickerProvider
   void selectMenu(String value){
     UserMenu menu = UserMenu.values.firstWhere(
           (menu) => menu.value == value,
-      orElse: () => UserMenu.PROFILE,
+      orElse: () => UserMenu.profile,
     );
 
     switch(menu){
-      case UserMenu.PROFILE:
+      case UserMenu.profile:
         GoRouter.of(context).go('/users/profile/${widget.userId}');
         break;
-      case UserMenu.CURRENCY:
+      case UserMenu.currency:
         GoRouter.of(context).go('/users/currency/${widget.userId}');
         break;
-      case UserMenu.CURRENCY_RECORD:
+      case UserMenu.currencyRecord:
         GoRouter.of(context).go('/users/currency/record/${widget.userId}');
         break;
-      case UserMenu.LOG:
+      case UserMenu.log:
         GoRouter.of(context).go('/users/log/${widget.userId}');
         break;
     }

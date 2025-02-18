@@ -1,18 +1,17 @@
 import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
-import 'package:acnoo_flutter_admin_panel/app/models/currency/chip_record.dart';
 import 'package:acnoo_flutter_admin_panel/app/models/currency/currency_record_search_param.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:iconly/iconly.dart';
 import 'package:intl/intl.dart';
 import 'package:responsive_grid/responsive_grid.dart';
+
 import '../../../../generated/l10n.dart' as l;
 import '../../../core/constants/currency/change_type.dart';
 import '../../../core/helpers/field_styles/_dropdown_styles.dart';
 import '../../../core/service/currency/currency_record_service.dart';
 import '../../../core/static/_static_values.dart';
 import '../../../core/theme/_app_colors.dart';
-import '../../../models/currency/coin_record.dart';
 import '../../../models/currency/diamond_record.dart';
 import '../../../widgets/file_export_button/file_export_button.dart';
 import '../../../widgets/pagination_widgets/_pagination_widget.dart';
@@ -35,7 +34,7 @@ class _DiamondRecordWidgetState extends State<DiamondRecordWidget>{
   int currentPage = 0;
   int rowsPerPage = 10;
   int totalPage = 1;
-  ChangeType changeType = ChangeType.NONE;
+  ChangeType changeType = ChangeType.none;
   String searchQuery = '';
   bool isLoading = true;
 
@@ -44,7 +43,7 @@ class _DiamondRecordWidgetState extends State<DiamondRecordWidget>{
     try{
       setState(() => isLoading = true);
       CurrencyRecordSearchParam currencyRecordSearchParam = CurrencyRecordSearchParam(
-          widget.userId,changeType== ChangeType.NONE ? null : changeType.changeType.toString(),
+          widget.userId,changeType== ChangeType.none ? null : changeType.value,
           startDateController.text,
           endDateController.text,
           currentPage + 1,
@@ -63,7 +62,7 @@ class _DiamondRecordWidgetState extends State<DiamondRecordWidget>{
     try{
       setState(() => isLoading = true);
       CurrencyRecordSearchParam currencyRecordSearchParam = CurrencyRecordSearchParam(
-          widget.userId,changeType== ChangeType.NONE ? null : changeType.changeType.toString(),
+          widget.userId,changeType== ChangeType.none ? null : changeType.value,
           startDateController.text,
           endDateController.text,
           currentPage + 1,
@@ -306,11 +305,11 @@ class _DiamondRecordWidgetState extends State<DiamondRecordWidget>{
         menuItemStyleData: _dropdownStyle.menuItemStyle,
         isExpanded: true,
         value: changeType,
-        items: ChangeType.values.map((ChangeType value) {
+        items: ChangeType.values.map((ChangeType changeType) {
           return DropdownMenuItem<ChangeType>(
-            value: value,
+            value: changeType,
             child: Text(
-              value.changeType.toString(),
+              changeType.value,
               style: textTheme.bodySmall,
             ),
           );

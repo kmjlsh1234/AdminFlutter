@@ -1,7 +1,8 @@
 enum AdminMenu{
-  PROFILE('PROFILE'),
-  LOG('LOG'),
+  profile('PROFILE'),
+  log('LOG'),
   ;
+
   final String value;
   const AdminMenu(this.value);
 }

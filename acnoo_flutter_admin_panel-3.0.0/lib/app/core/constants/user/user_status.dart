@@ -1,13 +1,12 @@
 enum UserStatus{
-  NORMAL('NORMAL'),
-  LOGOUT('LOGOUT'),
-  STOP('STOP'),
-  BAN('BAN'),
-  TRYEXIT('TRYEXIT'),
-  EXIT('EXIT');
+  normal('NORMAL'),
+  logout('LOGOUT'),
+  stop('STOP'),
+  ban('BAN'),
+  tryExit('TRYEXIT'),
+  exit('EXIT');
 
-  final String status;
-
-  const UserStatus(this.status);
+  final String value;
+  const UserStatus(this.value);
 
 }

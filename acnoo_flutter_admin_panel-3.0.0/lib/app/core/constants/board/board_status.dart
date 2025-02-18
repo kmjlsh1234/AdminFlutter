@@ -1,8 +1,8 @@
 enum BoardStatus{
-  NOT_PUBLISH('NOT_PUBLISH'),
-  PUBLISH('PUBLISH'),
+  publish('PUBLISH'),
+  notPublish('NOT_PUBLISH'),
   ;
-  final String status;
 
-  const BoardStatus(this.status);
+  final String value;
+  const BoardStatus(this.value);
 }

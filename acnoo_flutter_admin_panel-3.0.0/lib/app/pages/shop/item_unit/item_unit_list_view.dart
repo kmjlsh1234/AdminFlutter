@@ -3,11 +3,9 @@ import 'dart:ui';
 
 // 🐦 Flutter imports:
 import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
-import 'package:acnoo_flutter_admin_panel/app/core/service/admin/admin_manage_service.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
 // 📦 Package imports:
 import 'package:iconly/iconly.dart';
 import 'package:responsive_framework/responsive_framework.dart' as rf;
@@ -22,7 +20,6 @@ import '../../../models/shop/item_unit/item_unit.dart';
 import '../../../models/shop/item_unit/item_unit_search_param.dart';
 import '../../../widgets/pagination_widgets/_pagination_widget.dart';
 import '../../../widgets/shadow_container/_shadow_container.dart';
-import '../../admin_manage_page/widget/admin_add_popup.dart';
 import 'add_item_unit_popup.dart';
 
 class ItemUnitListView extends StatefulWidget {
@@ -40,7 +37,7 @@ class _ItemUnitListViewState extends State<ItemUnitListView> {
   int currentPage = 0;
   int _rowsPerPage = 10;
   int totalPage = 0;
-  ItemUnitType searchType = ItemUnitType.NONE;
+  ItemUnitType searchType = ItemUnitType.none;
 
   String searchQuery = '';
   bool isLoading = true;
@@ -413,11 +410,11 @@ class _ItemUnitListViewState extends State<ItemUnitListView> {
         menuItemStyleData: _dropdownStyle.menuItemStyle,
         isExpanded: true,
         value: searchType,
-        items: ItemUnitType.values.map((ItemUnitType value) {
+        items: ItemUnitType.values.map((ItemUnitType unitType) {
           return DropdownMenuItem<ItemUnitType>(
-            value: value,
+            value: unitType,
             child: Text(
-              value.type,
+              unitType.value,
               style: textTheme.bodySmall,
             ),
           );

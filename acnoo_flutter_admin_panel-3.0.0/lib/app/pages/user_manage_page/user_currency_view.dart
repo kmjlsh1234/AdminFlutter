@@ -1,8 +1,7 @@
 // 🐦 Flutter imports:
-import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/widget/user_currency_widget.dart';
 import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/widget/nav_bar/user_nav_tab_bar.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/widget/user_currency_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:responsive_grid/responsive_grid.dart';
 
 import '../../../../generated/l10n.dart' as l;
@@ -18,7 +17,7 @@ class UserCurrencyView extends StatefulWidget {
 }
 
 class _UserCurrencyViewState extends State<UserCurrencyView> {
-  UserMenu currentMenu = UserMenu.CURRENCY;
+  UserMenu currentMenu = UserMenu.currency;
 
   @override
   void initState(){

@@ -9,7 +9,7 @@ import 'package:provider/provider.dart';
 
 // 🌎 Project imports:
 import '../pages/user_manage_page/user_profile_view.dart' as userMng;
-import '../pages/admin_manage_page/admin_info_view.dart';
+import '../pages/admin_manage_page/admin_profile_view.dart';
 import '../pages/admin_manage_page/admin_list_view.dart';
 import '../pages/app_version_page/app_version_list_view.dart';
 import '../pages/board_page/board_info_view.dart';
@@ -419,12 +419,12 @@ abstract class AcnooAppRoutes {
                 ),
               ),
               GoRoute(
-                path: 'info/:id',
+                path: 'profile/:id',
                 pageBuilder: (context, state) {
                   final String id = state.pathParameters['id']!;
                   final int adminId = int.parse(id);
                   return NoTransitionPage<void>(
-                    child: AdminInfoView(adminId: adminId),
+                    child: AdminProfileView(adminId: adminId),
                   );
                 },
               ),

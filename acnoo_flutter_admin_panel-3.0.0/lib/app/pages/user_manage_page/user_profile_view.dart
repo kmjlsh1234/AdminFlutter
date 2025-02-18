@@ -1,7 +1,5 @@
 // 🐦 Flutter imports:
-import 'package:acnoo_flutter_admin_panel/app/pages/admin_manage_page/widget/admin_profile_widget.dart';
 import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/widget/nav_bar/user_nav_tab_bar.dart';
-import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/widget/user_currency_widget.dart';
 import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/widget/user_profile_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_grid/responsive_grid.dart';
@@ -19,7 +17,7 @@ class UserProfileView extends StatefulWidget {
 }
 
 class _UserProfileViewState extends State<UserProfileView> {
-  UserMenu currentMenu = UserMenu.PROFILE;
+  UserMenu currentMenu = UserMenu.profile;
 
   @override
   void initState(){

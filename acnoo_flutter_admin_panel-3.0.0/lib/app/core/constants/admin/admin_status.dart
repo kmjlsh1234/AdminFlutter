@@ -1,11 +1,11 @@
 enum AdminStatus{
-  NORMAL('NORMAL'),
-  LOGOUT('LOGOUT'),
-  STOP('STOP'),
-  BAN('BAN'),
-  EXIT('EXIT'),
+  normal('NORMAL'),
+  logout('LOGOUT'),
+  stop('STOP'),
+  ban('BAN'),
+  exit('EXIT'),
   ;
-  const AdminStatus(this.adminStatus);
 
-  final String adminStatus;
+  final String value;
+  const AdminStatus(this.value);
 }

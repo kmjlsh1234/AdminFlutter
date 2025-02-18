@@ -1,8 +1,8 @@
 enum PublishStatus{
-  NOT_PUBLISH('NOT_PUBLISH'),
-  PUBLISH('PUBLISH'),
+  publish('PUBLISH'),
+  notPublish('NOT_PUBLISH'),
   ;
-  final String status;
 
-  const PublishStatus(this.status);
+  final String value;
+  const PublishStatus(this.value);
 }

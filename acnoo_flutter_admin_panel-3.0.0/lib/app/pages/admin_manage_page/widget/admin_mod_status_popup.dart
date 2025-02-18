@@ -1,15 +1,13 @@
 import 'package:acnoo_flutter_admin_panel/app/models/admin/admin_mod_status_param.dart';
 import 'package:flutter/material.dart';
-import '../../../../../generated/l10n.dart' as l;
-import 'package:responsive_framework/responsive_framework.dart' as rf;
 
+import '../../../../../generated/l10n.dart' as l;
 import '../../../core/constants/admin/admin_status.dart';
 import '../../../core/error/error_handler.dart';
 import '../../../core/service/admin/admin_manage_service.dart';
 import '../../../core/theme/_app_colors.dart';
 import '../../../core/utils/size_config.dart';
 import '../../../models/admin/admin.dart';
-import '../../../models/admin/admin_mod_param.dart';
 
 class AdminModStatusDialog extends StatefulWidget {
   const AdminModStatusDialog({super.key, required this.admin});
@@ -21,7 +19,7 @@ class AdminModStatusDialog extends StatefulWidget {
 
 class _AdminModStatusDialogState extends State<AdminModStatusDialog> {
   String adminStatus = "";
-  List<String> get statuses => AdminStatus.values.map((e) => e.adminStatus).toList();
+  List<String> get statuses => AdminStatus.values.map((e) => e.value).toList();
   final AdminManageService adminManageService = AdminManageService();
 
   //관리자 상태 변경

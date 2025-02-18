@@ -19,7 +19,7 @@ class UserModDialog extends StatefulWidget {
 class _UserModDialogState extends State<UserModDialog> {
   late String selectStatus;
 
-  List<String> get _statuses => UserStatus.values.map((e) => e.status).toList();
+  List<String> get _statuses => UserStatus.values.map((e) => e.value).toList();
 
   final UserManageService userManageService = UserManageService();
 

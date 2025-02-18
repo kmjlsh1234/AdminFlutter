@@ -1,8 +1,8 @@
 enum AdminSearchType{
-  NONE("NONE"),
-  EMAIL("EMAIL"),
-  NAME("NAME"),
-  MOBILE("MOBILE"),
+  none("NONE"),
+  email("EMAIL"),
+  name("NAME"),
+  mobile("MOBILE"),
   ;
 
   final String value;

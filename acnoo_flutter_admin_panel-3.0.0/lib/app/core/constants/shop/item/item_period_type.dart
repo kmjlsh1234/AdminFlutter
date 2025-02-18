@@ -1,11 +1,10 @@
 enum ItemPeriodType{
-  NONE('NONE'),
-  DAY('DAY'),
-  MONTH('MONTH'),
-  EXPIRATION('EXPIRATION'),
+  none('NONE'),
+  day('DAY'),
+  month('MONTH'),
+  expiration('EXPIRATION'),
   ;
 
   final String value;
-
   const ItemPeriodType(this.value);
 }

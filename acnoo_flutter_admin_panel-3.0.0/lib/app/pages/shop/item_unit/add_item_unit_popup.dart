@@ -39,9 +39,9 @@ class _AddItemUnitDialogState extends State<AddItemUnitDialog> {
   final TextEditingController descController = TextEditingController();
   final TextEditingController attributeController = TextEditingController();
 
-  String selectType = ItemUnitType.CONSUMABLE.type;
+  String selectType = ItemUnitType.consumable.value;
 
-  List<String> get _types => ItemUnitType.values.map((e) => e.type).toList();
+  List<String> get _types => ItemUnitType.values.map((e) => e.value).toList();
   String? imagePath;
   XFile? selectFile;
 
@@ -69,7 +69,7 @@ class _AddItemUnitDialogState extends State<AddItemUnitDialog> {
       Uint8List? bytes = await selectFile?.readAsBytes();
       MultipartFile multipartFile = MultipartFile.fromBytes(bytes!, filename: selectFile!.name);
       FormData formData = FormData.fromMap({"file": multipartFile});
-      String remotePath = await fileService.uploadFile(FileCategory.PROFILE, FileType.IMAGE, formData);
+      String remotePath = await fileService.uploadFile(FileCategory.profile, FileType.image, formData);
 
       ItemUnitAddParam itemUnitAddParam = ItemUnitAddParam(
         skuController.text,
@@ -285,7 +285,7 @@ class _AddItemUnitDialogState extends State<AddItemUnitDialog> {
                       }).toList(),
                       onChanged: (value) {
                         setState(() {
-                          selectType = value??ItemUnitType.CONSUMABLE.type;
+                          selectType = value??ItemUnitType.consumable.value;
                         });
                       },
                       validator: (value) =>

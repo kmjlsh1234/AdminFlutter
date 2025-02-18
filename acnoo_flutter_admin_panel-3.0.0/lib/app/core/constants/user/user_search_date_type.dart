@@ -1,10 +1,10 @@
 enum UserSearchDateType{
-  NONE("NONE"),
-  CREATED_AT("CREATED_AT"),
-  UPDATED_AT("UPDATED_AT"),
-  LOGIN_AT("LOGIN_AT"),
+  none("NONE"),
+  createdAt("CREATED_AT"),
+  updatedAt("UPDATED_AT"),
+  loginAt("LOGIN_AT"),
   ;
-  const UserSearchDateType(this.value);
 
   final String value;
+  const UserSearchDateType(this.value);
 }

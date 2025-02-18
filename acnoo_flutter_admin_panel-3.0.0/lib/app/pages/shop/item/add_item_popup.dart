@@ -53,8 +53,8 @@ class _AddItemDialogState extends State<AddItemDialog> {
   final TextEditingController amountController = TextEditingController();
 
   int? categoryId;
-  String currencyType = CurrencyType.CHIP.value;
-  String periodType = ItemPeriodType.NONE.value;
+  String currencyType = CurrencyType.chip.value;
+  String periodType = ItemPeriodType.none.value;
 
   late List<Category> categoryList;
   List<String> get _currencyTypes => CurrencyType.values.map((e) => e.value).toList();
@@ -72,11 +72,11 @@ class _AddItemDialogState extends State<AddItemDialog> {
       if(pickFile!= null){
         setState(() {
           switch(type){
-            case ImageSelectType.THUMBNAIL:
+            case ImageSelectType.thumbnail:
               thumbnailFile = pickFile;
               thumbnailPath = pickFile.path;
               break;
-            case ImageSelectType.IMAGE:
+            case ImageSelectType.image:
               imageFile = pickFile;
               imagePath = pickFile.path;
               break;
@@ -143,7 +143,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
     Uint8List? bytes = await file.readAsBytes();
     MultipartFile multipartFile = MultipartFile.fromBytes(bytes, filename: file.name);
     FormData formData = FormData.fromMap({"file": multipartFile});
-    String remotePath = await fileService.uploadFile(FileCategory.PROFILE, FileType.IMAGE, formData);
+    String remotePath = await fileService.uploadFile(FileCategory.profile, FileType.image, formData);
     return remotePath;
   }
 
@@ -268,7 +268,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
                             const SizedBox(height: 8),
                             DottedBorderContainer(
                               child: GestureDetector(
-                                onTap: () => pickImage(context, ImageSelectType.THUMBNAIL),
+                                onTap: () => pickImage(context, ImageSelectType.thumbnail),
                                 child: thumbnailPath == null
                                     ? Column(
                                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -301,7 +301,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
                             const SizedBox(height: 8),
                             DottedBorderContainer(
                               child: GestureDetector(
-                                onTap: () => pickImage(context, ImageSelectType.IMAGE),
+                                onTap: () => pickImage(context, ImageSelectType.image),
                                 child: imagePath == null
                                     ? Column(
                                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -459,7 +459,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
                       }).toList(),
                       onChanged: (value) {
                         setState(() {
-                          periodType = value??ItemUnitType.CONSUMABLE.type;
+                          periodType = value??ItemUnitType.consumable.value;
                         });
                       },
                       validator: (value) =>
@@ -468,7 +468,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
 
                     //---------------------9.PERIOD---------------------//
                     Visibility(
-                      visible: periodType != ItemPeriodType.NONE.value,
+                      visible: periodType != ItemPeriodType.none.value,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -556,7 +556,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
                       }).toList(),
                       onChanged: (value) {
                         setState(() {
-                          currencyType = value??CurrencyType.CHIP.value;
+                          currencyType = value??CurrencyType.chip.value;
                         });
                       },
                       validator: (value) =>

@@ -28,7 +28,7 @@ class _AppVersionModDialogState extends State<AppVersionModDialog> {
   String? selectType;
   String? selectStatus;
 
-  List<String> get _types => AppVersionType.values.map((e) => e.type).toList();
+  List<String> get _types => AppVersionType.values.map((e) => e.value).toList();
   
   final AppVersionService appVersionService = AppVersionService();
   final TextEditingController publishDateController = TextEditingController();
