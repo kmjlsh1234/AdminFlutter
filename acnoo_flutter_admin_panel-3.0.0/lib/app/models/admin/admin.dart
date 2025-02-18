@@ -1,5 +1,7 @@
+import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 part 'admin.g.dart';
+
 
 @JsonSerializable()
 class Admin{
@@ -11,9 +13,9 @@ class Admin{
   final String name;
   final String mobile;
   @JsonKey(includeIfNull: true)
-  final String? loginAt;
-  final String createdAt;
-  final String updatedAt;
+  final DateTime? loginAt;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
   Admin({
     required this.adminId,

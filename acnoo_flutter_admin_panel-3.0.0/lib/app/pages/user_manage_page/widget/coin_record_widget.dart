@@ -6,30 +6,31 @@ import 'package:flutter/material.dart';
 import 'package:iconly/iconly.dart';
 import 'package:intl/intl.dart';
 import 'package:responsive_grid/responsive_grid.dart';
-import '../../../generated/l10n.dart' as l;
-import '../../core/constants/currency/change_type.dart';
-import '../../core/helpers/field_styles/_dropdown_styles.dart';
-import '../../core/service/currency/currency_record_service.dart';
-import '../../core/static/_static_values.dart';
-import '../../core/theme/_app_colors.dart';
-import '../../widgets/file_export_button/file_export_button.dart';
-import '../../widgets/pagination_widgets/_pagination_widget.dart';
+import '../../../../generated/l10n.dart' as l;
+import '../../../core/constants/currency/change_type.dart';
+import '../../../core/helpers/field_styles/_dropdown_styles.dart';
+import '../../../core/service/currency/currency_record_service.dart';
+import '../../../core/static/_static_values.dart';
+import '../../../core/theme/_app_colors.dart';
+import '../../../models/currency/coin_record.dart';
+import '../../../widgets/file_export_button/file_export_button.dart';
+import '../../../widgets/pagination_widgets/_pagination_widget.dart';
 
-class ChipRecordWidget extends StatefulWidget {
-  const ChipRecordWidget({super.key, required this.userId, required this.constraints});
+class CoinRecordWidget extends StatefulWidget {
+  const CoinRecordWidget({super.key, required this.userId, required this.constraints});
 
   final int userId;
   final BoxConstraints constraints;
   @override
-  State<ChipRecordWidget> createState() => _ChipRecordWidgetState();
+  State<CoinRecordWidget> createState() => _CoinRecordWidgetState();
 }
 
-class _ChipRecordWidgetState extends State<ChipRecordWidget>{
+class _CoinRecordWidgetState extends State<CoinRecordWidget>{
   final ScrollController _scrollController = ScrollController();
   final TextEditingController startDateController = TextEditingController();
   final TextEditingController endDateController = TextEditingController();
   final CurrencyRecordService currencyRecordService = CurrencyRecordService();
-  List<ChipRecord> chipList = [];
+  List<CoinRecord> coinList = [];
   int currentPage = 0;
   int rowsPerPage = 10;
   int totalPage = 1;
@@ -37,8 +38,8 @@ class _ChipRecordWidgetState extends State<ChipRecordWidget>{
   String searchQuery = '';
   bool isLoading = true;
 
-  Future<void> getChipRecordList(BuildContext context) async {
-    List<ChipRecord> list = [];
+  Future<void> getCoinRecordList(BuildContext context) async {
+    List<CoinRecord> list = [];
     try{
       setState(() => isLoading = true);
       CurrencyRecordSearchParam currencyRecordSearchParam = CurrencyRecordSearchParam(
@@ -48,15 +49,15 @@ class _ChipRecordWidgetState extends State<ChipRecordWidget>{
           currentPage + 1,
           rowsPerPage
       );
-      list = await currencyRecordService.getChipRecordList(currencyRecordSearchParam);
+      list = await currencyRecordService.getCoinRecordList(currencyRecordSearchParam);
     } catch(e){
       ErrorHandler.handleError(e, context);
     }
-    chipList = list;
+    coinList = list;
     setState(() => isLoading = false);
   }
 
-  Future<void> getChipRecordListCount(BuildContext context) async {
+  Future<void> getCoinRecordListCount(BuildContext context) async {
     int count = 0;
     try{
       setState(() => isLoading = true);
@@ -67,7 +68,7 @@ class _ChipRecordWidgetState extends State<ChipRecordWidget>{
           currentPage + 1,
           rowsPerPage
       );
-      count = await currencyRecordService.getChipRecordListCount(currencyRecordSearchParam);
+      count = await currencyRecordService.getCoinRecordListCount(currencyRecordSearchParam);
     } catch(e){
       ErrorHandler.handleError(e, context);
     }
@@ -80,8 +81,8 @@ class _ChipRecordWidgetState extends State<ChipRecordWidget>{
   @override
   void initState() {
     super.initState();
-    getChipRecordList(context);
-    getChipRecordListCount(context);
+    getCoinRecordList(context);
+    getCoinRecordListCount(context);
   }
 
   @override
@@ -237,7 +238,7 @@ class _ChipRecordWidgetState extends State<ChipRecordWidget>{
                 padding: EdgeInsets.only(top: _padding),
                 child: isLoading
                     ? Center(child: CircularProgressIndicator())
-                    : chipListDataTable(context),
+                    : coinListDataTable(context),
               ),
             ),
           ),
@@ -274,8 +275,8 @@ class _ChipRecordWidgetState extends State<ChipRecordWidget>{
             ),
             child: ElevatedButton(
                 onPressed: () {
-                  getChipRecordList(context);
-                  getChipRecordListCount(context);
+                  getCoinRecordList(context);
+                  getCoinRecordListCount(context);
                 },
                 child: Icon(
                     IconlyLight.search,
@@ -330,7 +331,7 @@ class _ChipRecordWidgetState extends State<ChipRecordWidget>{
       children: [
         Expanded(
           child: Text(
-            '${l.S.of(context).showing} ${currentPage * rowsPerPage + 1} ${l.S.of(context).to} ${currentPage * rowsPerPage + chipList.length} ${l.S.of(context).OF} ${chipList.length} ${l.S.of(context).entries}',
+            '${l.S.of(context).showing} ${currentPage * rowsPerPage + 1} ${l.S.of(context).to} ${currentPage * rowsPerPage + coinList.length} ${l.S.of(context).OF} ${coinList.length} ${l.S.of(context).entries}',
             overflow: TextOverflow.ellipsis,
           ),
         ),
@@ -357,7 +358,7 @@ class _ChipRecordWidgetState extends State<ChipRecordWidget>{
     if (currentPage < totalPage - 1) {
       setState(() {
         currentPage++;
-        getChipRecordList(context);
+        getCoinRecordList(context);
       });
     }
   }
@@ -367,12 +368,12 @@ class _ChipRecordWidgetState extends State<ChipRecordWidget>{
     if (currentPage > 0) {
       setState(() {
         currentPage--;
-        getChipRecordList(context);
+        getCoinRecordList(context);
       });
     }
   }
   ///_______________________________________________________________User_List_Data_Table___________________________
-  Theme chipListDataTable(BuildContext context) {
+  Theme coinListDataTable(BuildContext context) {
     final theme = Theme.of(context);
     final lang = l.S.of(context);
     final textTheme = theme.textTheme;
@@ -396,7 +397,7 @@ class _ChipRecordWidgetState extends State<ChipRecordWidget>{
           DataColumn(label: Text(lang.changeDesc)),
           DataColumn(label: Text(lang.createdAt)),
         ],
-        rows: chipList.map(
+        rows: coinList.map(
               (data) {
             return DataRow(
               color: WidgetStateColor.transparent,
@@ -413,13 +414,13 @@ class _ChipRecordWidgetState extends State<ChipRecordWidget>{
                 ),
                 DataCell(
                   Text(
-                    data.changeChip.toString(),
+                    data.changeCoin.toString(),
                     maxLines: 1,
                   ),
                 ),
                 DataCell(
                   Text(
-                    data.resultChip.toString(),
+                    data.resultCoin.toString(),
                     maxLines: 1,
                   ),
                 ),

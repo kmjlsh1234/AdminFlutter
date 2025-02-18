@@ -2,34 +2,29 @@
 import 'dart:ui';
 
 import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
-import 'package:acnoo_flutter_admin_panel/app/core/service/admin/admin_manage_service.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/service/currency/currency_service.dart';
-import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/user_currency_mod_popup.dart';
-import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/user_mod_popup.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/widget/popup/user_currency_mod_popup.dart';
 import 'package:flutter/material.dart';
 
 // 🌎 Project imports:
 import '../../../../generated/l10n.dart' as l;
-import '../../core/service/user/user_manage_service.dart';
-import '../../core/theme/_app_colors.dart';
-import '../../models/admin/admin.dart';
-import '../../models/currency/coin.dart';
-import '../../models/currency/diamond.dart';
-import '../../models/user/user_detail.dart';
+import '../../../core/theme/_app_colors.dart';
 
 class UserCurrencyWidget extends StatefulWidget {
   const UserCurrencyWidget({
     super.key,
-    required double padding,
+    required this.padding,
     required this.theme,
     required this.textTheme,
     required this.userId,
-  }) : _padding = padding;
+    required this.lang
+  });
 
   final int userId;
-  final double _padding;
+  final double padding;
   final ThemeData theme;
   final TextTheme textTheme;
+  final l.S lang;
 
   @override
   State<UserCurrencyWidget> createState() => _UserCurrencyWidgetState();
@@ -82,39 +77,29 @@ class _UserCurrencyWidgetState extends State<UserCurrencyWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final lang = l.S.of(context);
-    final theme = Theme.of(context);
-    final textTheme = theme.textTheme;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.all(widget._padding),
+          padding: EdgeInsets.all(widget.padding),
           child: isLoading
               ? const Center(child: CircularProgressIndicator())
               : Container(
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.primaryContainer,
+                        color: widget.theme.colorScheme.primaryContainer,
                         borderRadius: BorderRadius.circular(8.0),
                         border: Border.all(
-                          color: theme.colorScheme.outline,
+                          color: widget.theme.colorScheme.outline,
                         ),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildProfileDetailRow(lang.chip, chip, textTheme),
-                          Divider(
-                            color: theme.colorScheme.outline,
-                            height: 0.0,
-                          ),
-                          _buildProfileDetailRow(lang.coin, coin, textTheme),
-                          Divider(
-                            color: theme.colorScheme.outline,
-                            height: 0.0,
-                          ),
-                          _buildProfileDetailRow(lang.diamond, diamond, textTheme),
+                          buildProfileDetailRow(widget.lang.chip, chip),
+                          buildDivider(),
+                          buildProfileDetailRow(widget.lang.coin, coin),
+                          buildDivider(),
+                          buildProfileDetailRow(widget.lang.diamond, diamond),
                         ],
                       ),
                     ),
@@ -142,17 +127,16 @@ class _UserCurrencyWidgetState extends State<UserCurrencyWidget> {
     );
   }
 
-  Widget _buildProfileDetailRow(
-      String currencyType, int count, TextTheme textTheme) {
+  Widget buildProfileDetailRow(String currencyType, int count) {
     return Padding(
-      padding: EdgeInsets.all(widget._padding),
+      padding: EdgeInsets.all(widget.padding),
       child: Row(
         children: [
           Expanded(
             flex: 1,
             child: Text(
               currencyType,
-              style: textTheme.bodyLarge,
+              style: widget.textTheme.bodyLarge,
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
             ),
@@ -163,7 +147,7 @@ class _UserCurrencyWidgetState extends State<UserCurrencyWidget> {
               children: [
                 Text(
                   ':',
-                  style: textTheme.bodyMedium,
+                  style: widget.textTheme.bodyMedium,
                 ),
                 const SizedBox(width: 8.0),
                 Flexible(
@@ -171,7 +155,7 @@ class _UserCurrencyWidgetState extends State<UserCurrencyWidget> {
                     count.toString()??"EMPTY",
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
-                    style: textTheme.bodyLarge,
+                    style: widget.textTheme.bodyLarge,
                   ),
                 ),
               ],
@@ -179,10 +163,17 @@ class _UserCurrencyWidgetState extends State<UserCurrencyWidget> {
           ),
           Expanded(
             flex: 1,
-            child: modAdminButton(textTheme, currencyType, count),
+            child: modAdminButton(widget.textTheme, currencyType, count),
           ),
         ],
       ),
+    );
+  }
+
+  Widget buildDivider(){
+    return Divider(
+      color: widget.theme.colorScheme.outline,
+      height: 0.0,
     );
   }
 }

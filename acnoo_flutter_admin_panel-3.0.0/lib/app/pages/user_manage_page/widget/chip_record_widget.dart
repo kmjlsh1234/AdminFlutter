@@ -6,32 +6,31 @@ import 'package:flutter/material.dart';
 import 'package:iconly/iconly.dart';
 import 'package:intl/intl.dart';
 import 'package:responsive_grid/responsive_grid.dart';
-import '../../../generated/l10n.dart' as l;
-import '../../core/constants/currency/change_type.dart';
-import '../../core/helpers/field_styles/_dropdown_styles.dart';
-import '../../core/service/currency/currency_record_service.dart';
-import '../../core/static/_static_values.dart';
-import '../../core/theme/_app_colors.dart';
-import '../../models/currency/coin_record.dart';
-import '../../models/currency/diamond_record.dart';
-import '../../widgets/file_export_button/file_export_button.dart';
-import '../../widgets/pagination_widgets/_pagination_widget.dart';
+import '../../../../generated/l10n.dart' as l;
+import '../../../core/constants/currency/change_type.dart';
+import '../../../core/helpers/field_styles/_dropdown_styles.dart';
+import '../../../core/service/currency/currency_record_service.dart';
+import '../../../core/static/_static_values.dart';
+import '../../../core/theme/_app_colors.dart';
+import '../../../widgets/file_export_button/file_export_button.dart';
+import '../../../widgets/pagination_widgets/_pagination_widget.dart';
 
-class DiamondRecordWidget extends StatefulWidget {
-  const DiamondRecordWidget({super.key, required this.userId, required this.constraints});
+class ChipRecordWidget extends StatefulWidget {
+  const ChipRecordWidget({super.key, required this.userId, required this.constraints});
 
   final int userId;
   final BoxConstraints constraints;
+
   @override
-  State<DiamondRecordWidget> createState() => _DiamondRecordWidgetState();
+  State<ChipRecordWidget> createState() => _ChipRecordWidgetState();
 }
 
-class _DiamondRecordWidgetState extends State<DiamondRecordWidget>{
+class _ChipRecordWidgetState extends State<ChipRecordWidget>{
   final ScrollController _scrollController = ScrollController();
   final TextEditingController startDateController = TextEditingController();
   final TextEditingController endDateController = TextEditingController();
   final CurrencyRecordService currencyRecordService = CurrencyRecordService();
-  List<DiamondRecord> diamondList = [];
+  List<ChipRecord> chipList = [];
   int currentPage = 0;
   int rowsPerPage = 10;
   int totalPage = 1;
@@ -39,8 +38,8 @@ class _DiamondRecordWidgetState extends State<DiamondRecordWidget>{
   String searchQuery = '';
   bool isLoading = true;
 
-  Future<void> getDiamondRecordList(BuildContext context) async {
-    List<DiamondRecord> list = [];
+  Future<void> getChipRecordList(BuildContext context) async {
+    List<ChipRecord> list = [];
     try{
       setState(() => isLoading = true);
       CurrencyRecordSearchParam currencyRecordSearchParam = CurrencyRecordSearchParam(
@@ -50,15 +49,15 @@ class _DiamondRecordWidgetState extends State<DiamondRecordWidget>{
           currentPage + 1,
           rowsPerPage
       );
-      list = await currencyRecordService.getDiamondRecordList(currencyRecordSearchParam);
+      list = await currencyRecordService.getChipRecordList(currencyRecordSearchParam);
     } catch(e){
       ErrorHandler.handleError(e, context);
     }
-    diamondList = list;
+    chipList = list;
     setState(() => isLoading = false);
   }
 
-  Future<void> getDiamondRecordListCount(BuildContext context) async {
+  Future<void> getChipRecordListCount(BuildContext context) async {
     int count = 0;
     try{
       setState(() => isLoading = true);
@@ -69,7 +68,7 @@ class _DiamondRecordWidgetState extends State<DiamondRecordWidget>{
           currentPage + 1,
           rowsPerPage
       );
-      count = await currencyRecordService.getDiamondRecordListCount(currencyRecordSearchParam);
+      count = await currencyRecordService.getChipRecordListCount(currencyRecordSearchParam);
     } catch(e){
       ErrorHandler.handleError(e, context);
     }
@@ -82,8 +81,8 @@ class _DiamondRecordWidgetState extends State<DiamondRecordWidget>{
   @override
   void initState() {
     super.initState();
-    getDiamondRecordList(context);
-    getDiamondRecordListCount(context);
+    getChipRecordList(context);
+    getChipRecordListCount(context);
   }
 
   @override
@@ -239,7 +238,7 @@ class _DiamondRecordWidgetState extends State<DiamondRecordWidget>{
                 padding: EdgeInsets.only(top: _padding),
                 child: isLoading
                     ? Center(child: CircularProgressIndicator())
-                    : diamondListDataTable(context),
+                    : chipListDataTable(context),
               ),
             ),
           ),
@@ -276,8 +275,8 @@ class _DiamondRecordWidgetState extends State<DiamondRecordWidget>{
             ),
             child: ElevatedButton(
                 onPressed: () {
-                  getDiamondRecordList(context);
-                  getDiamondRecordListCount(context);
+                  getChipRecordList(context);
+                  getChipRecordListCount(context);
                 },
                 child: Icon(
                     IconlyLight.search,
@@ -293,8 +292,6 @@ class _DiamondRecordWidgetState extends State<DiamondRecordWidget>{
   Container showingChangeTypeDropDown(
       {required TextTheme textTheme}) {
     final _dropdownStyle = AcnooDropdownStyle(context);
-    //final theme = Theme.of(context);
-    final lang = l.S.of(context);
     return Container(
       constraints: const BoxConstraints(maxWidth: 100, minWidth: 100),
       child: DropdownButtonFormField2<ChangeType>(
@@ -332,7 +329,7 @@ class _DiamondRecordWidgetState extends State<DiamondRecordWidget>{
       children: [
         Expanded(
           child: Text(
-            '${l.S.of(context).showing} ${currentPage * rowsPerPage + 1} ${l.S.of(context).to} ${currentPage * rowsPerPage + diamondList.length} ${l.S.of(context).OF} ${diamondList.length} ${l.S.of(context).entries}',
+            '${l.S.of(context).showing} ${currentPage * rowsPerPage + 1} ${l.S.of(context).to} ${currentPage * rowsPerPage + chipList.length} ${l.S.of(context).OF} ${chipList.length} ${l.S.of(context).entries}',
             overflow: TextOverflow.ellipsis,
           ),
         ),
@@ -359,7 +356,7 @@ class _DiamondRecordWidgetState extends State<DiamondRecordWidget>{
     if (currentPage < totalPage - 1) {
       setState(() {
         currentPage++;
-        getDiamondRecordList(context);
+        getChipRecordList(context);
       });
     }
   }
@@ -369,12 +366,12 @@ class _DiamondRecordWidgetState extends State<DiamondRecordWidget>{
     if (currentPage > 0) {
       setState(() {
         currentPage--;
-        getDiamondRecordList(context);
+        getChipRecordList(context);
       });
     }
   }
   ///_______________________________________________________________User_List_Data_Table___________________________
-  Theme diamondListDataTable(BuildContext context) {
+  Theme chipListDataTable(BuildContext context) {
     final theme = Theme.of(context);
     final lang = l.S.of(context);
     final textTheme = theme.textTheme;
@@ -398,7 +395,7 @@ class _DiamondRecordWidgetState extends State<DiamondRecordWidget>{
           DataColumn(label: Text(lang.changeDesc)),
           DataColumn(label: Text(lang.createdAt)),
         ],
-        rows: diamondList.map(
+        rows: chipList.map(
               (data) {
             return DataRow(
               color: WidgetStateColor.transparent,
@@ -415,13 +412,13 @@ class _DiamondRecordWidgetState extends State<DiamondRecordWidget>{
                 ),
                 DataCell(
                   Text(
-                    data.changeDiamond.toString(),
+                    data.changeChip.toString(),
                     maxLines: 1,
                   ),
                 ),
                 DataCell(
                   Text(
-                    data.resultDiamond.toString(),
+                    data.resultChip.toString(),
                     maxLines: 1,
                   ),
                 ),

@@ -4,7 +4,7 @@ enum UserSearchType{
   NICKNAME("NICKNAME"),
   MOBILE("MOBILE"),
   ;
-  const UserSearchType(this.searchType);
+  const UserSearchType(this.value);
 
-  final String searchType;
+  final String value;
 }

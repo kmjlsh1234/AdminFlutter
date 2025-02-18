@@ -1,3 +1,4 @@
+import 'package:acnoo_flutter_admin_panel/app/core/constants/admin/admin_search_type.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/error/custom_exception.dart';
 import 'package:acnoo_flutter_admin_panel/app/models/admin/admin_mod_status_param.dart';
 import 'package:retrofit/retrofit.dart';
@@ -17,40 +18,47 @@ class AdminManageService{
   final specialCharRegex = RegExp(r'[!@#$%^&*(),.?":{}|<>]');
   final mobileRegex = RegExp(r'^(010-?\d{4}-?\d{4})$');
 
-  //관리자 리스트 조회
+  //ADMIN 리스트 조회
   Future<List<Admin>> getAdminList(AdminSearchParam adminSearchParam) async {
+    if(adminSearchParam.searchType == AdminSearchType.NONE.value){
+      adminSearchParam.searchType = null;
+    }
     return await client.getAdminList(adminSearchParam);
   }
 
-  //관리자 리스트 갯수
+  //ADMIN 리스트 갯수
   Future<int> getAdminListCount(AdminSearchParam adminSearchParam) async {
+    if(adminSearchParam.searchType == AdminSearchType.NONE.value){
+      adminSearchParam.searchType = null;
+    }
+
     CountVo countVo = await client.getAdminListCount(adminSearchParam);
     return countVo.count;
   }
 
-  //관리자 추가
+  //ADMIN 추가
   Future<Admin> addAdmin(AdminAddParam adminAddParam) async {
     checkAddParameter(adminAddParam);
     return await client.addAdmin(adminAddParam);
   }
 
-  //관리자 정보 수정
+  //ADMIN 정보 수정
   Future<Admin> modAdmin(int adminId, AdminModParam adminModParam) async{
     return await client.modAdmin(adminId, adminModParam);
   }
 
-  //관리자 상태 변경
+  //ADMIN 상태 변경
   Future<bool> modAdminStatus(int adminId, AdminModStatusParam adminModStatusParam) async {
     HttpResponse res = await client.modAdminStatus(adminId, adminModStatusParam);
     return res.response.statusCode == 204;
   }
 
-  //관리자 조회
+  //ADMIN 조회
   Future<Admin> getAdmin(int adminId) async{
     return await client.getAdmin(adminId);
   }
 
-  //관리자 추가 파라미터 검사
+  //ADMIN 추가 파라미터 검사
   void checkAddParameter(AdminAddParam adminAddParam) {
     //TODO : email 형식 검사
     if(!emailRegex.hasMatch(adminAddParam.email)){

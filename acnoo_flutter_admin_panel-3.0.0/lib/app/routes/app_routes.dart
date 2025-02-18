@@ -2,11 +2,13 @@
 import 'package:acnoo_flutter_admin_panel/app/pages/board_page/board_write_view.dart';
 import 'package:acnoo_flutter_admin_panel/app/pages/drop_out_user_page/drop_out_user_list_view.dart';
 import 'package:acnoo_flutter_admin_panel/app/pages/shop/item_unit/item_unit_list_view.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/user_currency_record_view.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 // 🌎 Project imports:
+import '../pages/user_manage_page/user_profile_view.dart' as userMng;
 import '../pages/admin_manage_page/admin_info_view.dart';
 import '../pages/admin_manage_page/admin_list_view.dart';
 import '../pages/app_version_page/app_version_list_view.dart';
@@ -16,9 +18,7 @@ import '../pages/pages.dart';
 import '../pages/shop/category/category_list_view.dart';
 import '../pages/shop/item/item_list_view.dart';
 import '../pages/shop/item_unit/item_unit_info_view.dart';
-import '../pages/user_manage_page/user_currency_record_view.dart';
 import '../pages/user_manage_page/user_currency_view.dart';
-import '../pages/user_manage_page/user_info_view.dart';
 import '../pages/user_manage_page/user_list_view.dart';
 import '../providers/providers.dart';
 
@@ -459,12 +459,12 @@ abstract class AcnooAppRoutes {
                 ),
               ),
               GoRoute(
-                path: 'info/:id',
+                path: 'profile/:id',
                 pageBuilder: (context, state) {
                   final String id = state.pathParameters['id']!;
                   final int userId = int.parse(id);
                   return NoTransitionPage<void>(
-                    child: UserInfoView(userId: userId),
+                    child: userMng.UserProfileView(userId: userId),
                   );
                 },
               ),
@@ -484,7 +484,7 @@ abstract class AcnooAppRoutes {
                   final String id = state.pathParameters['id']!;
                   final int userId = int.parse(id);
                   return NoTransitionPage<void>(
-                    child: UserCurrencyRecordView(userId: userId),
+                    child: UserCurrencyRecordView(userId: userId)
                   );
                 },
               ),

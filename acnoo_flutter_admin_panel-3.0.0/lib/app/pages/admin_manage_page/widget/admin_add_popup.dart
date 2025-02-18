@@ -3,15 +3,14 @@ import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/service/admin/admin_manage_service.dart';
 import 'package:acnoo_flutter_admin_panel/app/models/admin/admin_add_param.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-
 // 📦 Package imports:
 import 'package:responsive_framework/responsive_framework.dart' as rf;
 
 // 🌎 Project imports:
-import '../../../../generated/l10n.dart' as l;
-import '../../core/theme/_app_colors.dart';
-import '../../models/admin/admin.dart';
+import '../../../../../generated/l10n.dart' as l;
+import '../../../core/theme/_app_colors.dart';
+import '../../../core/utils/size_config.dart';
+import '../../../models/admin/admin.dart';
 
 class AddAdminDialog extends StatefulWidget {
   const AddAdminDialog({super.key});
@@ -21,9 +20,8 @@ class AddAdminDialog extends StatefulWidget {
 }
 
 class _AddAdminDialogState extends State<AddAdminDialog> {
-  String? _selectedPosition;
-
-  List<String> get _positions => [
+  String? selectRole;
+  List<String> get roles => [
         //'Manager',
         l.S.current.manager,
         //'Developer',
@@ -40,7 +38,7 @@ class _AddAdminDialogState extends State<AddAdminDialog> {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController mobileController = TextEditingController();
 
-  //관리자 추가
+  //Function
   Future<void> addAdmin(BuildContext context) async {
     try {
       AdminAddParam adminAddParam = AdminAddParam(
@@ -48,7 +46,8 @@ class _AddAdminDialogState extends State<AddAdminDialog> {
           name: nameController.text,
           email: emailController.text,
           password: passwordController.text,
-          mobile: mobileController.text);
+          mobile: mobileController.text
+      );
       Admin admin = await adminManageService.addAdmin(adminAddParam);
       showAddAdminSuccessDialog(context);
     } catch (e) {
@@ -56,6 +55,7 @@ class _AddAdminDialogState extends State<AddAdminDialog> {
     }
   }
 
+  //Widget
   void showAddAdminSuccessDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -80,39 +80,7 @@ class _AddAdminDialogState extends State<AddAdminDialog> {
   @override
   Widget build(BuildContext context) {
     final lang = l.S.of(context);
-    final _sizeInfo = rf.ResponsiveValue<_SizeInfo>(
-      context,
-      conditionalValues: [
-        const rf.Condition.between(
-          start: 0,
-          end: 480,
-          value: _SizeInfo(
-            alertFontSize: 12,
-            padding: EdgeInsets.all(16),
-            innerSpacing: 16,
-          ),
-        ),
-        const rf.Condition.between(
-          start: 481,
-          end: 576,
-          value: _SizeInfo(
-            alertFontSize: 14,
-            padding: EdgeInsets.all(16),
-            innerSpacing: 16,
-          ),
-        ),
-        const rf.Condition.between(
-          start: 577,
-          end: 992,
-          value: _SizeInfo(
-            alertFontSize: 14,
-            padding: EdgeInsets.all(16),
-            innerSpacing: 16,
-          ),
-        ),
-      ],
-      defaultValue: const _SizeInfo(),
-    ).value;
+    final _sizeInfo = SizeConfig.getSizeInfo(context);
     TextTheme textTheme = Theme.of(context).textTheme;
     final theme = Theme.of(context);
     return AlertDialog(
@@ -220,13 +188,13 @@ class _AddAdminDialogState extends State<AddAdminDialog> {
                     const SizedBox(height: 8),
                     DropdownButtonFormField<String>(
                       dropdownColor: theme.colorScheme.primaryContainer,
-                      value: _selectedPosition,
+                      value: selectRole,
                       hint: Text(
                         lang.selectPosition,
                         //'Select Position',
                         style: textTheme.bodySmall,
                       ),
-                      items: _positions.map((position) {
+                      items: roles.map((position) {
                         return DropdownMenuItem<String>(
                           value: position,
                           child: Text(position),
@@ -234,7 +202,7 @@ class _AddAdminDialogState extends State<AddAdminDialog> {
                       }).toList(),
                       onChanged: (value) {
                         setState(() {
-                          _selectedPosition = value;
+                          selectRole = value;
                         });
                       },
                       validator: (value) =>
@@ -289,16 +257,4 @@ class _AddAdminDialogState extends State<AddAdminDialog> {
       ),
     );
   }
-}
-
-class _SizeInfo {
-  final double? alertFontSize;
-  final EdgeInsetsGeometry padding;
-  final double innerSpacing;
-
-  const _SizeInfo({
-    this.alertFontSize = 18,
-    this.padding = const EdgeInsets.all(24),
-    this.innerSpacing = 24,
-  });
 }

@@ -1,44 +1,133 @@
 // 🐦 Flutter imports:
-// 🌎 Project imports:
-import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/currency_record_widget.dart';
-import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/user_top_bar.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/widget/chip_record_widget.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/widget/nav_bar/currency_nav_tab_bar.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/widget/nav_bar/user_nav_tab_bar.dart';
 import 'package:flutter/material.dart';
-// 📦 Package imports:
 import 'package:responsive_grid/responsive_grid.dart';
 
 import '../../../../generated/l10n.dart' as l;
-import '../../widgets/shadow_container/_shadow_container.dart';
+import '../../core/constants/shop/item/currency_type.dart';
+import '../../core/constants/user/user_menu.dart';
+import '../../widgets/widgets.dart';
+import 'widget/coin_record_widget.dart';
+import 'widget/diamond_record_widget.dart';
 
-class UserCurrencyRecordView extends StatelessWidget{
+class UserCurrencyRecordView extends StatefulWidget {
   const UserCurrencyRecordView({super.key, required this.userId});
   final int userId;
 
   @override
-  Widget build(BuildContext context) {
+  State<UserCurrencyRecordView> createState() => _UserCurrencyRecordViewState();
+}
 
+class _UserCurrencyRecordViewState extends State<UserCurrencyRecordView> {
+  UserMenu currentMenu = UserMenu.CURRENCY_RECORD;
+  CurrencyType currentCurrency = CurrencyType.CHIP;
+
+
+  void selectCurrency(String value){
+    CurrencyType currencyType = CurrencyType.values.firstWhere(
+          (type) => type.value == value,
+      orElse: () => CurrencyType.CHIP,
+    );
+    setState(() => currentCurrency = currencyType);
+  }
+
+  @override
+  void initState(){
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    TextTheme textTheme = Theme.of(context).textTheme;
     final theme = Theme.of(context);
     final lang = l.S.of(context);
-    final textTheme = theme.textTheme;
-    final _padding = responsiveValue<double>(
-      context,
-      xs: 16 / 2,
-      sm: 16 / 2,
-      md: 16 / 2,
-      lg: 24 / 2,
-    );
-    final _innerSpacing = responsiveValue<double>(
+    final double padding = responsiveValue<double>(
       context,
       xs: 16,
       sm: 16,
       md: 16,
-      lg: 24,
+      lg: 16,
     );
+
     return Scaffold(
-      body: ShadowContainer(
-        customHeader: UserTopBar(userId: userId),
-        margin: EdgeInsetsDirectional.all(_innerSpacing),
-        child: CurrencyRecordWidget(userId: userId),
+      body: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          return Padding(
+            padding: EdgeInsets.all(padding),
+            child: ShadowContainer(
+              contentPadding: EdgeInsets.zero,
+              customHeader: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: UserNavTabBar(selectMenu: currentMenu, userId: widget.userId),
+                      ),
+                    ],
+                  ),
+                  Divider(
+                    thickness: 0.3,
+                    height: 0,
+                    color: theme.colorScheme.outline,
+                  )
+                ],
+              ),
+              child: Column(
+                children: [
+                  SizedBox(height: 50),
+                  ShadowContainer(
+                    customHeader: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: CurrencyNavTabBar(onTabSelected: selectCurrency, selectCurrency: currentCurrency),
+                            ),
+                          ],
+                        ),
+                        Divider(
+                          thickness: 0.3,
+                          height: 0,
+                          color: theme.colorScheme.outline,
+                        )
+                      ],
+                    ),
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsetsDirectional.all(16),
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          selectWidget(constraints),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            ),
+          );
+        },
       ),
     );
+  }
+
+  Widget selectWidget(BoxConstraints constraints){
+    switch(currentCurrency){
+      case CurrencyType.CHIP:
+        return ChipRecordWidget(userId: widget.userId, constraints: constraints);
+      case CurrencyType.DIAMOND:
+        return DiamondRecordWidget(userId: widget.userId, constraints: constraints);
+      case CurrencyType.COIN:
+        return CoinRecordWidget(userId: widget.userId, constraints: constraints);
+      case CurrencyType.FREE:
+        return ChipRecordWidget(userId: widget.userId, constraints: constraints);
+      case CurrencyType.EVENT:
+        return ChipRecordWidget(userId: widget.userId, constraints: constraints);
+    }
   }
 }

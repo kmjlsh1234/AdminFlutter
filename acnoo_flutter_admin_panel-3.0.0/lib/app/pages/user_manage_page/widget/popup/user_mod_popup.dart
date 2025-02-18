@@ -1,18 +1,13 @@
 import 'package:acnoo_flutter_admin_panel/app/models/user/user_mod_status_param.dart';
 import 'package:flutter/material.dart';
-import '../../../../generated/l10n.dart' as l;
 import 'package:responsive_framework/responsive_framework.dart' as rf;
 
-import '../../core/constants/user/user_status.dart';
-import '../../core/error/error_handler.dart';
-import '../../core/service/admin/admin_manage_service.dart';
-import '../../core/service/user/user_manage_service.dart';
-import '../../core/theme/_app_colors.dart';
-import '../../models/admin/admin.dart';
-import '../../models/admin/admin_mod_param.dart';
-import '../../models/user/user_detail.dart';
-import '../../models/user/user_mod_param.dart';
-import '../../models/user/user_profile.dart';
+import '../../../../../../generated/l10n.dart' as l;
+import '../../../../core/constants/user/user_status.dart';
+import '../../../../core/error/error_handler.dart';
+import '../../../../core/service/user/user_manage_service.dart';
+import '../../../../core/theme/_app_colors.dart';
+import '../../../../models/user/user_profile.dart';
 
 class UserModDialog extends StatefulWidget {
   const UserModDialog({super.key, required this.userProfile});

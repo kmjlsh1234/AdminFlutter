@@ -4,25 +4,23 @@ import 'dart:ui';
 // 🐦 Flutter imports:
 import 'package:acnoo_flutter_admin_panel/app/core/constants/user/user_search_date_type.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
-import 'package:acnoo_flutter_admin_panel/app/pages/admin_manage_page/admin_mod_popup.dart';
-import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/user_mod_popup.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/widget/popup/user_mod_popup.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-// 📦 Package imports:
-import 'package:iconly/iconly.dart';
-import 'package:responsive_framework/responsive_framework.dart' as rf;
+
 // 🌎 Project imports:
 import '../../../../generated/l10n.dart' as l;
 import '../../core/constants/user/user_search_type.dart';
 import '../../core/helpers/field_styles/_dropdown_styles.dart';
 import '../../core/service/user/user_manage_service.dart';
 import '../../core/theme/_app_colors.dart';
-import '../../models/user/user_detail.dart';
+import '../../core/utils/size_config.dart';
 import '../../models/user/user_profile.dart';
 import '../../models/user/user_search_param.dart';
 import '../../widgets/pagination_widgets/_pagination_widget.dart';
 import '../../widgets/shadow_container/_shadow_container.dart';
+import '../common_widget/search_form_field.dart';
 
 class UserListView extends StatefulWidget {
   const UserListView({super.key});
@@ -32,51 +30,32 @@ class UserListView extends StatefulWidget {
 }
 
 class _UserListViewState extends State<UserListView> {
-  ///_____________________________________________________________________Variables_______________________________
   final UserManageService userManageService = UserManageService();
-  final ScrollController _scrollController = ScrollController();
-  final TextEditingController startDateController = TextEditingController();
-  final TextEditingController endDateController = TextEditingController();
-  late List<UserProfile> userList = [];
-  int currentPage = 0;
-  int _rowsPerPage = 10;
-  int totalPage = 0;
-  UserSearchType searchType = UserSearchType.NONE;
-  UserSearchDateType searchDateType = UserSearchDateType.NONE;
-  String searchQuery = '';
+  final ScrollController scrollController = ScrollController();
 
+  List<UserProfile> userList = [];
   bool isLoading = true;
 
-  @override
-  void initState() {
-    super.initState();
-    getUserList(context);
-    getUserListCount(context);
-  }
+  //InputField
+  final TextEditingController startDateController = TextEditingController();
+  final TextEditingController endDateController = TextEditingController();
 
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
+  //Paging
+  int currentPage = 0;
+  int rowsPerPage = 10;
+  int totalPage = 0;
 
-  ///_____________________________________________________________________api Functions__________________________________
+  //Search
+  UserSearchType searchType = UserSearchType.NONE; //NONE, EMAIL, NICKNAME, MOBILE
+  UserSearchDateType searchDateType = UserSearchDateType.NONE; //CREATED_AT, UPDATED_AT,
+  String searchValue = '';
 
   //유저 리스트 조회
   Future<void> getUserList(BuildContext context) async {
     List<UserProfile> list = [];
     try {
       setState(() => isLoading = true);
-      UserSearchParam userSearchParam = UserSearchParam(
-          (searchType == UserSearchType.NONE)
-              ? null
-              : searchType.searchType.toString(),
-          searchQuery,
-          searchDateType == UserSearchDateType.NONE ? null : searchType.searchType.toString(),
-          startDateController.text,
-          endDateController.text,
-          currentPage + 1,
-          _rowsPerPage);
+      UserSearchParam userSearchParam = getUserSearchParam();
       list = await userManageService.getUserList(userSearchParam);
     } catch (e) {
       ErrorHandler.handleError(e, context);
@@ -87,91 +66,53 @@ class _UserListViewState extends State<UserListView> {
     });
   }
 
-
-
   //유저 리스트 갯수 조회
   Future<void> getUserListCount(BuildContext context) async {
     int count = 0;
     try {
       setState(() => isLoading = true);
-      UserSearchParam userSearchParam = UserSearchParam(
-          (searchType == UserSearchType.NONE)
-              ? null
-              : searchType.searchType.toString(),
-          searchQuery,
-          searchDateType == UserSearchDateType.NONE ? null : searchType.searchType.toString(),
-          startDateController.text,
-          endDateController.text,
-          currentPage + 1,
-          _rowsPerPage);
+      UserSearchParam userSearchParam = getUserSearchParam();
       count = await userManageService.getUserListCount(userSearchParam);
     } catch (e) {
       ErrorHandler.handleError(e, context);
     }
     setState(() {
-      totalPage = (count / _rowsPerPage).ceil();
+      totalPage = (count / rowsPerPage).ceil();
       isLoading = false;
     });
   }
 
-  void showFormDialog(BuildContext context, UserProfile userProfile) async {
-    bool isUserStatusMod = await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return BackdropFilter(
-            filter: ImageFilter.blur(
-              sigmaX: 5,
-              sigmaY: 5,
-            ),
-            child: UserModDialog(userProfile: userProfile)
-        );
-      },
+  UserSearchParam getUserSearchParam(){
+    return UserSearchParam(
+        searchType == UserSearchType.NONE ? null : searchType.value,
+        searchValue,
+        searchDateType == UserSearchDateType.NONE ? null : searchDateType.value,
+        startDateController.text,
+        endDateController.text,
+        currentPage + 1,
+        rowsPerPage
     );
+  }
 
-    if(isUserStatusMod){
-      getUserList(context);
-      getUserListCount(context);
-    }
+  @override
+  void initState() {
+    super.initState();
+    getUserList(context);
+    getUserListCount(context);
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final _sizeInfo = rf.ResponsiveValue<_SizeInfo>(
-      context,
-      conditionalValues: [
-        const rf.Condition.between(
-          start: 0,
-          end: 480,
-          value: _SizeInfo(
-            alertFontSize: 12,
-            padding: EdgeInsets.all(16),
-            innerSpacing: 16,
-          ),
-        ),
-        const rf.Condition.between(
-          start: 481,
-          end: 576,
-          value: _SizeInfo(
-            alertFontSize: 14,
-            padding: EdgeInsets.all(16),
-            innerSpacing: 16,
-          ),
-        ),
-        const rf.Condition.between(
-          start: 577,
-          end: 992,
-          value: _SizeInfo(
-            alertFontSize: 14,
-            padding: EdgeInsets.all(16),
-            innerSpacing: 16,
-          ),
-        ),
-      ],
-      defaultValue: const _SizeInfo(),
-    ).value;
-
+    final _sizeInfo = SizeConfig.getSizeInfo(context);
     TextTheme textTheme = Theme.of(context).textTheme;
     final theme = Theme.of(context);
+    final lang = l.S.of(context);
 
     return Scaffold(
       body: Padding(
@@ -183,10 +124,6 @@ class _UserListViewState extends State<UserListView> {
             physics: const AlwaysScrollableScrollPhysics(),
             child: LayoutBuilder(
               builder: (BuildContext context, BoxConstraints constraints) {
-                final isMobile = constraints.maxWidth < 481;
-                final isTablet =
-                    constraints.maxWidth < 992 && constraints.maxWidth >= 481;
-
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -198,74 +135,44 @@ class _UserListViewState extends State<UserListView> {
                         children: [
                           Expanded(
                             flex: 1,
-                            child: showingSearchTypeDropDown(
-                                isTablet: isTablet,
-                                isMobile: isMobile,
-                                textTheme: textTheme),
+                            child: searchTypeDropDown(textTheme),
                           ),
                           const SizedBox(width: 16.0),
                           Expanded(
-                            flex: isTablet || isMobile ? 2 : 3,
-                            child: searchFormField(textTheme: textTheme),
+                            flex: 3,
+                            child: SearchFormField(
+                                textTheme: textTheme,
+                                lang: lang,
+                                onPressed: (searchValue) {
+                                  this.searchValue = searchValue;
+                                  getUserList(context);
+                                  getUserListCount(context);
+                                }),
                           ),
-                          Spacer(flex: isTablet || isMobile ? 1 : 2),
+                          Spacer(flex: 2),
                         ],
                       ),
                     ),
 
                     //______________________________________________________________________Data_table__________________
-                    isMobile || isTablet
-                        ? RawScrollbar(
-                            padding: const EdgeInsets.only(left: 18),
-                            trackBorderColor: theme.colorScheme.surface,
-                            trackVisibility: true,
-                            scrollbarOrientation: ScrollbarOrientation.bottom,
-                            controller: _scrollController,
-                            thumbVisibility: true,
-                            thickness: 8.0,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                SingleChildScrollView(
-                                  controller: _scrollController,
-                                  scrollDirection: Axis.horizontal,
-                                  child: ConstrainedBox(
-                                    constraints: BoxConstraints(
-                                      minWidth: constraints.maxWidth,
-                                    ),
-                                    child: userListDataTable(context),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: _sizeInfo.padding,
-                                  child: Text(
-                                    '${l.S.of(context).showing} ${currentPage * _rowsPerPage + 1} ${l.S.of(context).to} ${currentPage * _rowsPerPage + userList.length} ${l.S.of(context).OF} ${userList.length} ${l.S.of(context).entries}',
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                        : SingleChildScrollView(
-                            controller: _scrollController,
-                            scrollDirection: Axis.horizontal,
-                            child: ConstrainedBox(
-                              constraints: BoxConstraints(
-                                minWidth: constraints.maxWidth,
-                              ),
-                              child: isLoading
-                                  ? Center(child: CircularProgressIndicator())
-                                  : userListDataTable(context),
-                            ),
-                          ),
+                    SingleChildScrollView(
+                      controller: scrollController,
+                      scrollDirection: Axis.horizontal,
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minWidth: constraints.maxWidth,
+                        ),
+                        child: isLoading
+                            ? Center(child: CircularProgressIndicator())
+                            : userListDataTable(context),
+                      ),
+                    ),
 
                     //______________________________________________________________________footer__________________
-                    isTablet || isMobile
-                        ? const SizedBox.shrink()
-                        : Padding(
-                            padding: _sizeInfo.padding,
-                            child: paginatedSection(theme, textTheme),
-                          ),
+                    Padding(
+                      padding: _sizeInfo.padding,
+                      child: paginatedSection(theme, textTheme),
+                    ),
                   ],
                 );
               },
@@ -276,20 +183,9 @@ class _UserListViewState extends State<UserListView> {
     );
   }
 
-  ///_____________________________________________________________________pagination_functions_______________________
-  int get _totalPages => (userList.length / _rowsPerPage).ceil();
-
-  ///_____________________________________select_dropdown_val_________
-  void _setRowsPerPage(int value) {
-    setState(() {
-      _rowsPerPage = value;
-      currentPage = 0;
-    });
-  }
-
   ///_____________________________________go_next_page________________
-  void _goToNextPage() {
-    if (currentPage < _totalPages - 1) {
+  void goToNextPage() {
+    if (currentPage < totalPage - 1) {
       setState(() {
         currentPage++;
         getUserList(context);
@@ -298,7 +194,7 @@ class _UserListViewState extends State<UserListView> {
   }
 
   ///_____________________________________go_previous_page____________
-  void _goToPreviousPage() {
+  void goToPreviousPage() {
     if (currentPage > 0) {
       setState(() {
         currentPage--;
@@ -315,85 +211,67 @@ class _UserListViewState extends State<UserListView> {
       children: [
         Expanded(
           child: Text(
-            '${l.S.of(context).showing} ${currentPage * _rowsPerPage + 1} ${l.S.of(context).to} ${currentPage * _rowsPerPage + userList.length} ${l.S.of(context).OF} ${userList.length} ${l.S.of(context).entries}',
+            '${l.S.of(context).showing} ${currentPage * rowsPerPage + 1} ${l.S.of(context).to} ${currentPage * rowsPerPage + userList.length} ${l.S.of(context).OF} ${userList.length} ${l.S.of(context).entries}',
             overflow: TextOverflow.ellipsis,
           ),
         ),
         DataTablePaginator(
           currentPage: currentPage + 1,
-          totalPages: _totalPages,
-          onPreviousTap: _goToPreviousPage,
-          onNextTap: _goToNextPage,
+          totalPages: totalPage,
+          onPreviousTap: goToPreviousPage,
+          onNextTap: goToNextPage,
         )
       ],
     );
   }
 
-  ///_______________________________________________________________Search_Field___________________________________
-  TextFormField searchFormField({required TextTheme textTheme}) {
-    final lang = l.S.of(context);
-    return TextFormField(
-      decoration: InputDecoration(
-        isDense: true,
-        // hintText: 'Search...',
-        hintText: '${lang.search}...',
-        hintStyle: textTheme.bodySmall,
-        suffixIcon: Container(
-            margin: const EdgeInsets.all(4.0),
-            decoration: BoxDecoration(
-              color: AcnooAppColors.kPrimary700,
-              borderRadius: BorderRadius.circular(6.0),
-            ),
-            child: ElevatedButton(
-              onPressed: () {
-                getUserList(context);
-                getUserListCount(context);
-              },
-              child: const Icon(IconlyLight.search,
-                  color: AcnooAppColors.kWhiteColor),
-            )),
-      ),
-      onChanged: (value) {
-        searchQuery = value;
-      },
-    );
-  }
-
   ///_______________________________________________________________DropDownList___________________________________
-  Container showingSearchTypeDropDown(
-      {required bool isTablet,
-      required bool isMobile,
-      required TextTheme textTheme}) {
-    final _dropdownStyle = AcnooDropdownStyle(context);
-    //final theme = Theme.of(context);
-    final lang = l.S.of(context);
+  Container searchTypeDropDown(TextTheme textTheme) {
+    final dropdownStyle = AcnooDropdownStyle(context);
     return Container(
       constraints: const BoxConstraints(maxWidth: 100, minWidth: 100),
       child: DropdownButtonFormField2<UserSearchType>(
-        hint: Text('SearchType'),
-        style: _dropdownStyle.textStyle,
-        iconStyleData: _dropdownStyle.iconStyle,
-        buttonStyleData: _dropdownStyle.buttonStyle,
-        dropdownStyleData: _dropdownStyle.dropdownStyle,
-        menuItemStyleData: _dropdownStyle.menuItemStyle,
+        hint: Text('검색 조건'),
+        style: dropdownStyle.textStyle,
+        iconStyleData: dropdownStyle.iconStyle,
+        buttonStyleData: dropdownStyle.buttonStyle,
+        dropdownStyleData: dropdownStyle.dropdownStyle,
+        menuItemStyleData: dropdownStyle.menuItemStyle,
         isExpanded: true,
         value: searchType,
-        items: UserSearchType.values.map((UserSearchType value) {
+        items: UserSearchType.values.map((UserSearchType searchType) {
           return DropdownMenuItem<UserSearchType>(
-            value: value,
+            value: searchType,
             child: Text(
-              value.searchType.toString(),
+              searchType.value,
               style: textTheme.bodySmall,
             ),
           );
         }).toList(),
         onChanged: (value) {
-          if (value != null) {
-            searchType = value;
-          }
+          searchType = value??UserSearchType.NONE;
         },
       ),
     );
+  }
+
+  void showFormDialog(BuildContext context, UserProfile userProfile) async {
+    bool isUserStatusMod = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return BackdropFilter(
+            filter: ImageFilter.blur(
+              sigmaX: 5,
+              sigmaY: 5,
+            ),
+            child: UserModDialog(userProfile: userProfile));
+      },
+    );
+
+    if (isUserStatusMod) {
+      getUserList(context);
+      getUserListCount(context);
+    }
   }
 
   ///_______________________________________________________________User_List_Data_Table___________________________
@@ -415,12 +293,12 @@ class _UserListViewState extends State<UserListView> {
         showBottomBorder: true,
         columns: [
           DataColumn(label: Text(lang.serial)),
-          DataColumn(label: Text(lang.registeredOn)),
           DataColumn(label: Text(lang.userName)),
           DataColumn(label: Text(lang.email)),
           DataColumn(label: Text(lang.phone)),
           DataColumn(label: Text(lang.position)),
           DataColumn(label: Text(lang.status)),
+          DataColumn(label: Text(lang.createdAt)),
           DataColumn(label: Text(lang.actions)),
         ],
         rows: userList.map(
@@ -429,8 +307,6 @@ class _UserListViewState extends State<UserListView> {
               color: WidgetStateColor.transparent,
               cells: [
                 DataCell(Text(data.userId.toString())),
-                DataCell(Text(data.createdAt)),
-                ///////////////////////-----------------------------나중에 Text(DateFormat('d MMM yyyy').format(data.createdAt))이렇게 바꾸기),
                 DataCell(Text(data.nickname)),
                 DataCell(Text(data.email)),
                 DataCell(Text(data.mobile)),
@@ -454,6 +330,7 @@ class _UserListViewState extends State<UserListView> {
                     ),
                   ),
                 ),
+                DataCell(Text(data.createdAt)),
                 DataCell(
                   PopupMenuButton<String>(
                     iconColor: theme.colorScheme.onTertiary,
@@ -464,7 +341,7 @@ class _UserListViewState extends State<UserListView> {
                           showFormDialog(context, data);
                           break;
                         case 'View':
-                          GoRouter.of(context).go('/users/info/${data.userId}');
+                          GoRouter.of(context).go('/users/profile/${data.userId}');
                           break;
                         case 'Delete':
                           setState(() {});
@@ -504,16 +381,4 @@ class _UserListViewState extends State<UserListView> {
       ),
     );
   }
-}
-
-class _SizeInfo {
-  final double? alertFontSize;
-  final EdgeInsetsGeometry padding;
-  final double innerSpacing;
-
-  const _SizeInfo({
-    this.alertFontSize = 18,
-    this.padding = const EdgeInsets.all(24),
-    this.innerSpacing = 24,
-  });
 }

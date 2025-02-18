@@ -22,7 +22,7 @@ import '../../../models/shop/item_unit/item_unit.dart';
 import '../../../models/shop/item_unit/item_unit_search_param.dart';
 import '../../../widgets/pagination_widgets/_pagination_widget.dart';
 import '../../../widgets/shadow_container/_shadow_container.dart';
-import '../../admin_manage_page/admin_add_popup.dart';
+import '../../admin_manage_page/widget/admin_add_popup.dart';
 import 'add_item_unit_popup.dart';
 
 class ItemUnitListView extends StatefulWidget {

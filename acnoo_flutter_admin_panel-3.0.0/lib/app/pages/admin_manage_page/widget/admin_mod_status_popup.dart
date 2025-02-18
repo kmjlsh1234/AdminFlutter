@@ -1,72 +1,47 @@
-import 'package:acnoo_flutter_admin_panel/app/core/error/custom_exception.dart';
-import 'package:acnoo_flutter_admin_panel/app/core/service/currency/currency_service.dart';
+import 'package:acnoo_flutter_admin_panel/app/models/admin/admin_mod_status_param.dart';
 import 'package:flutter/material.dart';
-import '../../../../generated/l10n.dart' as l;
+import '../../../../../generated/l10n.dart' as l;
 import 'package:responsive_framework/responsive_framework.dart' as rf;
 
-import '../../core/error/error_code.dart';
-import '../../core/error/error_handler.dart';
-import '../../core/service/admin/admin_manage_service.dart';
-import '../../core/service/user/user_manage_service.dart';
-import '../../core/theme/_app_colors.dart';
-import '../../models/admin/admin.dart';
-import '../../models/admin/admin_mod_param.dart';
-import '../../models/currency/currency_mod_param.dart';
-import '../../models/user/user_detail.dart';
-import '../../models/user/user_mod_param.dart';
-import '../../models/user/user_profile.dart';
+import '../../../core/constants/admin/admin_status.dart';
+import '../../../core/error/error_handler.dart';
+import '../../../core/service/admin/admin_manage_service.dart';
+import '../../../core/theme/_app_colors.dart';
+import '../../../core/utils/size_config.dart';
+import '../../../models/admin/admin.dart';
+import '../../../models/admin/admin_mod_param.dart';
 
-class UserCurrencyModDialog extends StatefulWidget {
-  const UserCurrencyModDialog({super.key, required this.userId, required this.currencyType, required this.count});
-  final int userId;
-  final String currencyType;
-  final int count;
+class AdminModStatusDialog extends StatefulWidget {
+  const AdminModStatusDialog({super.key, required this.admin});
+  final Admin admin;
+
   @override
-  State<UserCurrencyModDialog> createState() => _UserCurrencyModDialogState();
+  State<AdminModStatusDialog> createState() => _AdminModStatusDialogState();
 }
 
-class _UserCurrencyModDialogState extends State<UserCurrencyModDialog> {
+class _AdminModStatusDialogState extends State<AdminModStatusDialog> {
+  String adminStatus = "";
+  List<String> get statuses => AdminStatus.values.map((e) => e.adminStatus).toList();
+  final AdminManageService adminManageService = AdminManageService();
 
-  final TextEditingController currencyController = TextEditingController();
-  final CurrencyService currencyService = CurrencyService();
-
-  //재화 정보 변경
-  Future<void> modCurrency(BuildContext context) async {
+  //관리자 상태 변경
+  Future<void> modAdminStatus(BuildContext context) async {
     try {
-      int count = int.parse(currencyController.text);
-      CurrencyModParam currencyModParam = CurrencyModParam(count);
-      bool isSuccess = false;
-      switch(widget.currencyType){
-        case "Chip":
-          isSuccess = await currencyService.modChip(widget.userId, currencyModParam);
-          break;
-        case "Coin":
-          isSuccess = await currencyService.modCoin(widget.userId, currencyModParam);
-          break;
-        case "Diamond":
-          isSuccess = await currencyService.modDiamond(widget.userId, currencyModParam);
-          break;
-        default:
-          break;
-      }
-      if(isSuccess){
-        showModCurrencySuccessDialog(context);
-      }
-      else{
-        throw CustomException(ErrorCode.UNKNOWN_ERROR);
-      }
+      AdminModStatusParam adminModStatusParam = AdminModStatusParam(adminStatus);
+      bool isSuccess = await adminManageService.modAdminStatus(widget.admin.adminId, adminModStatusParam);
+      showSuccessDialog(context);
     } catch (e) {
       ErrorHandler.handleError(e, context);
     }
   }
 
-  void showModCurrencySuccessDialog(BuildContext context) {
+  void showSuccessDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(''),
-          content: Text('재화 정보 변경 성공'),
+          content: Text('관리자 상태 변경 성공'),
           actions: [
             TextButton(
               onPressed: () {
@@ -84,45 +59,13 @@ class _UserCurrencyModDialogState extends State<UserCurrencyModDialog> {
   @override
   void initState() {
     super.initState();
-    currencyController.text = widget.count.toString();
+    adminStatus = widget.admin.status;
   }
 
   @override
   Widget build(BuildContext context) {
     final lang = l.S.of(context);
-    final _sizeInfo = rf.ResponsiveValue<_SizeInfo>(
-      context,
-      conditionalValues: [
-        const rf.Condition.between(
-          start: 0,
-          end: 480,
-          value: _SizeInfo(
-            alertFontSize: 12,
-            padding: EdgeInsets.all(16),
-            innerSpacing: 16,
-          ),
-        ),
-        const rf.Condition.between(
-          start: 481,
-          end: 576,
-          value: _SizeInfo(
-            alertFontSize: 14,
-            padding: EdgeInsets.all(16),
-            innerSpacing: 16,
-          ),
-        ),
-        const rf.Condition.between(
-          start: 577,
-          end: 992,
-          value: _SizeInfo(
-            alertFontSize: 14,
-            padding: EdgeInsets.all(16),
-            innerSpacing: 16,
-          ),
-        ),
-      ],
-      defaultValue: const _SizeInfo(),
-    ).value;
+    final _sizeInfo = SizeConfig.getSizeInfo(context);
     TextTheme textTheme = Theme.of(context).textTheme;
     final theme = Theme.of(context);
     return AlertDialog(
@@ -169,17 +112,28 @@ class _UserCurrencyModDialogState extends State<UserCurrencyModDialog> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ///---------------- Text Field section
-                    Text(widget.currencyType, style: textTheme.bodySmall),
+                    Text(lang.status, style: textTheme.bodySmall),
                     const SizedBox(height: 8),
-                    TextFormField(
-                      controller: currencyController,
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                          hintText: lang.enterYourFullName,
-                          hintStyle: textTheme.bodySmall),
-                      validator: (value) => value?.isEmpty ?? true
-                          ? lang.pleaseEnterYourFullName
-                          : null,
+                    DropdownButtonFormField<String>(
+                      dropdownColor: theme.colorScheme.primaryContainer,
+                      value: adminStatus,
+                      hint: Text(
+                        lang.selectYouStatus,
+                        style: textTheme.bodySmall,
+                      ),
+                      items: statuses.map((status) {
+                        return DropdownMenuItem<String>(
+                          value: status,
+                          child: Text(status),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          adminStatus = value??"NORMAL";
+                        });
+                      },
+                      validator: (value) =>
+                      value == null ? lang.pleaseSelectAPosition : null,
                     ),
                     const SizedBox(height: 24),
 
@@ -214,7 +168,7 @@ class _UserCurrencyModDialogState extends State<UserCurrencyModDialog> {
                               padding: EdgeInsets.symmetric(
                                   horizontal: _sizeInfo.innerSpacing),
                             ),
-                            onPressed: () => modCurrency(context),
+                            onPressed: () => modAdminStatus(context),
                             //label: const Text('Save'),
                             label: Text(lang.save),
                           )
@@ -230,16 +184,4 @@ class _UserCurrencyModDialogState extends State<UserCurrencyModDialog> {
       ),
     );
   }
-}
-
-class _SizeInfo {
-  final double? alertFontSize;
-  final EdgeInsetsGeometry padding;
-  final double innerSpacing;
-
-  const _SizeInfo({
-    this.alertFontSize = 18,
-    this.padding = const EdgeInsets.all(24),
-    this.innerSpacing = 24,
-  });
 }

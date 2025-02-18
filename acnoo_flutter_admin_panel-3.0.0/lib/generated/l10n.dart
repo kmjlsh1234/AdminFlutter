@@ -2838,6 +2838,16 @@ class S {
     );
   }
 
+  /// `Add New Version`
+  String get addNewVersion {
+    return Intl.message(
+      'Add New Version',
+      name: 'addNewVersion',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Mod Admin`
   String get modAdmin {
     return Intl.message(
@@ -2913,6 +2923,16 @@ class S {
     return Intl.message(
       'Edit',
       name: 'edit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Edit Status`
+  String get editStatus {
+    return Intl.message(
+      'Edit Status',
+      name: 'editStatus',
       desc: '',
       args: [],
     );

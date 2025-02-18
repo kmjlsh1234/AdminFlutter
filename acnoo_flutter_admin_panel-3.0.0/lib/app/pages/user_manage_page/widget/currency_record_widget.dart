@@ -1,18 +1,18 @@
 // 🐦 Flutter imports:
 import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/service/currency/currency_record_service.dart';
-import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/chip_record_widget.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/widget/chip_record_widget.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:iconly/iconly.dart';
 import 'package:responsive_grid/responsive_grid.dart';
 
 // 🌎 Project imports:
-import '../../../generated/l10n.dart' as l;
-import '../../core/helpers/helpers.dart';
-import '../../core/theme/_app_colors.dart';
-import '../../widgets/widgets.dart';
-import '../projects_page/demo data/project_model.dart';
+import '../../../../generated/l10n.dart' as l;
+import '../../../core/helpers/helpers.dart';
+import '../../../core/theme/_app_colors.dart';
+import '../../../widgets/widgets.dart';
+import '../../projects_page/demo data/project_model.dart';
 import 'coin_record_widget.dart';
 import 'diamond_record_widget.dart';
 

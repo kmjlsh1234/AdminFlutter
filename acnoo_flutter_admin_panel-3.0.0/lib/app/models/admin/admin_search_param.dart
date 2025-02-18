@@ -4,7 +4,7 @@ part 'admin_search_param.g.dart';
 class AdminSearchParam {
   // keyword search
   @JsonKey(includeIfNull: true)
-  final String? searchType;
+  late String? searchType;
   @JsonKey(includeIfNull: true)
   final String? searchValue;
 

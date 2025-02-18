@@ -6,7 +6,6 @@ import 'package:acnoo_flutter_admin_panel/app/models/app_version/latest_app_vers
 import 'package:acnoo_flutter_admin_panel/app/pages/app_version_page/app_version_add_popup.dart';
 import 'package:acnoo_flutter_admin_panel/app/pages/app_version_page/app_version_mod_popup.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
-
 // 📦 Package imports:
 import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
@@ -29,22 +28,23 @@ class AppVersionListView extends StatefulWidget {
   State<AppVersionListView> createState() => _AppVersionListViewState();
 }
 
-class _AppVersionListViewState extends State<AppVersionListView>
-    with SingleTickerProviderStateMixin {
-  ///_____________________________________________________________________Variables_______________________________
-
+class _AppVersionListViewState extends State<AppVersionListView> with SingleTickerProviderStateMixin {
+  late TabController tabController;
   late List<AppVersion> versionList = [];
-  LatestAppVersion latestAppVersion = LatestAppVersion();
-  late TabController _tabController;
-  final ScrollController _scrollController = ScrollController();
+
+  final ScrollController scrollController = ScrollController();
   final AppVersionService appVersionService = AppVersionService();
 
-  List<String> get _title => AppVersionType.values.map((e) => e.type).toList();
+  LatestAppVersion latestAppVersion = LatestAppVersion();
+
+  List<String> get versionTypes => AppVersionType.values.map((e) => e.type).toList();
   AppVersionType appVersionType = AppVersionType.FORCE;
+
+  //Paging
   int currentPage = 0;
   int rowsPerPage = 10;
   int totalPage = 0;
-  String searchQuery = '';
+
   bool isLoading = true;
 
   //앱버전 리스트 조회
@@ -119,30 +119,14 @@ class _AppVersionListViewState extends State<AppVersionListView>
     getAppVersionList(context);
     getAppVersionListCount(context);
     getLatestAppVersion(context);
-    _tabController = TabController(length: _title.length, vsync: this);
+    tabController = TabController(length: versionTypes.length, vsync: this);
   }
 
   @override
   void dispose() {
-    _scrollController.dispose();
-    _tabController.dispose();
+    scrollController.dispose();
+    tabController.dispose();
     super.dispose();
-  }
-
-  ///_____________________________________________________________________Add_App_Version_____________________________
-  void showAddDialog(BuildContext context) async {
-    bool isAppVersionAdd = await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return const AppVersionAddDialog();
-      },
-    );
-
-    if (isAppVersionAdd) {
-      getAppVersionList(context);
-      getAppVersionListCount(context);
-      getLatestAppVersion(context);
-    }
   }
 
   ///_____________________________________________________________________Mod_App_Version_____________________________
@@ -165,7 +149,6 @@ class _AppVersionListViewState extends State<AppVersionListView>
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
     final theme = Theme.of(context);
-    final lang = l.S.of(context);
     final double _padding = responsiveValue<double>(
       context,
       xs: 16,
@@ -173,14 +156,12 @@ class _AppVersionListViewState extends State<AppVersionListView>
       md: 16,
       lg: 16,
     );
+
     return isLoading
         ? Center(child: CircularProgressIndicator())
         : Scaffold(
             body: LayoutBuilder(
               builder: (BuildContext context, BoxConstraints constraints) {
-                final isMobile = constraints.maxWidth < 576;
-                final isTablet =
-                    constraints.maxWidth < 992 && constraints.maxWidth >= 576;
                 return Padding(
                   padding: EdgeInsets.all(_padding),
                   child: ShadowContainer(
@@ -200,7 +181,7 @@ class _AppVersionListViewState extends State<AppVersionListView>
                                 physics: const AlwaysScrollableScrollPhysics(),
                                 padding: EdgeInsets.zero,
                                 indicatorSize: TabBarIndicatorSize.tab,
-                                controller: _tabController,
+                                controller: tabController,
                                 indicatorColor: AcnooAppColors.kPrimary600,
                                 indicatorWeight: 2.0,
                                 dividerColor: Colors.transparent,
@@ -212,7 +193,7 @@ class _AppVersionListViewState extends State<AppVersionListView>
                                   getAppVersionListCount(context);
                                   getLatestAppVersion(context);
                                 }),
-                                tabs: _title
+                                tabs: versionTypes
                                     .map(
                                       (e) => Tab(
                                         child: Padding(
@@ -226,7 +207,6 @@ class _AppVersionListViewState extends State<AppVersionListView>
                                     .toList(),
                               ),
                             ),
-                            //add_button_for_web
                             Visibility(
                               visible: constraints.maxWidth > 576,
                               child: Padding(
@@ -263,27 +243,7 @@ class _AppVersionListViewState extends State<AppVersionListView>
                             crossAxisAlignment: CrossAxisAlignment.center,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Flexible(
-                                flex: 3,
-                                child: Row(
-                                  children: [
-                                    Flexible(
-                                      flex: 1,
-                                      child: showingValueDropDown(
-                                          isTablet: isTablet,
-                                          isMobile: isMobile,
-                                          textTheme: textTheme),
-                                    ),
-                                    const SizedBox(width: 16.0),
-                                    Flexible(
-                                      flex: isTablet ? 1 : 2,
-                                      child:
-                                          searchFormField(textTheme: textTheme),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              isTablet ? Container() : const Spacer(),
+                              const Spacer(),
                               // Ensures proper alignment by pushing the next element to the end
                               SingleChildScrollView(
                                 scrollDirection: Axis.horizontal,
@@ -314,7 +274,7 @@ class _AppVersionListViewState extends State<AppVersionListView>
 
                           //______________________________________________________________________Data_table__________________
                           SingleChildScrollView(
-                            controller: _scrollController,
+                            controller: scrollController,
                             scrollDirection: Axis.horizontal,
                             child: ConstrainedBox(
                               constraints: BoxConstraints(
@@ -345,6 +305,21 @@ class _AppVersionListViewState extends State<AppVersionListView>
           );
   }
 
+  void showAddDialog(BuildContext context) async {
+    bool success = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return const AppVersionAddDialog();
+      },
+    );
+
+    if (success) {
+      getAppVersionList(context);
+      getAppVersionListCount(context);
+      getLatestAppVersion(context);
+    }
+  }
+
   ///_____________________________________________________________________add_AppVersion_button___________________________
   ElevatedButton addAppVersion(TextTheme textTheme, BuildContext context) {
     final lang = l.S.of(context);
@@ -358,9 +333,7 @@ class _AppVersionListViewState extends State<AppVersionListView>
         });
       },
       label: Text(
-        lang.addNewUser,
-        //l.S.of(context).addNewUser,
-        //'Add New User',
+        lang.addNewVersion,
         maxLines: 1,
         style: textTheme.bodySmall?.copyWith(
           color: AcnooAppColors.kWhiteColor,
@@ -377,7 +350,7 @@ class _AppVersionListViewState extends State<AppVersionListView>
   }
 
   ///_____________________________________go_next_page________________
-  void _goToNextPage() {
+  void goToNextPage() {
     if (currentPage < totalPage - 1) {
       setState(() {
         currentPage++;
@@ -387,7 +360,7 @@ class _AppVersionListViewState extends State<AppVersionListView>
   }
 
   ///_____________________________________go_previous_page____________
-  void _goToPreviousPage() {
+  void goToPreviousPage() {
     if (currentPage > 0) {
       setState(() {
         currentPage--;
@@ -412,8 +385,8 @@ class _AppVersionListViewState extends State<AppVersionListView>
         DataTablePaginator(
           currentPage: currentPage + 1,
           totalPages: totalPage,
-          onPreviousTap: _goToPreviousPage,
-          onNextTap: _goToNextPage,
+          onPreviousTap: goToPreviousPage,
+          onNextTap: goToNextPage,
         )
       ],
     );

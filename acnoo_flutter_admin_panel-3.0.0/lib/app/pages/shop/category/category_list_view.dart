@@ -20,7 +20,7 @@ import '../../../models/common/paging_param.dart';
 import '../../../models/shop/category/category.dart';
 import '../../../widgets/pagination_widgets/_pagination_widget.dart';
 import '../../../widgets/shadow_container/_shadow_container.dart';
-import '../../admin_manage_page/admin_add_popup.dart';
+import '../../admin_manage_page/widget/admin_add_popup.dart';
 import 'add_category_popup.dart';
 import 'mod_category_popup.dart';
 

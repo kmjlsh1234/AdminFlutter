@@ -4,7 +4,7 @@ enum UserSearchDateType{
   UPDATED_AT("UPDATED_AT"),
   LOGIN_AT("LOGIN_AT"),
   ;
-  const UserSearchDateType(this.searchType);
+  const UserSearchDateType(this.value);
 
-  final String searchType;
+  final String value;
 }

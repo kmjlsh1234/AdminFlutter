@@ -6,31 +6,32 @@ import 'package:flutter/material.dart';
 import 'package:iconly/iconly.dart';
 import 'package:intl/intl.dart';
 import 'package:responsive_grid/responsive_grid.dart';
-import '../../../generated/l10n.dart' as l;
-import '../../core/constants/currency/change_type.dart';
-import '../../core/helpers/field_styles/_dropdown_styles.dart';
-import '../../core/service/currency/currency_record_service.dart';
-import '../../core/static/_static_values.dart';
-import '../../core/theme/_app_colors.dart';
-import '../../models/currency/coin_record.dart';
-import '../../widgets/file_export_button/file_export_button.dart';
-import '../../widgets/pagination_widgets/_pagination_widget.dart';
+import '../../../../generated/l10n.dart' as l;
+import '../../../core/constants/currency/change_type.dart';
+import '../../../core/helpers/field_styles/_dropdown_styles.dart';
+import '../../../core/service/currency/currency_record_service.dart';
+import '../../../core/static/_static_values.dart';
+import '../../../core/theme/_app_colors.dart';
+import '../../../models/currency/coin_record.dart';
+import '../../../models/currency/diamond_record.dart';
+import '../../../widgets/file_export_button/file_export_button.dart';
+import '../../../widgets/pagination_widgets/_pagination_widget.dart';
 
-class CoinRecordWidget extends StatefulWidget {
-  const CoinRecordWidget({super.key, required this.userId, required this.constraints});
+class DiamondRecordWidget extends StatefulWidget {
+  const DiamondRecordWidget({super.key, required this.userId, required this.constraints});
 
   final int userId;
   final BoxConstraints constraints;
   @override
-  State<CoinRecordWidget> createState() => _CoinRecordWidgetState();
+  State<DiamondRecordWidget> createState() => _DiamondRecordWidgetState();
 }
 
-class _CoinRecordWidgetState extends State<CoinRecordWidget>{
+class _DiamondRecordWidgetState extends State<DiamondRecordWidget>{
   final ScrollController _scrollController = ScrollController();
   final TextEditingController startDateController = TextEditingController();
   final TextEditingController endDateController = TextEditingController();
   final CurrencyRecordService currencyRecordService = CurrencyRecordService();
-  List<CoinRecord> coinList = [];
+  List<DiamondRecord> diamondList = [];
   int currentPage = 0;
   int rowsPerPage = 10;
   int totalPage = 1;
@@ -38,8 +39,8 @@ class _CoinRecordWidgetState extends State<CoinRecordWidget>{
   String searchQuery = '';
   bool isLoading = true;
 
-  Future<void> getCoinRecordList(BuildContext context) async {
-    List<CoinRecord> list = [];
+  Future<void> getDiamondRecordList(BuildContext context) async {
+    List<DiamondRecord> list = [];
     try{
       setState(() => isLoading = true);
       CurrencyRecordSearchParam currencyRecordSearchParam = CurrencyRecordSearchParam(
@@ -49,15 +50,15 @@ class _CoinRecordWidgetState extends State<CoinRecordWidget>{
           currentPage + 1,
           rowsPerPage
       );
-      list = await currencyRecordService.getCoinRecordList(currencyRecordSearchParam);
+      list = await currencyRecordService.getDiamondRecordList(currencyRecordSearchParam);
     } catch(e){
       ErrorHandler.handleError(e, context);
     }
-    coinList = list;
+    diamondList = list;
     setState(() => isLoading = false);
   }
 
-  Future<void> getCoinRecordListCount(BuildContext context) async {
+  Future<void> getDiamondRecordListCount(BuildContext context) async {
     int count = 0;
     try{
       setState(() => isLoading = true);
@@ -68,7 +69,7 @@ class _CoinRecordWidgetState extends State<CoinRecordWidget>{
           currentPage + 1,
           rowsPerPage
       );
-      count = await currencyRecordService.getCoinRecordListCount(currencyRecordSearchParam);
+      count = await currencyRecordService.getDiamondRecordListCount(currencyRecordSearchParam);
     } catch(e){
       ErrorHandler.handleError(e, context);
     }
@@ -81,8 +82,8 @@ class _CoinRecordWidgetState extends State<CoinRecordWidget>{
   @override
   void initState() {
     super.initState();
-    getCoinRecordList(context);
-    getCoinRecordListCount(context);
+    getDiamondRecordList(context);
+    getDiamondRecordListCount(context);
   }
 
   @override
@@ -238,7 +239,7 @@ class _CoinRecordWidgetState extends State<CoinRecordWidget>{
                 padding: EdgeInsets.only(top: _padding),
                 child: isLoading
                     ? Center(child: CircularProgressIndicator())
-                    : coinListDataTable(context),
+                    : diamondListDataTable(context),
               ),
             ),
           ),
@@ -275,8 +276,8 @@ class _CoinRecordWidgetState extends State<CoinRecordWidget>{
             ),
             child: ElevatedButton(
                 onPressed: () {
-                  getCoinRecordList(context);
-                  getCoinRecordListCount(context);
+                  getDiamondRecordList(context);
+                  getDiamondRecordListCount(context);
                 },
                 child: Icon(
                     IconlyLight.search,
@@ -331,7 +332,7 @@ class _CoinRecordWidgetState extends State<CoinRecordWidget>{
       children: [
         Expanded(
           child: Text(
-            '${l.S.of(context).showing} ${currentPage * rowsPerPage + 1} ${l.S.of(context).to} ${currentPage * rowsPerPage + coinList.length} ${l.S.of(context).OF} ${coinList.length} ${l.S.of(context).entries}',
+            '${l.S.of(context).showing} ${currentPage * rowsPerPage + 1} ${l.S.of(context).to} ${currentPage * rowsPerPage + diamondList.length} ${l.S.of(context).OF} ${diamondList.length} ${l.S.of(context).entries}',
             overflow: TextOverflow.ellipsis,
           ),
         ),
@@ -358,7 +359,7 @@ class _CoinRecordWidgetState extends State<CoinRecordWidget>{
     if (currentPage < totalPage - 1) {
       setState(() {
         currentPage++;
-        getCoinRecordList(context);
+        getDiamondRecordList(context);
       });
     }
   }
@@ -368,12 +369,12 @@ class _CoinRecordWidgetState extends State<CoinRecordWidget>{
     if (currentPage > 0) {
       setState(() {
         currentPage--;
-        getCoinRecordList(context);
+        getDiamondRecordList(context);
       });
     }
   }
   ///_______________________________________________________________User_List_Data_Table___________________________
-  Theme coinListDataTable(BuildContext context) {
+  Theme diamondListDataTable(BuildContext context) {
     final theme = Theme.of(context);
     final lang = l.S.of(context);
     final textTheme = theme.textTheme;
@@ -397,7 +398,7 @@ class _CoinRecordWidgetState extends State<CoinRecordWidget>{
           DataColumn(label: Text(lang.changeDesc)),
           DataColumn(label: Text(lang.createdAt)),
         ],
-        rows: coinList.map(
+        rows: diamondList.map(
               (data) {
             return DataRow(
               color: WidgetStateColor.transparent,
@@ -414,13 +415,13 @@ class _CoinRecordWidgetState extends State<CoinRecordWidget>{
                 ),
                 DataCell(
                   Text(
-                    data.changeCoin.toString(),
+                    data.changeDiamond.toString(),
                     maxLines: 1,
                   ),
                 ),
                 DataCell(
                   Text(
-                    data.resultCoin.toString(),
+                    data.resultDiamond.toString(),
                     maxLines: 1,
                   ),
                 ),

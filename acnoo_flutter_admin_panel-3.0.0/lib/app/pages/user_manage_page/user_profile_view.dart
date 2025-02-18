@@ -1,28 +1,36 @@
 // 🐦 Flutter imports:
-import 'dart:developer';
-import 'package:acnoo_flutter_admin_panel/app/pages/admin_manage_page/widget/admin_nav_tab_bar.dart';
 import 'package:acnoo_flutter_admin_panel/app/pages/admin_manage_page/widget/admin_profile_widget.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/widget/nav_bar/user_nav_tab_bar.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/widget/user_currency_widget.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/widget/user_profile_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_grid/responsive_grid.dart';
 
-import '../../core/constants/admin/admin_menu.dart';
+import '../../../../generated/l10n.dart' as l;
+import '../../core/constants/user/user_menu.dart';
 import '../../widgets/widgets.dart';
 
-class AdminInfoView extends StatefulWidget {
-  const AdminInfoView({super.key, required this.adminId});
-  final int adminId;
+class UserProfileView extends StatefulWidget {
+  const UserProfileView({super.key, required this.userId});
+  final int userId;
 
   @override
-  State<AdminInfoView> createState() => _AdminInfoViewState();
+  State<UserProfileView> createState() => _UserProfileViewState();
 }
 
-class _AdminInfoViewState extends State<AdminInfoView> {
-  AdminMenu currentMenu = AdminMenu.PROFILE;
+class _UserProfileViewState extends State<UserProfileView> {
+  UserMenu currentMenu = UserMenu.PROFILE;
+
+  @override
+  void initState(){
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
     final theme = Theme.of(context);
+    final lang = l.S.of(context);
     final double padding = responsiveValue<double>(
       context,
       xs: 16,
@@ -44,14 +52,7 @@ class _AdminInfoViewState extends State<AdminInfoView> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
-                        child: AdminNavTabBar(onTabSelected: (value) {
-                          setState(() {
-                            currentMenu = AdminMenu.values.firstWhere(
-                                  (menu) => menu.value == value,
-                              orElse: () => AdminMenu.PROFILE,
-                            );
-                          });
-                        }),
+                        child: UserNavTabBar(selectMenu: currentMenu, userId: widget.userId),
                       ),
                     ],
                   ),
@@ -68,7 +69,7 @@ class _AdminInfoViewState extends State<AdminInfoView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    currentContentWidget(padding, theme, textTheme),
+                    UserProfileWidget(padding: padding, theme: theme, textTheme: textTheme, userId: widget.userId)
                   ],
                 ),
               ),
@@ -77,14 +78,5 @@ class _AdminInfoViewState extends State<AdminInfoView> {
         },
       ),
     );
-  }
-
-  Widget currentContentWidget(double padding, ThemeData theme, TextTheme textTheme){
-    switch(currentMenu){
-      case AdminMenu.PROFILE:
-        return AdminProfileWidget(padding: padding, theme: theme, textTheme: textTheme, adminId: widget.adminId);
-      case AdminMenu.LOG:
-        return AdminProfileWidget(padding: padding, theme: theme, textTheme: textTheme, adminId: widget.adminId);
-    }
   }
 }
