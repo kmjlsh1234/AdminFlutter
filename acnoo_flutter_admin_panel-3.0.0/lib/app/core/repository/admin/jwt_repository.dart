@@ -9,7 +9,6 @@ part 'jwt_repository.g.dart';
 abstract class JwtRepository{
   factory JwtRepository(Dio dio, {String baseUrl}) = _JwtRepository;
 
-  //auth token 이 동작하는지 확인
   @POST('/admin/token/check')
   Future<HttpResponse> tokenCheck();
 }

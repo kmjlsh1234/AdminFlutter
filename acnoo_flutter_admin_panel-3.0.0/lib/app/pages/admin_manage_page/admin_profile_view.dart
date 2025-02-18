@@ -64,7 +64,6 @@ class _AdminProfileViewState extends State<AdminProfileView> {
   @override
   void dispose(){
     super.dispose();
-
   }
 
   @override

@@ -33,16 +33,15 @@ class _AddAdminDialogState extends State<AddAdminDialog> {
       ];
 
   final AdminManageService adminManageService = AdminManageService();
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final TextEditingController mobileController = TextEditingController();
+  late TextEditingController nameController;
+  late TextEditingController emailController;
+  late TextEditingController passwordController;
+  late TextEditingController mobileController;
 
-  //Function
-  Future<void> addAdmin(BuildContext context) async {
+  Future<void> addAdmin() async {
     try {
       AdminAddParam adminAddParam = AdminAddParam(
-          roleId: 1,
+          roleId: 1, //TODO : 나중에 ROLE 작업 시 변경하기
           name: nameController.text,
           email: emailController.text,
           password: passwordController.text,
@@ -55,26 +54,22 @@ class _AddAdminDialogState extends State<AddAdminDialog> {
     }
   }
 
-  //Widget
-  void showAddAdminSuccessDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(''),
-          content: Text('관리자 추가 성공'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pop(true);
-              },
-              child: Text('확인'),
-            ),
-          ],
-        );
-      },
-    );
+  @override
+  void dispose(){
+    super.dispose();
+    nameController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    mobileController.dispose();
+  }
+
+  @override
+  void initState(){
+    super.initState();
+    nameController = TextEditingController();
+    emailController = TextEditingController();
+    passwordController = TextEditingController();
+    mobileController = TextEditingController();
   }
 
   @override
@@ -241,8 +236,7 @@ class _AddAdminDialogState extends State<AddAdminDialog> {
                               padding: EdgeInsets.symmetric(
                                   horizontal: _sizeInfo.innerSpacing),
                             ),
-                            onPressed: () => addAdmin(context),
-                            //label: const Text('Save'),
+                            onPressed: () => addAdmin(),
                             label: Text(lang.save),
                           )
                         ],
@@ -255,6 +249,27 @@ class _AddAdminDialogState extends State<AddAdminDialog> {
           ],
         ),
       ),
+    );
+  }
+
+  void showAddAdminSuccessDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(''),
+          content: Text('관리자 추가 성공'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop(true);
+              },
+              child: Text('확인'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

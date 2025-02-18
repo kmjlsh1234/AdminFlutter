@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../../../generated/l10n.dart' as l;
-import 'package:responsive_framework/responsive_framework.dart' as rf;
-
 import '../../../core/error/error_handler.dart';
 import '../../../core/service/admin/admin_manage_service.dart';
 import '../../../core/theme/_app_colors.dart';
@@ -36,7 +34,7 @@ class _AdminModDialogState extends State<AdminModDialog> {
   final TextEditingController mobileController = TextEditingController();
 
   //관리자 추가
-  Future<void> modAdmin(BuildContext context) async {
+  Future<void> modAdmin() async {
     try {
       AdminModParam adminModParam = AdminModParam(
           roleId: 1,
@@ -45,13 +43,13 @@ class _AdminModDialogState extends State<AdminModDialog> {
           password: null,
           mobile: mobileController.text);
       Admin admin = await adminManageService.modAdmin(widget.admin.adminId, adminModParam);
-      showAddAdminSuccessDialog(context);
+      showAddAdminSuccessDialog();
     } catch (e) {
       ErrorHandler.handleError(e, context);
     }
   }
 
-  void showAddAdminSuccessDialog(BuildContext context) {
+  void showAddAdminSuccessDialog() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -70,6 +68,14 @@ class _AdminModDialogState extends State<AdminModDialog> {
         );
       },
     );
+  }
+
+  @override
+  void dispose(){
+    nameController.dispose();
+    emailController.dispose();
+    mobileController.dispose();
+    super.dispose();
   }
 
   @override
@@ -244,8 +250,7 @@ class _AdminModDialogState extends State<AdminModDialog> {
                               padding: EdgeInsets.symmetric(
                                   horizontal: _sizeInfo.innerSpacing),
                             ),
-                            onPressed: () => modAdmin(context),
-                            //label: const Text('Save'),
+                            onPressed: () => modAdmin(),
                             label: Text(lang.save),
                           )
                         ],

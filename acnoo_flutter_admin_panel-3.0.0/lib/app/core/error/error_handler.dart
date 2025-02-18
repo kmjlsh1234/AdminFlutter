@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:acnoo_flutter_admin_panel/app/core/error/custom_exception.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +7,7 @@ import 'error_code.dart';
 class ErrorHandler{
 
   static void handleError<E>(E e, BuildContext context){
+    //api통신 오류일 경우
     if(e is DioException){
       if(e.response != null){
         if(e.response?.statusCode == 401) {
@@ -22,7 +21,11 @@ class ErrorHandler{
       }else{
         showError(context, e.message.toString());
       }
-    } else if (e is CustomException){
+
+    }
+
+    //개별 정의 오류일 경우
+    else if (e is CustomException){
       if(e.errorCode == ErrorCode.JWT_TOKEN_MISSING){
         GoRouter.of(context).go('/authentication/signin');
         return;
