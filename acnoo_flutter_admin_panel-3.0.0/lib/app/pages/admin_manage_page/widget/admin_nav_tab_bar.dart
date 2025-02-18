@@ -1,8 +1,7 @@
 // 🐦 Flutter imports:
 import 'package:flutter/material.dart';
 import 'package:responsive_grid/responsive_grid.dart';
-
-import '../../../core/constants/admin/admin_menu.dart';
+import '../../../constants/admin/admin_menu.dart';
 import '../../../core/theme/_app_colors.dart';
 
 class AdminNavTabBar extends StatefulWidget {

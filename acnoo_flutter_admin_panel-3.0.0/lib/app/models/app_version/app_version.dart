@@ -1,8 +1,9 @@
 import 'package:json_annotation/json_annotation.dart';
+
 part 'app_version.g.dart';
 
-@JsonSerializable()
-class AppVersion{
+@JsonSerializable(includeIfNull: false)
+class AppVersion {
   final int id;
   final String version;
   final String versionType;
@@ -11,7 +12,16 @@ class AppVersion{
   final String createdAt;
   final String updatedAt;
 
-  AppVersion(this.id, this.version, this.versionType, this.publishAt, this.publishStatus, this.createdAt, this.updatedAt);
+  AppVersion({
+    required this.id,
+    required this.version,
+    required this.versionType,
+    required this.publishAt,
+    required this.publishStatus,
+    required this.createdAt,
+    required this.updatedAt
+  });
+
   factory AppVersion.fromJson(Map<String, dynamic> json) => _$AppVersionFromJson(json);
   Map<String, dynamic> toJson() => _$AppVersionToJson(this);
 }

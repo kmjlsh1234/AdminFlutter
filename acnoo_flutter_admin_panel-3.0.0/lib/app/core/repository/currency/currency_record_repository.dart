@@ -6,13 +6,13 @@ import '../../../models/currency/chip_record.dart';
 import '../../../models/currency/coin_record.dart';
 import '../../../models/currency/currency_record_search_param.dart';
 import '../../../models/currency/diamond_record.dart';
-import '../../app_config/app_config.dart';
+import '../../app_config/server_config.dart';
 
-part 'currency_record_client.g.dart';
+part 'currency_record_repository.g.dart';
 
-@RestApi(baseUrl: AppConfig.baseUrl)
-abstract class CurrencyRecordClient{
-  factory CurrencyRecordClient(Dio dio, {String baseUrl}) = _CurrencyRecordClient;
+@RestApi(baseUrl: ServerConfig.baseUrl)
+abstract class CurrencyRecordRepository{
+  factory CurrencyRecordRepository(Dio dio, {String baseUrl}) = _CurrencyRecordRepository;
 
   //칩 기록 리스트 조회
   @POST('/admin/v1/chip/records/list')

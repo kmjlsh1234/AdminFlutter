@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'app_version_client.dart';
+part of 'category_repository.dart';
 
 // **************************************************************************
 // RetrofitGenerator
@@ -8,8 +8,8 @@ part of 'app_version_client.dart';
 
 // ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers,unused_element,unnecessary_string_interpolations
 
-class _AppVersionClient implements AppVersionClient {
-  _AppVersionClient(this._dio, {this.baseUrl, this.errorLogger}) {
+class _CategoryRepository implements CategoryRepository {
+  _CategoryRepository(this._dio, {this.baseUrl, this.errorLogger}) {
     baseUrl ??= 'http://localhost:38084';
   }
 
@@ -20,25 +20,25 @@ class _AppVersionClient implements AppVersionClient {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<LatestAppVersion> getLatestAppVersion() async {
+  Future<Category> getCategory(int categoryId) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<LatestAppVersion>(
+    final _options = _setStreamType<Category>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/admin/v1/versions/latest',
+            '/admin/v1/categories/${categoryId}',
             queryParameters: queryParameters,
             data: _data,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late LatestAppVersion _value;
+    late Category _value;
     try {
-      _value = LatestAppVersion.fromJson(_result.data!);
+      _value = Category.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
@@ -47,58 +47,27 @@ class _AppVersionClient implements AppVersionClient {
   }
 
   @override
-  Future<AppVersion> getAppVersion(int versionId) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<AppVersion>(
-      Options(method: 'GET', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/admin/v1/versions/${versionId}',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late AppVersion _value;
-    try {
-      _value = AppVersion.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<List<AppVersion>> getAppVersionList(
-    AppVersionSearchParam appVersionSearchParam,
-  ) async {
+  Future<List<Category>> getCategoryList(PagingParam pagingParam) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
-    _data.addAll(appVersionSearchParam.toJson());
-    final _options = _setStreamType<List<AppVersion>>(
+    _data.addAll(pagingParam.toJson());
+    final _options = _setStreamType<List<Category>>(
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/admin/v1/versions/list',
+            '/admin/v1/categories/list',
             queryParameters: queryParameters,
             data: _data,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<List<dynamic>>(_options);
-    late List<AppVersion> _value;
+    late List<Category> _value;
     try {
       _value = _result.data!
-          .map(
-            (dynamic i) => AppVersion.fromJson(i as Map<String, dynamic>),
-          )
+          .map((dynamic i) => Category.fromJson(i as Map<String, dynamic>))
           .toList();
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
@@ -108,19 +77,45 @@ class _AppVersionClient implements AppVersionClient {
   }
 
   @override
-  Future<CountVo> getAppVersionListCount(
-    AppVersionSearchParam appVersionSearchParam,
-  ) async {
+  Future<List<Category>> getAllCategoryList() async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    final _data = <String, dynamic>{};
-    _data.addAll(appVersionSearchParam.toJson());
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<List<Category>>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/admin/v1/categories/list/all',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<List<dynamic>>(_options);
+    late List<Category> _value;
+    try {
+      _value = _result.data!
+          .map((dynamic i) => Category.fromJson(i as Map<String, dynamic>))
+          .toList();
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<CountVo> getUserListCount() async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<CountVo>(
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/admin/v1/versions/list/count',
+            '/admin/v1/categories/list/count',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -138,28 +133,26 @@ class _AppVersionClient implements AppVersionClient {
   }
 
   @override
-  Future<AppVersion> addAppVersion(
-    AppVersionAddParam appVersionAddParam,
-  ) async {
+  Future<Category> addCategory(CategoryAddParam categoryAddParam) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
-    _data.addAll(appVersionAddParam.toJson());
-    final _options = _setStreamType<AppVersion>(
+    _data.addAll(categoryAddParam.toJson());
+    final _options = _setStreamType<Category>(
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/admin/v1/versions',
+            '/admin/v1/categories',
             queryParameters: queryParameters,
             data: _data,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late AppVersion _value;
+    late Category _value;
     try {
-      _value = AppVersion.fromJson(_result.data!);
+      _value = Category.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
@@ -168,29 +161,29 @@ class _AppVersionClient implements AppVersionClient {
   }
 
   @override
-  Future<AppVersion> modAppVersion(
-    int versionId,
-    AppVersionModParam appVersionModParam,
+  Future<Category> modCategory(
+    int categoryId,
+    CategoryModParam categoryModParam,
   ) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
-    _data.addAll(appVersionModParam.toJson());
-    final _options = _setStreamType<AppVersion>(
+    _data.addAll(categoryModParam.toJson());
+    final _options = _setStreamType<Category>(
       Options(method: 'PUT', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/admin/v1/versions/${versionId}',
+            '/admin/v1/categories/${categoryId}',
             queryParameters: queryParameters,
             data: _data,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late AppVersion _value;
+    late Category _value;
     try {
-      _value = AppVersion.fromJson(_result.data!);
+      _value = Category.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
@@ -199,7 +192,7 @@ class _AppVersionClient implements AppVersionClient {
   }
 
   @override
-  Future<HttpResponse<dynamic>> delAppVersion(int versionId) async {
+  Future<HttpResponse<dynamic>> delCategory(int categoryId) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
@@ -208,7 +201,7 @@ class _AppVersionClient implements AppVersionClient {
       Options(method: 'DELETE', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/admin/v1/versions/${versionId}',
+            '/admin/v1/categories/${categoryId}',
             queryParameters: queryParameters,
             data: _data,
           )

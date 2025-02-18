@@ -7,7 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:responsive_grid/responsive_grid.dart';
 
 import '../../../../generated/l10n.dart' as l;
-import '../../../core/constants/currency/change_type.dart';
+import '../../../constants/currency/change_type.dart';
 import '../../../core/helpers/field_styles/_dropdown_styles.dart';
 import '../../../core/service/currency/currency_record_service.dart';
 import '../../../core/static/_static_values.dart';

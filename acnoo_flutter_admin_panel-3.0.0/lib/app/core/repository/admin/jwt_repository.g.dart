@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'jwt_client.dart';
+part of 'jwt_repository.dart';
 
 // **************************************************************************
 // RetrofitGenerator
@@ -8,8 +8,8 @@ part of 'jwt_client.dart';
 
 // ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers,unused_element,unnecessary_string_interpolations
 
-class _JwtClient implements JwtClient {
-  _JwtClient(this._dio, {this.baseUrl, this.errorLogger}) {
+class _JwtRepository implements JwtRepository {
+  _JwtRepository(this._dio, {this.baseUrl, this.errorLogger}) {
     baseUrl ??= 'http://localhost:38084';
   }
 

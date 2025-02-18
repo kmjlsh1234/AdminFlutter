@@ -31,7 +31,11 @@ class _AddCategoryDialogState extends State<AddCategoryDialog> {
   //카테고리 추가
   Future<void> addCategory(BuildContext context) async {
     try {
-      CategoryAddParam categoryAddParam = CategoryAddParam(nameController.text, descController.text);
+      CategoryAddParam categoryAddParam = CategoryAddParam(
+          name: nameController.text,
+          description: descController.text
+      );
+
       Category category = await categoryService.addCategory(categoryAddParam);
       showAddCategorySuccessDialog(context);
     } catch (e) {

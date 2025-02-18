@@ -1,7 +1,7 @@
 // 🐦 Flutter imports:
-import 'package:acnoo_flutter_admin_panel/app/core/constants/app_version/app_version_type.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/service/app_version/app_version_service.dart';
+import 'package:acnoo_flutter_admin_panel/app/core/utils/size_config.dart';
 import 'package:acnoo_flutter_admin_panel/app/models/app_version/app_version_add_param.dart';
 import 'package:flutter/material.dart';
 import 'package:iconly/iconly.dart';
@@ -11,6 +11,7 @@ import 'package:responsive_framework/responsive_framework.dart' as rf;
 
 // 🌎 Project imports:
 import '../../../../generated/l10n.dart' as l;
+import '../../constants/app_version/app_version_type.dart';
 import '../../core/static/_static_values.dart';
 import '../../core/theme/_app_colors.dart';
 import '../../models/app_version/app_version.dart';
@@ -35,9 +36,14 @@ class _AppVersionAddDialogState extends State<AppVersionAddDialog> {
   //앱버전 추가
   Future<void> addAppVersion(BuildContext context) async {
     try {
-      AppVersionAddParam appVersionAddParam = AppVersionAddParam(versionController.text, selectType!, publishDateController.text, selectStatus!);
-      AppVersion version =
-          await appVersionService.addAppVersion(appVersionAddParam);
+      AppVersionAddParam appVersionAddParam = AppVersionAddParam(
+          version: versionController.text,
+          versionType: selectType!,
+          publishAt: publishDateController.text,
+          publishStatus: selectStatus!
+      );
+
+      AppVersion version = await appVersionService.addAppVersion(appVersionAddParam);
       showAddAppVersionSuccessDialog(context);
     } catch (e) {
       ErrorHandler.handleError(e, context);
@@ -68,41 +74,10 @@ class _AppVersionAddDialogState extends State<AppVersionAddDialog> {
   @override
   Widget build(BuildContext context) {
     final lang = l.S.of(context);
-    final _sizeInfo = rf.ResponsiveValue<_SizeInfo>(
-      context,
-      conditionalValues: [
-        const rf.Condition.between(
-          start: 0,
-          end: 480,
-          value: _SizeInfo(
-            alertFontSize: 12,
-            padding: EdgeInsets.all(16),
-            innerSpacing: 16,
-          ),
-        ),
-        const rf.Condition.between(
-          start: 481,
-          end: 576,
-          value: _SizeInfo(
-            alertFontSize: 14,
-            padding: EdgeInsets.all(16),
-            innerSpacing: 16,
-          ),
-        ),
-        const rf.Condition.between(
-          start: 577,
-          end: 992,
-          value: _SizeInfo(
-            alertFontSize: 14,
-            padding: EdgeInsets.all(16),
-            innerSpacing: 16,
-          ),
-        ),
-      ],
-      defaultValue: const _SizeInfo(),
-    ).value;
+    final _sizeInfo = SizeConfig.getSizeInfo(context);
     TextTheme textTheme = Theme.of(context).textTheme;
     final theme = Theme.of(context);
+
     return AlertDialog(
       contentPadding: EdgeInsets.zero,
       alignment: Alignment.center,

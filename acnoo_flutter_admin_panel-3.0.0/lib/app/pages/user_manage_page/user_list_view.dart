@@ -2,7 +2,6 @@
 import 'dart:ui';
 
 // 🐦 Flutter imports:
-import 'package:acnoo_flutter_admin_panel/app/core/constants/user/user_search_date_type.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
 import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/widget/popup/user_mod_popup.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
@@ -11,7 +10,8 @@ import 'package:go_router/go_router.dart';
 
 // 🌎 Project imports:
 import '../../../../generated/l10n.dart' as l;
-import '../../core/constants/user/user_search_type.dart';
+import '../../constants/user/user_search_date_type.dart';
+import '../../constants/user/user_search_type.dart';
 import '../../core/helpers/field_styles/_dropdown_styles.dart';
 import '../../core/service/user/user_manage_service.dart';
 import '../../core/theme/_app_colors.dart';

@@ -7,13 +7,14 @@ import '../../../models/admin/admin_mod_param.dart';
 import '../../../models/admin/admin_mod_status_param.dart';
 import '../../../models/admin/admin_search_param.dart';
 import '../../../models/common/count_vo.dart';
-import '../../app_config/app_config.dart';
-part 'admin_manage_client.g.dart';
+import '../../app_config/server_config.dart';
 
-@RestApi(baseUrl: AppConfig.baseUrl)
-abstract class AdminManageClient {
+part 'admin_manage_repository.g.dart';
 
-  factory AdminManageClient(Dio dio, {String baseUrl}) = _AdminManageClient;
+@RestApi(baseUrl: ServerConfig.baseUrl)
+abstract class AdminManageRepository {
+
+  factory AdminManageRepository(Dio dio, {String baseUrl}) = _AdminManageRepository;
 
   @POST("/admin/v1/admins/list")
   Future<List<Admin>> getAdminList(@Body() AdminSearchParam adminSearchParam);

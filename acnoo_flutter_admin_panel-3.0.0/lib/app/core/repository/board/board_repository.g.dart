@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'board_client.dart';
+part of 'board_repository.dart';
 
 // **************************************************************************
 // RetrofitGenerator
@@ -8,8 +8,8 @@ part of 'board_client.dart';
 
 // ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers,unused_element,unnecessary_string_interpolations
 
-class _BoardClient implements BoardClient {
-  _BoardClient(this._dio, {this.baseUrl, this.errorLogger}) {
+class _BoardRepository implements BoardRepository {
+  _BoardRepository(this._dio, {this.baseUrl, this.errorLogger}) {
     baseUrl ??= 'http://localhost:38084';
   }
 

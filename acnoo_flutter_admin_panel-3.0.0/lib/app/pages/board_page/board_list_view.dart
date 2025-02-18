@@ -10,8 +10,8 @@ import 'package:responsive_grid/responsive_grid.dart';
 
 // 🌎 Project imports:
 import '../../../generated/l10n.dart' as l;
-import '../../core/constants/board/board_status.dart';
-import '../../core/constants/board/board_type.dart';
+import '../../constants/board/board_status.dart';
+import '../../constants/board/board_type.dart';
 import '../../core/error/error_handler.dart';
 import '../../core/helpers/helpers.dart';
 import '../../core/service/board/board_service.dart';

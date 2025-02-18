@@ -7,15 +7,15 @@ part of 'item_unit.dart';
 // **************************************************************************
 
 ItemUnit _$ItemUnitFromJson(Map<String, dynamic> json) => ItemUnit(
-      (json['id'] as num).toInt(),
-      json['sku'] as String,
-      json['name'] as String,
-      json['image'] as String,
-      json['description'] as String,
-      json['attributes'] as String,
-      json['type'] as String,
-      DateTime.parse(json['createdAt'] as String),
-      DateTime.parse(json['updatedAt'] as String),
+      id: (json['id'] as num).toInt(),
+      sku: json['sku'] as String,
+      name: json['name'] as String,
+      image: json['image'] as String,
+      description: json['description'] as String,
+      attributes: json['attributes'] as String,
+      type: json['type'] as String,
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      updatedAt: DateTime.parse(json['updatedAt'] as String),
     );
 
 Map<String, dynamic> _$ItemUnitToJson(ItemUnit instance) => <String, dynamic>{

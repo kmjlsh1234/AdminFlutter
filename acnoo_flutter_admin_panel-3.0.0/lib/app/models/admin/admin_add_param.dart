@@ -1,7 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 part 'admin_add_param.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: false)
 class AdminAddParam{
   final int roleId;
   final String email;

@@ -3,16 +3,14 @@ import 'package:json_annotation/json_annotation.dart';
 part 'admin.g.dart';
 
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: true)
 class Admin{
   final int adminId;
-  @JsonKey(includeIfNull: true)
   final int? roleId;
   final String status;
   final String email;
   final String name;
   final String mobile;
-  @JsonKey(includeIfNull: true)
   final DateTime? loginAt;
   final DateTime createdAt;
   final DateTime updatedAt;

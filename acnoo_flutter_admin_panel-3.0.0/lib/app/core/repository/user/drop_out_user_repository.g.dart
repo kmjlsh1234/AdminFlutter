@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'item_client.dart';
+part of 'drop_out_user_repository.dart';
 
 // **************************************************************************
 // RetrofitGenerator
@@ -8,8 +8,8 @@ part of 'item_client.dart';
 
 // ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers,unused_element,unnecessary_string_interpolations
 
-class _ItemClient implements ItemClient {
-  _ItemClient(this._dio, {this.baseUrl, this.errorLogger}) {
+class _DropOutUserRepository implements DropOutUserRepository {
+  _DropOutUserRepository(this._dio, {this.baseUrl, this.errorLogger}) {
     baseUrl ??= 'http://localhost:38084';
   }
 
@@ -20,54 +20,31 @@ class _ItemClient implements ItemClient {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<Item> getItem(int itemId) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<Item>(
-      Options(method: 'GET', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/admin/v1/items/${itemId}',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Item _value;
-    try {
-      _value = Item.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<List<Item>> getItemList(ItemSearchParam itemSearchParam) async {
+  Future<List<DropOutUser>> getDropOutUserList(
+    DropOutUserSearchParam dropOutUserSearchParam,
+  ) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
-    _data.addAll(itemSearchParam.toJson());
-    final _options = _setStreamType<List<Item>>(
+    _data.addAll(dropOutUserSearchParam.toJson());
+    final _options = _setStreamType<List<DropOutUser>>(
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/admin/v1/items/list',
+            '/admin/v1/users/leave/list',
             queryParameters: queryParameters,
             data: _data,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<List<dynamic>>(_options);
-    late List<Item> _value;
+    late List<DropOutUser> _value;
     try {
       _value = _result.data!
-          .map((dynamic i) => Item.fromJson(i as Map<String, dynamic>))
+          .map(
+            (dynamic i) => DropOutUser.fromJson(i as Map<String, dynamic>),
+          )
           .toList();
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
@@ -77,17 +54,19 @@ class _ItemClient implements ItemClient {
   }
 
   @override
-  Future<CountVo> getItemListCount(ItemSearchParam itemSearchParam) async {
+  Future<CountVo> getDropOutUserListCount(
+    DropOutUserSearchParam dropOutUserSearchParam,
+  ) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
-    _data.addAll(itemSearchParam.toJson());
+    _data.addAll(dropOutUserSearchParam.toJson());
     final _options = _setStreamType<CountVo>(
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/admin/v1/items/list/count',
+            '/admin/v1/users/leave/list/count',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -97,34 +76,6 @@ class _ItemClient implements ItemClient {
     late CountVo _value;
     try {
       _value = CountVo.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<Item> addItem(ItemAddParam itemAddParam) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
-    final _data = <String, dynamic>{};
-    _data.addAll(itemAddParam.toJson());
-    final _options = _setStreamType<Item>(
-      Options(method: 'POST', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/admin/v1/items',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Item _value;
-    try {
-      _value = Item.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;

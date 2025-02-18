@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:responsive_grid/responsive_grid.dart';
 
 import '../../../../generated/l10n.dart' as l;
-import '../../core/constants/user/user_menu.dart';
+import '../../constants/user/user_menu.dart';
 import '../../widgets/widgets.dart';
 
 class UserProfileView extends StatefulWidget {

@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'item_unit_client.dart';
+part of 'user_manage_repository.dart';
 
 // **************************************************************************
 // RetrofitGenerator
@@ -8,8 +8,8 @@ part of 'item_unit_client.dart';
 
 // ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers,unused_element,unnecessary_string_interpolations
 
-class _ItemUnitClient implements ItemUnitClient {
-  _ItemUnitClient(this._dio, {this.baseUrl, this.errorLogger}) {
+class _UserManageRepository implements UserManageRepository {
+  _UserManageRepository(this._dio, {this.baseUrl, this.errorLogger}) {
     baseUrl ??= 'http://localhost:38084';
   }
 
@@ -20,56 +20,29 @@ class _ItemUnitClient implements ItemUnitClient {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<ItemUnit> getItemUnit(int unitId) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<ItemUnit>(
-      Options(method: 'GET', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/admin/v1/item-units/${unitId}',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ItemUnit _value;
-    try {
-      _value = ItemUnit.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<List<ItemUnit>> getItemUnitList(
-    ItemUnitSearchParam itemUnitSearchParam,
-  ) async {
+  Future<List<UserProfile>> getUserList(UserSearchParam userSearchParam) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
-    _data.addAll(itemUnitSearchParam.toJson());
-    final _options = _setStreamType<List<ItemUnit>>(
+    _data.addAll(userSearchParam.toJson());
+    final _options = _setStreamType<List<UserProfile>>(
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/admin/v1/item-units/list',
+            '/admin/v1/users/list',
             queryParameters: queryParameters,
             data: _data,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<List<dynamic>>(_options);
-    late List<ItemUnit> _value;
+    late List<UserProfile> _value;
     try {
       _value = _result.data!
-          .map((dynamic i) => ItemUnit.fromJson(i as Map<String, dynamic>))
+          .map(
+            (dynamic i) => UserProfile.fromJson(i as Map<String, dynamic>),
+          )
           .toList();
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
@@ -79,19 +52,17 @@ class _ItemUnitClient implements ItemUnitClient {
   }
 
   @override
-  Future<CountVo> getItemUnitListCount(
-    ItemUnitSearchParam itemUnitSearchParam,
-  ) async {
+  Future<CountVo> getUserListCount(UserSearchParam userSearchParam) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
-    _data.addAll(itemUnitSearchParam.toJson());
+    _data.addAll(userSearchParam.toJson());
     final _options = _setStreamType<CountVo>(
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/admin/v1/item-units/list/count',
+            '/admin/v1/users/list/count',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -109,26 +80,25 @@ class _ItemUnitClient implements ItemUnitClient {
   }
 
   @override
-  Future<ItemUnit> addItemUnit(ItemUnitAddParam itemUnitAddParam) async {
+  Future<UserDetail> getUser(int userId) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    final _data = <String, dynamic>{};
-    _data.addAll(itemUnitAddParam.toJson());
-    final _options = _setStreamType<ItemUnit>(
-      Options(method: 'POST', headers: _headers, extra: _extra)
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<UserDetail>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/admin/v1/item-units',
+            '/admin/v1/users/${userId}',
             queryParameters: queryParameters,
             data: _data,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ItemUnit _value;
+    late UserDetail _value;
     try {
-      _value = ItemUnit.fromJson(_result.data!);
+      _value = UserDetail.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
@@ -137,47 +107,48 @@ class _ItemUnitClient implements ItemUnitClient {
   }
 
   @override
-  Future<ItemUnit> modItemUnit(
-    int unitId,
-    ItemUnitModParam itemUnitModParam,
+  Future<UserProfile> modUser(int userId, UserModParam userModParam) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(userModParam.toJson());
+    final _options = _setStreamType<UserProfile>(
+      Options(method: 'PUT', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/admin/v1/users/${userId}',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late UserProfile _value;
+    try {
+      _value = UserProfile.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<HttpResponse<dynamic>> modUserStatus(
+    int userId,
+    UserModStatusParam userModStatusParam,
   ) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
-    _data.addAll(itemUnitModParam.toJson());
-    final _options = _setStreamType<ItemUnit>(
+    _data.addAll(userModStatusParam.toJson());
+    final _options = _setStreamType<HttpResponse<dynamic>>(
       Options(method: 'PUT', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/admin/v1/item-units/${unitId}',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ItemUnit _value;
-    try {
-      _value = ItemUnit.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<HttpResponse<dynamic>> delItemUnit(int unitId) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<HttpResponse<dynamic>>(
-      Options(method: 'DELETE', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/admin/v1/item-units/${unitId}',
+            '/admin/v1/users/${userId}/status',
             queryParameters: queryParameters,
             data: _data,
           )

@@ -2,7 +2,7 @@ import 'package:acnoo_flutter_admin_panel/app/models/admin/admin_mod_status_para
 import 'package:flutter/material.dart';
 
 import '../../../../../generated/l10n.dart' as l;
-import '../../../core/constants/admin/admin_status.dart';
+import '../../../constants/admin/admin_status.dart';
 import '../../../core/error/error_handler.dart';
 import '../../../core/service/admin/admin_manage_service.dart';
 import '../../../core/theme/_app_colors.dart';
@@ -25,7 +25,7 @@ class _AdminModStatusDialogState extends State<AdminModStatusDialog> {
   //관리자 상태 변경
   Future<void> modAdminStatus(BuildContext context) async {
     try {
-      AdminModStatusParam adminModStatusParam = AdminModStatusParam(adminStatus);
+      AdminModStatusParam adminModStatusParam = AdminModStatusParam(status: adminStatus);
       bool isSuccess = await adminManageService.modAdminStatus(widget.admin.adminId, adminModStatusParam);
       showSuccessDialog(context);
     } catch (e) {

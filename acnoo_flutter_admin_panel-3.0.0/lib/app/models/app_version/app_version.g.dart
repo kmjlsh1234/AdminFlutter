@@ -7,13 +7,13 @@ part of 'app_version.dart';
 // **************************************************************************
 
 AppVersion _$AppVersionFromJson(Map<String, dynamic> json) => AppVersion(
-      (json['id'] as num).toInt(),
-      json['version'] as String,
-      json['versionType'] as String,
-      json['publishAt'] as String,
-      json['publishStatus'] as String,
-      json['createdAt'] as String,
-      json['updatedAt'] as String,
+      id: (json['id'] as num).toInt(),
+      version: json['version'] as String,
+      versionType: json['versionType'] as String,
+      publishAt: json['publishAt'] as String,
+      publishStatus: json['publishStatus'] as String,
+      createdAt: json['createdAt'] as String,
+      updatedAt: json['updatedAt'] as String,
     );
 
 Map<String, dynamic> _$AppVersionToJson(AppVersion instance) =>

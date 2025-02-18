@@ -8,7 +8,7 @@ part of 'admin_mod_status_param.dart';
 
 AdminModStatusParam _$AdminModStatusParamFromJson(Map<String, dynamic> json) =>
     AdminModStatusParam(
-      json['status'] as String,
+      status: json['status'] as String,
     );
 
 Map<String, dynamic> _$AdminModStatusParamToJson(

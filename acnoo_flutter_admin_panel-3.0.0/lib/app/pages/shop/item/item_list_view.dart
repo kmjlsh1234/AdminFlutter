@@ -12,7 +12,7 @@ import 'package:responsive_framework/responsive_framework.dart' as rf;
 
 // 🌎 Project imports:
 import '../../../../generated/l10n.dart' as l;
-import '../../../core/constants/shop/item/item_search_type.dart';
+import '../../../constants/shop/item/item_search_type.dart';
 import '../../../core/helpers/field_styles/_dropdown_styles.dart';
 import '../../../core/service/shop/item/item_service.dart';
 import '../../../core/theme/_app_colors.dart';
@@ -62,13 +62,7 @@ class _ItemListViewState extends State<ItemListView> {
     List<Item> list = [];
     try {
       setState(() => isLoading = true);
-      ItemSearchParam itemSearchParam = ItemSearchParam(
-          null,
-          null,
-          null,
-          currentPage + 1,
-          _rowsPerPage
-      );
+      ItemSearchParam itemSearchParam = getItemSearchParam();
       list = await itemService.getItemList(itemSearchParam);
     } catch (e) {
       ErrorHandler.handleError(e, context);
@@ -84,13 +78,7 @@ class _ItemListViewState extends State<ItemListView> {
     int count = 0;
     try {
       setState(() => isLoading = true);
-      ItemSearchParam itemSearchParam = ItemSearchParam(
-          null,
-          null,
-          null,
-          currentPage + 1,
-          _rowsPerPage
-      );
+      ItemSearchParam itemSearchParam = getItemSearchParam();
       count = await itemService.getItemListCount(itemSearchParam);
     } catch (e) {
       ErrorHandler.handleError(e, context);
@@ -101,6 +89,15 @@ class _ItemListViewState extends State<ItemListView> {
     });
   }
 
+  ItemSearchParam getItemSearchParam() {
+    return ItemSearchParam(
+        categoryId: null,
+        searchType: null,
+        searchValue: null,
+        page: currentPage + 1,
+        limit: _rowsPerPage
+    );
+  }
   ///_____________________________________________________________________Add_Item_____________________________
   void showAddFormDialog(BuildContext context) async {
     bool isItemAdd = await showDialog(

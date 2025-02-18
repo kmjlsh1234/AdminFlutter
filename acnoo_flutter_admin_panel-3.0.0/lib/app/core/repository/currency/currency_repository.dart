@@ -5,12 +5,13 @@ import '../../../models/currency/chip.dart';
 import '../../../models/currency/coin.dart';
 import '../../../models/currency/currency_mod_param.dart';
 import '../../../models/currency/diamond.dart';
-import '../../app_config/app_config.dart';
-part 'currency_client.g.dart';
+import '../../app_config/server_config.dart';
 
-@RestApi(baseUrl: AppConfig.baseUrl)
-abstract class CurrencyClient {
-  factory CurrencyClient(Dio dio, {String baseUrl}) = _CurrencyClient;
+part 'currency_repository.g.dart';
+
+@RestApi(baseUrl: ServerConfig.baseUrl)
+abstract class CurrencyRepository {
+  factory CurrencyRepository(Dio dio, {String baseUrl}) = _CurrencyRepository;
 
   //칩 조회
   @GET('/admin/v1/users/{userId}/chips')

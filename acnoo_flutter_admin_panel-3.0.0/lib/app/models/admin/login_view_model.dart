@@ -1,7 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 part 'login_view_model.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: false)
 class LoginViewModel{
   final String email;
   final String password;

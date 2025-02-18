@@ -16,8 +16,8 @@ AdminSearchParam _$AdminSearchParamFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$AdminSearchParamToJson(AdminSearchParam instance) =>
     <String, dynamic>{
-      'searchType': instance.searchType,
-      'searchValue': instance.searchValue,
       'page': instance.page,
       'limit': instance.limit,
+      'searchType': instance.searchType,
+      'searchValue': instance.searchValue,
     };

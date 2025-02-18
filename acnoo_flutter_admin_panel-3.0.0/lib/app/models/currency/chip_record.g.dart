@@ -7,14 +7,14 @@ part of 'chip_record.dart';
 // **************************************************************************
 
 ChipRecord _$ChipRecordFromJson(Map<String, dynamic> json) => ChipRecord(
-      (json['id'] as num).toInt(),
-      (json['userId'] as num).toInt(),
-      json['changeType'] as String,
-      (json['changeChip'] as num).toInt(),
-      (json['resultChip'] as num).toInt(),
-      json['changeDesc'] as String,
-      json['idempotentKey'] as String,
-      json['createdAt'] as String,
+      id: (json['id'] as num).toInt(),
+      userId: (json['userId'] as num).toInt(),
+      changeType: json['changeType'] as String,
+      changeChip: (json['changeChip'] as num).toInt(),
+      resultChip: (json['resultChip'] as num).toInt(),
+      changeDesc: json['changeDesc'] as String,
+      idempotentKey: json['idempotentKey'] as String,
+      createdAt: json['createdAt'] as String,
     );
 
 Map<String, dynamic> _$ChipRecordToJson(ChipRecord instance) =>

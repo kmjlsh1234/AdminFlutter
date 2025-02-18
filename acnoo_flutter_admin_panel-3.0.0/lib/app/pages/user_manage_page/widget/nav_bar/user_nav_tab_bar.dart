@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:responsive_grid/responsive_grid.dart';
-import '../../../../core/constants/user/user_menu.dart';
+import '../../../../constants/user/user_menu.dart';
 import '../../../../core/theme/_app_colors.dart';
 
 class UserNavTabBar extends StatefulWidget {

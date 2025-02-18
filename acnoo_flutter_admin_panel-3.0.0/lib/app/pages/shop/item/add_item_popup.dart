@@ -1,8 +1,4 @@
 // 🐦 Flutter imports:
-import 'package:acnoo_flutter_admin_panel/app/core/constants/file/file_category.dart';
-import 'package:acnoo_flutter_admin_panel/app/core/constants/shop/item/image_select_type.dart';
-import 'package:acnoo_flutter_admin_panel/app/core/constants/shop/item/item_period_type.dart';
-import 'package:acnoo_flutter_admin_panel/app/core/error/custom_exception.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -15,9 +11,12 @@ import 'package:responsive_framework/responsive_framework.dart' as rf;
 
 // 🌎 Project imports:
 import '../../../../generated/l10n.dart' as l;
-import '../../../core/constants/file/file_type.dart';
-import '../../../core/constants/shop/item/currency_type.dart';
-import '../../../core/constants/shop/item_unit/item_unit_type.dart';
+import '../../../constants/file/file_category.dart';
+import '../../../constants/file/file_type.dart';
+import '../../../constants/shop/item/currency_type.dart';
+import '../../../constants/shop/item/image_select_type.dart';
+import '../../../constants/shop/item/item_period_type.dart';
+import '../../../constants/shop/item_unit/item_unit_type.dart';
 import '../../../core/error/error_code.dart';
 import '../../../core/service/file/file_service.dart';
 import '../../../core/service/shop/category/category_service.dart';
@@ -114,21 +113,21 @@ class _AddItemDialogState extends State<AddItemDialog> {
       String imagePath = await uploadFile(imageFile!);
 
       ItemAddParam itemAddParam = ItemAddParam(
-        categoryId!,
-        skuController.text,
-        unitSkuController.text,
-        nameController.text,
-        descController.text,
-        int.tryParse(numController.text)??0,
-        int.tryParse(stockQuantityController.text)??0,
-        thumbnailPath,
-        imagePath,
-        infoController.text,
-        periodType,
-        int.tryParse(periodController.text)??0,
-        expirationController.text,
-        currencyType,
-        int.tryParse(amountController.text)??0,
+        categoryId: categoryId!,
+        sku: skuController.text,
+        unitSku: unitSkuController.text,
+        name: nameController.text,
+        description: descController.text,
+        num: int.tryParse(numController.text)??0,
+        stockQuantity: int.tryParse(stockQuantityController.text)??0,
+        thumbnail: thumbnailPath,
+        image: imagePath,
+        info: infoController.text,
+        periodType: periodType,
+        period: int.tryParse(periodController.text)??0,
+        expiration: expirationController.text,
+        currencyType: currencyType,
+        amount: int.tryParse(amountController.text)??0
       );
 
       Item item = await itemService.addItem(itemAddParam);

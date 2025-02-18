@@ -7,14 +7,14 @@ part of 'board.dart';
 // **************************************************************************
 
 Board _$BoardFromJson(Map<String, dynamic> json) => Board(
-      (json['id'] as num).toInt(),
-      json['title'] as String,
-      json['content'] as String,
-      json['boardType'] as String,
-      json['status'] as String,
-      json['image'] as String?,
-      json['createdAt'] as String,
-      json['updatedAt'] as String,
+      id: (json['id'] as num).toInt(),
+      title: json['title'] as String,
+      content: json['content'] as String,
+      boardType: json['boardType'] as String,
+      status: json['status'] as String,
+      image: json['image'] as String?,
+      createdAt: json['createdAt'] as String,
+      updatedAt: json['updatedAt'] as String,
     );
 
 Map<String, dynamic> _$BoardToJson(Board instance) => <String, dynamic>{

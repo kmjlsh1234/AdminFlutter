@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'admin_manage_client.dart';
+part of 'item_repository.dart';
 
 // **************************************************************************
 // RetrofitGenerator
@@ -8,8 +8,8 @@ part of 'admin_manage_client.dart';
 
 // ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers,unused_element,unnecessary_string_interpolations
 
-class _AdminManageClient implements AdminManageClient {
-  _AdminManageClient(this._dio, {this.baseUrl, this.errorLogger}) {
+class _ItemRepository implements ItemRepository {
+  _ItemRepository(this._dio, {this.baseUrl, this.errorLogger}) {
     baseUrl ??= 'http://localhost:38084';
   }
 
@@ -20,27 +20,54 @@ class _AdminManageClient implements AdminManageClient {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<List<Admin>> getAdminList(AdminSearchParam adminSearchParam) async {
+  Future<Item> getItem(int itemId) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<Item>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/admin/v1/items/${itemId}',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late Item _value;
+    try {
+      _value = Item.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<List<Item>> getItemList(ItemSearchParam itemSearchParam) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
-    _data.addAll(adminSearchParam.toJson());
-    final _options = _setStreamType<List<Admin>>(
+    _data.addAll(itemSearchParam.toJson());
+    final _options = _setStreamType<List<Item>>(
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/admin/v1/admins/list',
+            '/admin/v1/items/list',
             queryParameters: queryParameters,
             data: _data,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<List<dynamic>>(_options);
-    late List<Admin> _value;
+    late List<Item> _value;
     try {
       _value = _result.data!
-          .map((dynamic i) => Admin.fromJson(i as Map<String, dynamic>))
+          .map((dynamic i) => Item.fromJson(i as Map<String, dynamic>))
           .toList();
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
@@ -50,17 +77,17 @@ class _AdminManageClient implements AdminManageClient {
   }
 
   @override
-  Future<CountVo> getAdminListCount(AdminSearchParam adminSearchParam) async {
+  Future<CountVo> getItemListCount(ItemSearchParam itemSearchParam) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
-    _data.addAll(adminSearchParam.toJson());
+    _data.addAll(itemSearchParam.toJson());
     final _options = _setStreamType<CountVo>(
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/admin/v1/admins/list/count',
+            '/admin/v1/items/list/count',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -78,107 +105,26 @@ class _AdminManageClient implements AdminManageClient {
   }
 
   @override
-  Future<Admin> addAdmin(AdminAddParam adminAddParam) async {
+  Future<Item> addItem(ItemAddParam itemAddParam) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
-    _data.addAll(adminAddParam.toJson());
-    final _options = _setStreamType<Admin>(
+    _data.addAll(itemAddParam.toJson());
+    final _options = _setStreamType<Item>(
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/admin/v1/admins',
+            '/admin/v1/items',
             queryParameters: queryParameters,
             data: _data,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Admin _value;
+    late Item _value;
     try {
-      _value = Admin.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<Admin> modAdmin(int adminId, AdminModParam adminModParam) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
-    final _data = <String, dynamic>{};
-    _data.addAll(adminModParam.toJson());
-    final _options = _setStreamType<Admin>(
-      Options(method: 'PUT', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/admin/v1/admins/${adminId}',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Admin _value;
-    try {
-      _value = Admin.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<HttpResponse<dynamic>> modAdminStatus(
-    int adminId,
-    AdminModStatusParam adminModStatusParam,
-  ) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
-    final _data = <String, dynamic>{};
-    _data.addAll(adminModStatusParam.toJson());
-    final _options = _setStreamType<HttpResponse<dynamic>>(
-      Options(method: 'PUT', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/admin/v1/admins/${adminId}/status',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch(_options);
-    final _value = _result.data;
-    final httpResponse = HttpResponse(_value, _result);
-    return httpResponse;
-  }
-
-  @override
-  Future<Admin> getAdmin(int adminId) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<Admin>(
-      Options(method: 'GET', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/admin/v1/admins/${adminId}',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Admin _value;
-    try {
-      _value = Admin.fromJson(_result.data!);
+      _value = Item.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;

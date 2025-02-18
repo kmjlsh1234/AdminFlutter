@@ -4,13 +4,13 @@ import 'package:retrofit/retrofit.dart';
 import '../../../models/admin/admin.dart';
 import '../../../models/admin/admin_join_param.dart';
 import '../../../models/admin/login_view_model.dart';
-import '../../app_config/app_config.dart';
+import '../../app_config/server_config.dart';
 
-part 'admin_client.g.dart';
+part 'admin_repository.g.dart';
 
-@RestApi(baseUrl: AppConfig.baseUrl)
-abstract class AdminClient{
-  factory AdminClient(Dio dio, {String baseUrl}) = _AdminClient;
+@RestApi(baseUrl: ServerConfig.baseUrl)
+abstract class AdminRepository{
+  factory AdminRepository(Dio dio, {String baseUrl}) = _AdminRepository;
 
   //로그인
   @POST('/admin/login')

@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'currency_client.dart';
+part of 'item_unit_repository.dart';
 
 // **************************************************************************
 // RetrofitGenerator
@@ -8,8 +8,8 @@ part of 'currency_client.dart';
 
 // ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers,unused_element,unnecessary_string_interpolations
 
-class _CurrencyClient implements CurrencyClient {
-  _CurrencyClient(this._dio, {this.baseUrl, this.errorLogger}) {
+class _ItemUnitRepository implements ItemUnitRepository {
+  _ItemUnitRepository(this._dio, {this.baseUrl, this.errorLogger}) {
     baseUrl ??= 'http://localhost:38084';
   }
 
@@ -20,25 +20,25 @@ class _CurrencyClient implements CurrencyClient {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<Chip> getChip(int userId) async {
+  Future<ItemUnit> getItemUnit(int unitId) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<Chip>(
+    final _options = _setStreamType<ItemUnit>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/admin/v1/users/${userId}/chips',
+            '/admin/v1/item-units/${unitId}',
             queryParameters: queryParameters,
             data: _data,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Chip _value;
+    late ItemUnit _value;
     try {
-      _value = Chip.fromJson(_result.data!);
+      _value = ItemUnit.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
@@ -47,25 +47,30 @@ class _CurrencyClient implements CurrencyClient {
   }
 
   @override
-  Future<Coin> getCoin(int userId) async {
+  Future<List<ItemUnit>> getItemUnitList(
+    ItemUnitSearchParam itemUnitSearchParam,
+  ) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<Coin>(
-      Options(method: 'GET', headers: _headers, extra: _extra)
+    final _data = <String, dynamic>{};
+    _data.addAll(itemUnitSearchParam.toJson());
+    final _options = _setStreamType<List<ItemUnit>>(
+      Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/admin/v1/users/${userId}/coins',
+            '/admin/v1/item-units/list',
             queryParameters: queryParameters,
             data: _data,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Coin _value;
+    final _result = await _dio.fetch<List<dynamic>>(_options);
+    late List<ItemUnit> _value;
     try {
-      _value = Coin.fromJson(_result.data!);
+      _value = _result.data!
+          .map((dynamic i) => ItemUnit.fromJson(i as Map<String, dynamic>))
+          .toList();
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
@@ -74,25 +79,28 @@ class _CurrencyClient implements CurrencyClient {
   }
 
   @override
-  Future<Diamond> getDiamond(int userId) async {
+  Future<CountVo> getItemUnitListCount(
+    ItemUnitSearchParam itemUnitSearchParam,
+  ) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<Diamond>(
-      Options(method: 'GET', headers: _headers, extra: _extra)
+    final _data = <String, dynamic>{};
+    _data.addAll(itemUnitSearchParam.toJson());
+    final _options = _setStreamType<CountVo>(
+      Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/admin/v1/users/${userId}/diamonds',
+            '/admin/v1/item-units/list/count',
             queryParameters: queryParameters,
             data: _data,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Diamond _value;
+    late CountVo _value;
     try {
-      _value = Diamond.fromJson(_result.data!);
+      _value = CountVo.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
@@ -101,72 +109,75 @@ class _CurrencyClient implements CurrencyClient {
   }
 
   @override
-  Future<HttpResponse<dynamic>> modChip(
-    int userId,
-    CurrencyModParam currencyModParam,
-  ) async {
+  Future<ItemUnit> addItemUnit(ItemUnitAddParam itemUnitAddParam) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
-    _data.addAll(currencyModParam.toJson());
-    final _options = _setStreamType<HttpResponse<dynamic>>(
-      Options(method: 'PUT', headers: _headers, extra: _extra)
+    _data.addAll(itemUnitAddParam.toJson());
+    final _options = _setStreamType<ItemUnit>(
+      Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/admin/v1/users/${userId}/chips',
+            '/admin/v1/item-units',
             queryParameters: queryParameters,
             data: _data,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
-    final _result = await _dio.fetch(_options);
-    final _value = _result.data;
-    final httpResponse = HttpResponse(_value, _result);
-    return httpResponse;
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ItemUnit _value;
+    try {
+      _value = ItemUnit.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
   }
 
   @override
-  Future<HttpResponse<dynamic>> modCoin(
-    int userId,
-    CurrencyModParam currencyModParam,
+  Future<ItemUnit> modItemUnit(
+    int unitId,
+    ItemUnitModParam itemUnitModParam,
   ) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
-    _data.addAll(currencyModParam.toJson());
-    final _options = _setStreamType<HttpResponse<dynamic>>(
+    _data.addAll(itemUnitModParam.toJson());
+    final _options = _setStreamType<ItemUnit>(
       Options(method: 'PUT', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/admin/v1/users/${userId}/coins',
+            '/admin/v1/item-units/${unitId}',
             queryParameters: queryParameters,
             data: _data,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
-    final _result = await _dio.fetch(_options);
-    final _value = _result.data;
-    final httpResponse = HttpResponse(_value, _result);
-    return httpResponse;
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ItemUnit _value;
+    try {
+      _value = ItemUnit.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
   }
 
   @override
-  Future<HttpResponse<dynamic>> modDiamond(
-    int userId,
-    CurrencyModParam currencyModParam,
-  ) async {
+  Future<HttpResponse<dynamic>> delItemUnit(int unitId) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    final _data = <String, dynamic>{};
-    _data.addAll(currencyModParam.toJson());
+    const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<HttpResponse<dynamic>>(
-      Options(method: 'PUT', headers: _headers, extra: _extra)
+      Options(method: 'DELETE', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/admin/v1/users/${userId}/diamonds',
+            '/admin/v1/item-units/${unitId}',
             queryParameters: queryParameters,
             data: _data,
           )

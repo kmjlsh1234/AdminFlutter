@@ -7,28 +7,28 @@ part of 'item.dart';
 // **************************************************************************
 
 Item _$ItemFromJson(Map<String, dynamic> json) => Item(
-      (json['id'] as num).toInt(),
-      (json['categoryId'] as num).toInt(),
-      (json['itemUnitId'] as num?)?.toInt(),
-      json['sku'] as String,
-      json['unitSku'] as String?,
-      json['name'] as String,
-      json['description'] as String,
-      (json['num'] as num?)?.toInt(),
-      (json['stockQuantity'] as num?)?.toInt(),
-      json['status'] as String,
-      json['thumbnail'] as String,
-      json['image'] as String,
-      json['info'] as String,
-      json['periodType'] as String,
-      (json['period'] as num?)?.toInt(),
-      json['expiration'] == null
+      id: (json['id'] as num).toInt(),
+      categoryId: (json['categoryId'] as num).toInt(),
+      itemUnitId: (json['itemUnitId'] as num?)?.toInt(),
+      sku: json['sku'] as String,
+      unitSku: json['unitSku'] as String?,
+      name: json['name'] as String,
+      description: json['description'] as String,
+      num: (json['num'] as num?)?.toInt(),
+      stockQuantity: (json['stockQuantity'] as num?)?.toInt(),
+      status: json['status'] as String,
+      thumbnail: json['thumbnail'] as String,
+      image: json['image'] as String,
+      info: json['info'] as String,
+      periodType: json['periodType'] as String,
+      period: (json['period'] as num?)?.toInt(),
+      expiration: json['expiration'] == null
           ? null
           : DateTime.parse(json['expiration'] as String),
-      json['currencyType'] as String,
-      (json['amount'] as num?)?.toInt(),
-      DateTime.parse(json['createdAt'] as String),
-      DateTime.parse(json['updatedAt'] as String),
+      currencyType: json['currencyType'] as String,
+      amount: (json['amount'] as num?)?.toInt(),
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      updatedAt: DateTime.parse(json['updatedAt'] as String),
     );
 
 Map<String, dynamic> _$ItemToJson(Item instance) => <String, dynamic>{

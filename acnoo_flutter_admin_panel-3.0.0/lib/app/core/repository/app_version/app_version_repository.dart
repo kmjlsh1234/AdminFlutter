@@ -7,13 +7,13 @@ import '../../../models/app_version/app_version_mod_param.dart';
 import '../../../models/app_version/app_version_search_param.dart';
 import '../../../models/app_version/latest_app_version.dart';
 import '../../../models/common/count_vo.dart';
-import '../../app_config/app_config.dart';
+import '../../app_config/server_config.dart';
 
-part 'app_version_client.g.dart';
+part 'app_version_repository.g.dart';
 
-@RestApi(baseUrl: AppConfig.baseUrl)
-abstract class AppVersionClient{
-  factory AppVersionClient(Dio dio, {String baseUrl}) = _AppVersionClient;
+@RestApi(baseUrl: ServerConfig.baseUrl)
+abstract class AppVersionRepository{
+  factory AppVersionRepository(Dio dio, {String baseUrl}) = _AppVersionRepository;
 
   //현재 출시 된 최신 버전 조회
   @GET('/admin/v1/versions/latest')

@@ -5,13 +5,13 @@ import '../../../../models/common/count_vo.dart';
 import '../../../../models/shop/item/item.dart';
 import '../../../../models/shop/item/item_add_param.dart';
 import '../../../../models/shop/item/item_search_param.dart';
-import '../../../app_config/app_config.dart';
+import '../../../app_config/server_config.dart';
 
-part 'item_client.g.dart';
+part 'item_repository.g.dart';
 
-@RestApi(baseUrl: AppConfig.baseUrl)
-abstract class ItemClient {
-  factory ItemClient(Dio dio, {String baseUrl}) = _ItemClient;
+@RestApi(baseUrl: ServerConfig.baseUrl)
+abstract class ItemRepository {
+  factory ItemRepository(Dio dio, {String baseUrl}) = _ItemRepository;
 
   @GET('/admin/v1/items/{itemId}')
   Future<Item> getItem(@Path() int itemId);

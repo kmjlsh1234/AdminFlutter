@@ -8,10 +8,10 @@ part of 'app_version_add_param.dart';
 
 AppVersionAddParam _$AppVersionAddParamFromJson(Map<String, dynamic> json) =>
     AppVersionAddParam(
-      json['version'] as String,
-      json['versionType'] as String,
-      json['publishAt'] as String,
-      json['publishStatus'] as String,
+      version: json['version'] as String,
+      versionType: json['versionType'] as String,
+      publishAt: json['publishAt'] as String,
+      publishStatus: json['publishStatus'] as String,
     );
 
 Map<String, dynamic> _$AppVersionAddParamToJson(AppVersionAddParam instance) =>

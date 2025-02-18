@@ -8,7 +8,7 @@ import 'package:responsive_framework/responsive_framework.dart' as rf;
 
 // 🌎 Project imports:
 import '../../../../generated/l10n.dart' as l;
-import '../../core/constants/user/drop_out_user_search_type.dart';
+import '../../constants/user/drop_out_user_search_type.dart';
 import '../../core/helpers/field_styles/_dropdown_styles.dart';
 import '../../core/service/user/drop_out_user_service.dart';
 import '../../core/theme/_app_colors.dart';

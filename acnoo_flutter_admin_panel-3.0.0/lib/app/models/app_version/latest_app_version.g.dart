@@ -8,9 +8,9 @@ part of 'latest_app_version.dart';
 
 LatestAppVersion _$LatestAppVersionFromJson(Map<String, dynamic> json) =>
     LatestAppVersion(
-      forceUpdateVersion: json['forceUpdateVersion'] as String?,
-      induceUpdateVersion: json['induceUpdateVersion'] as String?,
-      bundleUpdateVersion: json['bundleUpdateVersion'] as String?,
+      json['forceUpdateVersion'] as String?,
+      json['induceUpdateVersion'] as String?,
+      json['bundleUpdateVersion'] as String?,
     );
 
 Map<String, dynamic> _$LatestAppVersionToJson(LatestAppVersion instance) =>

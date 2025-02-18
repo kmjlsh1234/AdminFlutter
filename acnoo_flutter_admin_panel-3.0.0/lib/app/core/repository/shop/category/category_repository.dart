@@ -1,17 +1,18 @@
 import 'package:acnoo_flutter_admin_panel/app/models/common/paging_param.dart';
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
+
 import '../../../../models/common/count_vo.dart';
 import '../../../../models/shop/category/category.dart';
 import '../../../../models/shop/category/category_add_param.dart';
 import '../../../../models/shop/category/category_mod_param.dart';
-import '../../../app_config/app_config.dart';
+import '../../../app_config/server_config.dart';
 
-part 'category_client.g.dart';
+part 'category_repository.g.dart';
 
-@RestApi(baseUrl: AppConfig.baseUrl)
-abstract class CategoryClient {
-  factory CategoryClient(Dio dio, {String baseUrl}) = _CategoryClient;
+@RestApi(baseUrl: ServerConfig.baseUrl)
+abstract class CategoryRepository {
+  factory CategoryRepository(Dio dio, {String baseUrl}) = _CategoryRepository;
 
   //카테고리 단일 조회
   @GET('/admin/v1/categories/{categoryId}')

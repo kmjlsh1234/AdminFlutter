@@ -7,14 +7,14 @@ import '../../../models/user/user_mod_param.dart';
 import '../../../models/user/user_mod_status_param.dart';
 import '../../../models/user/user_profile.dart';
 import '../../../models/user/user_search_param.dart';
-import '../../app_config/app_config.dart';
+import '../../app_config/server_config.dart';
 
-part 'user_manage_client.g.dart';
+part 'user_manage_repository.g.dart';
 
-@RestApi(baseUrl: AppConfig.baseUrl)
-abstract class UserManageClient {
+@RestApi(baseUrl: ServerConfig.baseUrl)
+abstract class UserManageRepository {
 
-  factory UserManageClient(Dio dio, {String baseUrl}) = _UserManageClient;
+  factory UserManageRepository(Dio dio, {String baseUrl}) = _UserManageRepository;
 
   @POST("/admin/v1/users/list")
   Future<List<UserProfile>> getUserList(@Body() UserSearchParam userSearchParam);

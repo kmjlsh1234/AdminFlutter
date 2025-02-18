@@ -2,48 +2,42 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'item_add_param.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: true)
 class ItemAddParam {
   final int categoryId;
   final String sku;
-  @JsonKey(includeIfNull: true)
   final String unitSku;
   final String name;
   final String description;
-  @JsonKey(includeIfNull: true)
   final int num;
-  @JsonKey(includeIfNull: true)
   final int stockQuantity;
   final String thumbnail;
   final String image;
   final String info;
-  final String periodType; // none, day, expiration
-  @JsonKey(includeIfNull: true)
+  final String periodType;
   final int period;
-  @JsonKey(includeIfNull: true)
   final String expiration;
   final String currencyType;
   final int amount;
 
-  ItemAddParam(
-      this.categoryId,
-      this.unitSku,
-      this.sku,
-      this.name,
-      this.description,
-      this.num,
-      this.stockQuantity,
-      this.thumbnail,
-      this.image,
-      this.info,
-      this.periodType,
-      this.period,
-      this.expiration,
-      this.currencyType,
-      this.amount);
+  ItemAddParam({
+    required this.categoryId,
+    required this.sku,
+    required this.unitSku,
+    required this.name,
+    required this.description,
+    required this.num,
+    required this.stockQuantity,
+    required this.thumbnail,
+    required this.image,
+    required this.info,
+    required this.periodType,
+    required this.period,
+    required this.expiration,
+    required this.currencyType,
+    required this.amount
+      });
 
-  factory ItemAddParam.fromJson(Map<String, dynamic> json) =>
-      _$ItemAddParamFromJson(json);
-
+  factory ItemAddParam.fromJson(Map<String, dynamic> json) => _$ItemAddParamFromJson(json);
   Map<String, dynamic> toJson() => _$ItemAddParamToJson(this);
 }

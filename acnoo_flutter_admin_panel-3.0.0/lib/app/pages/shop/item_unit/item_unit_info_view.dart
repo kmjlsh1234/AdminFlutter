@@ -1,26 +1,10 @@
-import 'dart:convert';
-import 'dart:developer';
-import 'dart:io';
-import '../../../../generated/l10n.dart' as l;
-
-import 'package:acnoo_flutter_admin_panel/app/core/constants/board/board_status.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
-import 'package:acnoo_flutter_admin_panel/app/core/service/board/board_service.dart';
-import 'package:acnoo_flutter_admin_panel/app/core/service/file/file_service.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/service/shop/item_unit/item_unit_service.dart';
-import 'package:acnoo_flutter_admin_panel/app/models/board/board_add_param.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_quill/flutter_quill.dart';
-import 'package:flutter_quill/quill_delta.dart';
-import 'package:flutter_quill_delta_from_html/flutter_quill_delta_from_html.dart';
-import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
-import 'package:iconly/iconly.dart';
-import 'package:responsive_framework/responsive_framework.dart' as rf;
-import 'package:responsive_grid/responsive_grid.dart';
 
+import '../../../../generated/l10n.dart' as l;
 import '../../../core/theme/_app_colors.dart';
 import '../../../models/shop/item_unit/item_unit.dart';
-import '../../../widgets/shadow_container/_shadow_container.dart';
 
 class ItemUnitInfoView extends StatefulWidget {
   const ItemUnitInfoView({super.key, required this.unitId});
@@ -32,9 +16,6 @@ class ItemUnitInfoView extends StatefulWidget {
 class _ItemUnitInfoViewState extends State<ItemUnitInfoView> {
   final ScrollController _scrollController = ScrollController();
   final ItemUnitService itemUnitService = ItemUnitService();
-  //SearchType
-  //BoardType selectType = BoardType.NOTICE;
-  //BoardStatus selectStatus = BoardStatus.PUBLISH;
 
   late ItemUnit itemUnit;
   bool isLoading = true;

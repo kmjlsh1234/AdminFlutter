@@ -29,14 +29,14 @@ class _SigninViewState extends State<SigninView> {
   bool rememberMe = false;
   bool showPassword = false;
   AdminService adminService = AdminService();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+  late TextEditingController emailController;
+  late TextEditingController passwordController;
 
   //로그인
-  Future<void> login(BuildContext context) async {
+  Future<void> login() async {
     try{
       LoginViewModel loginViewModel = LoginViewModel(email: emailController.text, password: passwordController.text);
-      Admin result = await adminService.login(loginViewModel);
+      Admin admin = await adminService.login(loginViewModel);
       GoRouter.of(context).go('/dashboard');
     } catch (e){
       ErrorHandler.handleError(e, context);
@@ -46,11 +46,15 @@ class _SigninViewState extends State<SigninView> {
   @override
   void dispose(){
     super.dispose();
+    emailController.dispose();
+    passwordController.dispose();
   }
 
   @override
   void initState() {
     super.initState();
+    emailController = TextEditingController();
+    passwordController = TextEditingController();
   }
 
   @override
@@ -327,7 +331,7 @@ class _SigninViewState extends State<SigninView> {
                                     width: double.maxFinite,
                                     child: ElevatedButton(
                                       onPressed: () {
-                                        login(context);
+                                        login();
                                       },
                                       // child: const Text('Sign In'),
                                       child: Text(lang.signIn),

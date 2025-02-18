@@ -7,21 +7,21 @@ part of 'item_add_param.dart';
 // **************************************************************************
 
 ItemAddParam _$ItemAddParamFromJson(Map<String, dynamic> json) => ItemAddParam(
-      (json['categoryId'] as num).toInt(),
-      json['unitSku'] as String,
-      json['sku'] as String,
-      json['name'] as String,
-      json['description'] as String,
-      (json['num'] as num).toInt(),
-      (json['stockQuantity'] as num).toInt(),
-      json['thumbnail'] as String,
-      json['image'] as String,
-      json['info'] as String,
-      json['periodType'] as String,
-      (json['period'] as num).toInt(),
-      json['expiration'] as String,
-      json['currencyType'] as String,
-      (json['amount'] as num).toInt(),
+      categoryId: (json['categoryId'] as num).toInt(),
+      sku: json['sku'] as String,
+      unitSku: json['unitSku'] as String,
+      name: json['name'] as String,
+      description: json['description'] as String,
+      num: (json['num'] as num).toInt(),
+      stockQuantity: (json['stockQuantity'] as num).toInt(),
+      thumbnail: json['thumbnail'] as String,
+      image: json['image'] as String,
+      info: json['info'] as String,
+      periodType: json['periodType'] as String,
+      period: (json['period'] as num).toInt(),
+      expiration: json['expiration'] as String,
+      currencyType: json['currencyType'] as String,
+      amount: (json['amount'] as num).toInt(),
     );
 
 Map<String, dynamic> _$ItemAddParamToJson(ItemAddParam instance) =>

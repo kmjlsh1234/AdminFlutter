@@ -27,7 +27,7 @@ class _UserCurrencyModDialogState extends State<UserCurrencyModDialog> {
   Future<void> modCurrency(BuildContext context) async {
     try {
       int count = int.parse(currencyController.text);
-      CurrencyModParam currencyModParam = CurrencyModParam(count);
+      CurrencyModParam currencyModParam = CurrencyModParam(amount: count);
       bool isSuccess = false;
       switch(widget.currencyType){
         case "Chip":

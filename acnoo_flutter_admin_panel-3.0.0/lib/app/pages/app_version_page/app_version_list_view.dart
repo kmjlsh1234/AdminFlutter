@@ -14,8 +14,8 @@ import 'package:responsive_grid/responsive_grid.dart';
 
 // 🌎 Project imports:
 import '../../../generated/l10n.dart' as l;
-import '../../core/constants/app_version/app_version_type.dart';
-import '../../core/constants/app_version/publish_status.dart';
+import '../../constants/app_version/app_version_type.dart';
+import '../../constants/app_version/publish_status.dart';
 import '../../core/error/error_handler.dart';
 import '../../core/helpers/helpers.dart';
 import '../../core/theme/_app_colors.dart';
@@ -31,11 +31,12 @@ class AppVersionListView extends StatefulWidget {
 class _AppVersionListViewState extends State<AppVersionListView> with SingleTickerProviderStateMixin {
   late TabController tabController;
   late List<AppVersion> versionList = [];
+  late LatestAppVersion latestAppVersion;
 
   final ScrollController scrollController = ScrollController();
   final AppVersionService appVersionService = AppVersionService();
 
-  LatestAppVersion latestAppVersion = LatestAppVersion();
+
 
   List<String> get versionTypes => AppVersionType.values.map((e) => e.value).toList();
   AppVersionType appVersionType = AppVersionType.force;

@@ -6,13 +6,13 @@ import '../../../../models/common/count_vo.dart';
 import '../../../../models/shop/item_unit/item_unit_add_param.dart';
 import '../../../../models/shop/item_unit/item_unit_mod_param.dart';
 import '../../../../models/shop/item_unit/item_unit_search_param.dart';
-import '../../../app_config/app_config.dart';
+import '../../../app_config/server_config.dart';
 
-part 'item_unit_client.g.dart';
+part 'item_unit_repository.g.dart';
 
-@RestApi(baseUrl: AppConfig.baseUrl)
-abstract class ItemUnitClient{
-  factory ItemUnitClient(Dio dio, {String baseUrl}) = _ItemUnitClient;
+@RestApi(baseUrl: ServerConfig.baseUrl)
+abstract class ItemUnitRepository{
+  factory ItemUnitRepository(Dio dio, {String baseUrl}) = _ItemUnitRepository;
 
   //아이템 유닛 단일 조회
   @GET('/admin/v1/item-units/{unitId}')

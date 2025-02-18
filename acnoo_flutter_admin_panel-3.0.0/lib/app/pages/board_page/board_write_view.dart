@@ -1,5 +1,3 @@
-import 'package:acnoo_flutter_admin_panel/app/core/constants/board/board_status.dart';
-import 'package:acnoo_flutter_admin_panel/app/core/constants/file/file_category.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/service/board/board_service.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/service/file/file_service.dart';
@@ -15,8 +13,10 @@ import 'package:responsive_grid/responsive_grid.dart';
 import 'package:vsc_quill_delta_to_html/vsc_quill_delta_to_html.dart';
 
 import '../../../generated/l10n.dart' as l;
-import '../../core/constants/board/board_type.dart';
-import '../../core/constants/file/file_type.dart';
+import '../../constants/board/board_status.dart';
+import '../../constants/board/board_type.dart';
+import '../../constants/file/file_category.dart';
+import '../../constants/file/file_type.dart';
 import '../../core/theme/_app_colors.dart';
 import '../../core/utils/file_util.dart';
 import '../../models/board/board.dart';
@@ -72,7 +72,13 @@ class _BoardWriteViewState extends State<BoardWriteView> {
       }
 
       // TODO: ADMIN서버에 게시판 저장
-      BoardAddParam boardAddParam = BoardAddParam(titleController.text, html, selectType.value, selectStatus.value, null);
+      BoardAddParam boardAddParam = BoardAddParam(
+          title: titleController.text,
+          content: html,
+          boardType: selectType.value,
+          status: selectStatus.value,
+          image: null
+      );
       Board board = await boardService.addBoard(boardAddParam);
       showAddBoardSuccessDialog(context);
     } catch (e){

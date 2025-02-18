@@ -20,10 +20,10 @@ CurrencyRecordSearchParam _$CurrencyRecordSearchParamFromJson(
 Map<String, dynamic> _$CurrencyRecordSearchParamToJson(
         CurrencyRecordSearchParam instance) =>
     <String, dynamic>{
+      'page': instance.page,
+      'limit': instance.limit,
       'userId': instance.userId,
       'changeType': instance.changeType,
       'startDate': instance.startDate,
       'endDate': instance.endDate,
-      'page': instance.page,
-      'limit': instance.limit,
     };

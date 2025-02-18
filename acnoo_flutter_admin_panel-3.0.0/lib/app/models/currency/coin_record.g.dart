@@ -7,14 +7,14 @@ part of 'coin_record.dart';
 // **************************************************************************
 
 CoinRecord _$CoinRecordFromJson(Map<String, dynamic> json) => CoinRecord(
-      (json['id'] as num).toInt(),
-      (json['userId'] as num).toInt(),
-      json['changeType'] as String,
-      (json['changeCoin'] as num).toInt(),
-      (json['resultCoin'] as num).toInt(),
-      json['changeDesc'] as String,
-      json['idempotentKey'] as String,
-      json['createdAt'] as String,
+      id: (json['id'] as num).toInt(),
+      userId: (json['userId'] as num).toInt(),
+      changeType: json['changeType'] as String,
+      changeCoin: (json['changeCoin'] as num).toInt(),
+      resultCoin: (json['resultCoin'] as num).toInt(),
+      changeDesc: json['changeDesc'] as String,
+      idempotentKey: json['idempotentKey'] as String,
+      createdAt: json['createdAt'] as String,
     );
 
 Map<String, dynamic> _$CoinRecordToJson(CoinRecord instance) =>

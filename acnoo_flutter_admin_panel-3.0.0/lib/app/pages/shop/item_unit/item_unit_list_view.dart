@@ -12,7 +12,7 @@ import 'package:responsive_framework/responsive_framework.dart' as rf;
 
 // 🌎 Project imports:
 import '../../../../generated/l10n.dart' as l;
-import '../../../core/constants/shop/item_unit/item_unit_type.dart';
+import '../../../constants/shop/item_unit/item_unit_type.dart';
 import '../../../core/helpers/field_styles/_dropdown_styles.dart';
 import '../../../core/service/shop/item_unit/item_unit_service.dart';
 import '../../../core/theme/_app_colors.dart';
@@ -72,16 +72,7 @@ class _ItemUnitListViewState extends State<ItemUnitListView> {
     List<ItemUnit> list = [];
     try {
       setState(() => isLoading = true);
-      ItemUnitSearchParam itemUnitSearchParam = ItemUnitSearchParam(
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          currentPage + 1,
-          _rowsPerPage
-      );
+      ItemUnitSearchParam itemUnitSearchParam = getItemUnitSearchParam();
       list = await itemUnitService.getItemUnitList(itemUnitSearchParam);
     } catch (e) {
       ErrorHandler.handleError(e, context);
@@ -92,23 +83,12 @@ class _ItemUnitListViewState extends State<ItemUnitListView> {
     });
   }
 
-
-
   //아이템 유닛 리스트 갯수 조회
   Future<void> getItemUnitListCount(BuildContext context) async {
     int count = 0;
     try {
       setState(() => isLoading = true);
-      ItemUnitSearchParam itemUnitSearchParam = ItemUnitSearchParam(
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          currentPage + 1,
-          _rowsPerPage
-      );
+      ItemUnitSearchParam itemUnitSearchParam = getItemUnitSearchParam();
       count = await itemUnitService.getItemUnitListCount(itemUnitSearchParam);
     } catch (e) {
       ErrorHandler.handleError(e, context);
@@ -119,6 +99,18 @@ class _ItemUnitListViewState extends State<ItemUnitListView> {
     });
   }
 
+  ItemUnitSearchParam getItemUnitSearchParam() {
+    return ItemUnitSearchParam(
+        itemUnitType: null,
+        searchType: null,
+        searchValue: null,
+        searchDateType: null,
+        startDate: null,
+        endDate: null,
+        page: currentPage + 1,
+        limit: _rowsPerPage
+    );
+  }
   ///_____________________________________________________________________Add_ItemUnit_____________________________
   void showAddFormDialog(BuildContext context) async {
     bool isItemUnitAdd = await showDialog(

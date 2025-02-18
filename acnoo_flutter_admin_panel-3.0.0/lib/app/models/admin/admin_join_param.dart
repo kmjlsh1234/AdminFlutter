@@ -1,7 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 part 'admin_join_param.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: false)
 class AdminJoinParam{
   final String email;
   final String password;

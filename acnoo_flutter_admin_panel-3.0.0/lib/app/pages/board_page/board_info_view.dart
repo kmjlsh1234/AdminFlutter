@@ -1,6 +1,5 @@
 import 'dart:developer';
 
-import 'package:acnoo_flutter_admin_panel/app/core/constants/board/board_status.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/service/board/board_service.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/service/file/file_service.dart';
@@ -13,7 +12,8 @@ import 'package:responsive_framework/responsive_framework.dart' as rf;
 import 'package:responsive_grid/responsive_grid.dart';
 
 import '../../../generated/l10n.dart' as l;
-import '../../core/constants/board/board_type.dart';
+import '../../constants/board/board_status.dart';
+import '../../constants/board/board_type.dart';
 import '../../core/theme/_app_colors.dart';
 import '../../models/board/board.dart';
 import '../../widgets/shadow_container/_shadow_container.dart';

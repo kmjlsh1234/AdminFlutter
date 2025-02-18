@@ -8,11 +8,11 @@ part of 'board_add_param.dart';
 
 BoardAddParam _$BoardAddParamFromJson(Map<String, dynamic> json) =>
     BoardAddParam(
-      json['title'] as String,
-      json['content'] as String,
-      json['boardType'] as String,
-      json['status'] as String,
-      json['image'] as String?,
+      title: json['title'] as String,
+      content: json['content'] as String,
+      boardType: json['boardType'] as String,
+      status: json['status'] as String,
+      image: json['image'] as String?,
     );
 
 Map<String, dynamic> _$BoardAddParamToJson(BoardAddParam instance) =>

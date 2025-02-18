@@ -1,21 +1,18 @@
 // 🐦 Flutter imports:
-import 'dart:io';
-
-import 'package:acnoo_flutter_admin_panel/app/core/constants/file/file_category.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/error/custom_exception.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-
 // 📦 Package imports:
 import 'package:responsive_framework/responsive_framework.dart' as rf;
 
 // 🌎 Project imports:
 import '../../../../generated/l10n.dart' as l;
-import '../../../core/constants/file/file_type.dart';
-import '../../../core/constants/shop/item_unit/item_unit_type.dart';
+import '../../../constants/file/file_category.dart';
+import '../../../constants/file/file_type.dart';
+import '../../../constants/shop/item_unit/item_unit_type.dart';
 import '../../../core/error/error_code.dart';
 import '../../../core/service/file/file_service.dart';
 import '../../../core/service/shop/item_unit/item_unit_service.dart';
@@ -72,12 +69,12 @@ class _AddItemUnitDialogState extends State<AddItemUnitDialog> {
       String remotePath = await fileService.uploadFile(FileCategory.profile, FileType.image, formData);
 
       ItemUnitAddParam itemUnitAddParam = ItemUnitAddParam(
-        skuController.text,
-        nameController.text,
-        remotePath,
-        descController.text,
-        attributeController.text,
-        selectType
+          sku: skuController.text,
+          name:  nameController.text,
+          image: remotePath,
+          description: descController.text,
+          attributes: attributeController.text,
+          type: selectType
       );
 
       ItemUnit itemUnit = await itemUnitService.addItemUnit(itemUnitAddParam);

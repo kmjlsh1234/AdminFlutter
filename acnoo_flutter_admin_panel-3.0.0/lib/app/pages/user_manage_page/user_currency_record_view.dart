@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:responsive_grid/responsive_grid.dart';
 
 import '../../../../generated/l10n.dart' as l;
-import '../../core/constants/shop/item/currency_type.dart';
-import '../../core/constants/user/user_menu.dart';
+import '../../constants/shop/item/currency_type.dart';
+import '../../constants/user/user_menu.dart';
 import '../../widgets/widgets.dart';
 import 'widget/coin_record_widget.dart';
 import 'widget/diamond_record_widget.dart';

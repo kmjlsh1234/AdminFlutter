@@ -1,14 +1,11 @@
 // 🐦 Flutter imports:
 import 'package:acnoo_flutter_admin_panel/app/core/error/custom_exception.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/service/admin/admin_service.dart';
-import 'package:acnoo_flutter_admin_panel/app/core/utils/dio_factory.dart';
 import 'package:acnoo_flutter_admin_panel/app/models/admin/admin_join_param.dart';
-import 'package:dio/dio.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
-
 // 📦 Package imports:
 import 'package:feather_icons/feather_icons.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:responsive_framework/responsive_framework.dart' as rf;
 
@@ -30,20 +27,17 @@ class SignupView extends StatefulWidget {
 class _SignupViewState extends State<SignupView> {
   bool showPassword = false;
 
-  TextEditingController nameController = TextEditingController();
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-  TextEditingController passwordCheckController = TextEditingController();
-  TextEditingController mobileController = TextEditingController();
+  late TextEditingController nameController;
+  late TextEditingController emailController;
+  late TextEditingController passwordController;
+  late TextEditingController passwordCheckController;
+  late TextEditingController mobileController;
 
   final AdminService adminService = AdminService();
 
+  //회원가입
   Future<void> join(BuildContext context) async {
     try{
-      if(passwordController.text != passwordCheckController.text){
-        throw CustomException(ErrorCode.MISMATCH_PASSWORD);
-      }
-
       AdminJoinParam adminJoinParam = AdminJoinParam(
           email: emailController.text,
           password: passwordController.text,
@@ -61,11 +55,21 @@ class _SignupViewState extends State<SignupView> {
   @override
   void dispose(){
     super.dispose();
+    nameController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    passwordCheckController.dispose();
+    mobileController.dispose();
   }
 
   @override
   void initState(){
     super.initState();
+    nameController = TextEditingController();
+    emailController = TextEditingController();
+    passwordController = TextEditingController();
+    passwordCheckController = TextEditingController();
+    mobileController = TextEditingController();
   }
 
   @override

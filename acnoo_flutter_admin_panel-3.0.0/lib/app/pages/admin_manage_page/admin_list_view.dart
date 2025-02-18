@@ -11,7 +11,7 @@ import 'package:go_router/go_router.dart';
 
 // 🌎 Project imports:
 import '../../../../generated/l10n.dart' as l;
-import '../../core/constants/admin/admin_search_type.dart';
+import '../../constants/admin/admin_search_type.dart';
 import '../../core/helpers/field_styles/_dropdown_styles.dart';
 import '../../core/theme/_app_colors.dart';
 import '../../core/utils/size_config.dart';
@@ -31,7 +31,7 @@ class AdminsListView extends StatefulWidget {
 }
 
 class _AdminsListViewState extends State<AdminsListView> {
-  final ScrollController scrollController = ScrollController();
+  late ScrollController scrollController;
   final AdminManageService adminManageService = AdminManageService();
 
   late List<Admin> adminList;
@@ -46,17 +46,11 @@ class _AdminsListViewState extends State<AdminsListView> {
   AdminSearchType searchType = AdminSearchType.none;
   String searchValue = "";
 
-
   //ADMIN 리스트 조회
   Future<void> getAdminList() async {
     List<Admin> list = [];
     try {
-      AdminSearchParam adminSearchParam = AdminSearchParam(
-          searchType.value,
-          searchValue,
-          currentPage + 1,
-          rowsPerPage
-      );
+      AdminSearchParam adminSearchParam = getAdminSearchParam();
       list = await adminManageService.getAdminList(adminSearchParam);
     } catch (e) {
       ErrorHandler.handleError(e, context);
@@ -68,12 +62,7 @@ class _AdminsListViewState extends State<AdminsListView> {
   Future<void> getAdminListCount() async {
     int count = 0;
     try {
-      AdminSearchParam adminSearchParam = AdminSearchParam(
-          searchType.value,
-          searchValue,
-          currentPage + 1,
-          rowsPerPage
-      );
+      AdminSearchParam adminSearchParam = getAdminSearchParam();
       count = await adminManageService.getAdminListCount(adminSearchParam);
     } catch (e) {
       ErrorHandler.handleError(e, context);
@@ -96,10 +85,19 @@ class _AdminsListViewState extends State<AdminsListView> {
     setState(() => isLoading = false);
   }
 
+  AdminSearchParam getAdminSearchParam(){
+    return AdminSearchParam(
+        searchType == AdminSearchType.none ? null : searchType.value,
+        searchValue,
+        currentPage + 1,
+        rowsPerPage
+    );
+  }
   @override
   void initState() {
     super.initState();
     searchListWithCount();
+    scrollController = ScrollController();
   }
 
   @override
@@ -115,7 +113,9 @@ class _AdminsListViewState extends State<AdminsListView> {
     final theme = Theme.of(context);
     final lang = l.S.of(context);
 
-    return Scaffold(
+    return isLoading
+        ? Center(child: CircularProgressIndicator())
+        : Scaffold(
       body: Padding(
         padding: _sizeInfo.padding,
         child: ShadowContainer(
@@ -171,9 +171,7 @@ class _AdminsListViewState extends State<AdminsListView> {
                         constraints: BoxConstraints(
                           minWidth: constraints.maxWidth,
                         ),
-                        child: isLoading
-                            ? Center(child: CircularProgressIndicator())
-                            : userListDataTable(
+                        child: userListDataTable(
                                 context, lang, theme, textTheme),
                       ),
                     ),

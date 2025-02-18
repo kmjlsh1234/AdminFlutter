@@ -1,7 +1,9 @@
 import 'package:json_annotation/json_annotation.dart';
+
 part 'chip_record.g.dart';
-@JsonSerializable()
-class ChipRecord{
+
+@JsonSerializable(includeIfNull: false)
+class ChipRecord {
   final int id;
   final int userId;
   final String changeType;
@@ -11,7 +13,17 @@ class ChipRecord{
   final String idempotentKey;
   final String createdAt;
 
-  ChipRecord(this.id, this.userId, this.changeType, this.changeChip, this.resultChip, this.changeDesc, this.idempotentKey, this.createdAt);
+  ChipRecord({
+    required this.id,
+    required this.userId,
+    required this.changeType,
+    required this.changeChip,
+    required this.resultChip,
+    required this.changeDesc,
+    required this.idempotentKey,
+    required this.createdAt
+  });
+
   factory ChipRecord.fromJson(Map<String, dynamic> json) => _$ChipRecordFromJson(json);
   Map<String, dynamic> toJson() => _$ChipRecordToJson(this);
 }

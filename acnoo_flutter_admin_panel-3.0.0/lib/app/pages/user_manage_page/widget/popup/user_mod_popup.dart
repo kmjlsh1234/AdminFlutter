@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:responsive_framework/responsive_framework.dart' as rf;
 
 import '../../../../../../generated/l10n.dart' as l;
-import '../../../../core/constants/user/user_status.dart';
+import '../../../../constants/user/user_status.dart';
 import '../../../../core/error/error_handler.dart';
 import '../../../../core/service/user/user_manage_service.dart';
 import '../../../../core/theme/_app_colors.dart';

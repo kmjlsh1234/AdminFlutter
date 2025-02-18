@@ -8,7 +8,7 @@ part of 'currency_mod_param.dart';
 
 CurrencyModParam _$CurrencyModParamFromJson(Map<String, dynamic> json) =>
     CurrencyModParam(
-      (json['amount'] as num).toInt(),
+      amount: (json['amount'] as num).toInt(),
     );
 
 Map<String, dynamic> _$CurrencyModParamToJson(CurrencyModParam instance) =>

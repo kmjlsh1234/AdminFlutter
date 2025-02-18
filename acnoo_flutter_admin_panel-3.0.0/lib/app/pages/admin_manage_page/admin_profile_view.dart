@@ -6,7 +6,7 @@ import 'package:acnoo_flutter_admin_panel/app/pages/admin_manage_page/widget/adm
 import 'package:flutter/material.dart';
 
 import '../../../generated/l10n.dart' as l;
-import '../../core/constants/admin/admin_menu.dart';
+import '../../constants/admin/admin_menu.dart';
 import '../../core/error/error_handler.dart';
 import '../../core/service/admin/admin_manage_service.dart';
 import '../../models/admin/admin.dart';

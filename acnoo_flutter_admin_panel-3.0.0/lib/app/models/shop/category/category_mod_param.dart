@@ -1,12 +1,10 @@
 import 'package:json_annotation/json_annotation.dart';
 part 'category_mod_param.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: true)
 class CategoryModParam{
-  @JsonKey(includeIfNull: true)
-  final String name;
-  @JsonKey(includeIfNull: true)
-  final String description;
+  final String? name;
+  final String? description;
 
   CategoryModParam(this.name, this.description);
 
