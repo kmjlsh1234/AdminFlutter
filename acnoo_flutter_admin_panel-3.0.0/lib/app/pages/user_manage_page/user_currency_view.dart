@@ -1,5 +1,5 @@
 // 🐦 Flutter imports:
-import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/widget/nav_bar/user_nav_tab_bar.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/widget/nav_bar/user_nav_bar.dart';
 import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/widget/user_currency_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_grid/responsive_grid.dart';
@@ -8,21 +8,9 @@ import '../../../../generated/l10n.dart' as l;
 import '../../constants/user/user_menu.dart';
 import '../../widgets/widgets.dart';
 
-class UserCurrencyView extends StatefulWidget {
+class UserCurrencyView extends StatelessWidget {
   const UserCurrencyView({super.key, required this.userId});
   final int userId;
-
-  @override
-  State<UserCurrencyView> createState() => _UserCurrencyViewState();
-}
-
-class _UserCurrencyViewState extends State<UserCurrencyView> {
-  UserMenu currentMenu = UserMenu.currency;
-
-  @override
-  void initState(){
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +38,7 @@ class _UserCurrencyViewState extends State<UserCurrencyView> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
-                        child: UserNavTabBar(selectMenu: currentMenu, userId: widget.userId),
+                        child: UserNavBar(userMenu: UserMenu.currency, userId: userId),
                       ),
                     ],
                   ),
@@ -67,7 +55,7 @@ class _UserCurrencyViewState extends State<UserCurrencyView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    UserCurrencyWidget(padding: padding, theme: theme, textTheme: textTheme, lang: lang, userId: widget.userId)
+                    UserCurrencyWidget(padding: padding, theme: theme, textTheme: textTheme, userId: userId, lang: lang)
                   ],
                 ),
               ),

@@ -5,14 +5,12 @@ import 'package:acnoo_flutter_admin_panel/app/models/app_version/app_version_mod
 import 'package:flutter/material.dart';
 import 'package:iconly/iconly.dart';
 import 'package:intl/intl.dart';
-// 📦 Package imports:
-import 'package:responsive_framework/responsive_framework.dart' as rf;
 
 // 🌎 Project imports:
 import '../../../../generated/l10n.dart' as l;
-import '../../constants/app_version/app_version_type.dart';
 import '../../core/static/_static_values.dart';
 import '../../core/theme/_app_colors.dart';
+import '../../core/utils/size_config.dart';
 import '../../models/app_version/app_version.dart';
 
 class AppVersionModDialog extends StatefulWidget {
@@ -23,16 +21,15 @@ class AppVersionModDialog extends StatefulWidget {
 }
 
 class _AppVersionModDialogState extends State<AppVersionModDialog> {
-  String? selectType;
-  String? selectStatus;
 
-  List<String> get _types => AppVersionType.values.map((e) => e.value).toList();
-  
-  final AppVersionService appVersionService = AppVersionService();
   final TextEditingController publishDateController = TextEditingController();
+  final AppVersionService appVersionService = AppVersionService();
+
+  late String selectType;
+  late String selectStatus;
 
   //앱버전 변경
-  Future<void> modAppVersion(BuildContext context) async {
+  Future<void> modAppVersion() async {
     try {
       AppVersionModParam appVersionModParam = AppVersionModParam(publishDateController.text, selectStatus);
       AppVersion version = await appVersionService.modAppVersion(widget.version.id, appVersionModParam);
@@ -69,44 +66,20 @@ class _AppVersionModDialogState extends State<AppVersionModDialog> {
     publishDateController.text = widget.version.publishAt;
     selectStatus = widget.version.publishStatus;
   }
+
+  @override
+  void dispose() {
+    publishDateController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final lang = l.S.of(context);
-    final _sizeInfo = rf.ResponsiveValue<_SizeInfo>(
-      context,
-      conditionalValues: [
-        const rf.Condition.between(
-          start: 0,
-          end: 480,
-          value: _SizeInfo(
-            alertFontSize: 12,
-            padding: EdgeInsets.all(16),
-            innerSpacing: 16,
-          ),
-        ),
-        const rf.Condition.between(
-          start: 481,
-          end: 576,
-          value: _SizeInfo(
-            alertFontSize: 14,
-            padding: EdgeInsets.all(16),
-            innerSpacing: 16,
-          ),
-        ),
-        const rf.Condition.between(
-          start: 577,
-          end: 992,
-          value: _SizeInfo(
-            alertFontSize: 14,
-            padding: EdgeInsets.all(16),
-            innerSpacing: 16,
-          ),
-        ),
-      ],
-      defaultValue: const _SizeInfo(),
-    ).value;
+    final _sizeInfo = SizeConfig.getSizeInfo(context);
     TextTheme textTheme = Theme.of(context).textTheme;
     final theme = Theme.of(context);
+
     return AlertDialog(
       contentPadding: EdgeInsets.zero,
       alignment: Alignment.center,
@@ -160,7 +133,7 @@ class _AppVersionModDialogState extends State<AppVersionModDialog> {
                             children: [
                               //Text('Start Date', style: textTheme.bodyMedium),
                               Text(lang.publishAt, style: textTheme.bodyMedium),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 20),
                               TextFormField(
                                 controller: publishDateController,
                                 keyboardType: TextInputType.visiblePassword,
@@ -204,7 +177,7 @@ class _AppVersionModDialogState extends State<AppVersionModDialog> {
                             ],
                           ),
                         ),
-                        SizedBox(width: const _SizeInfo().innerSpacing),
+                        SizedBox(width: _sizeInfo.innerSpacing),
                       ],
                     ),
                     const SizedBox(height: 20),
@@ -252,7 +225,7 @@ class _AppVersionModDialogState extends State<AppVersionModDialog> {
                               padding: EdgeInsets.symmetric(
                                   horizontal: _sizeInfo.innerSpacing),
                             ),
-                            onPressed: () => modAppVersion(context),
+                            onPressed: () => modAppVersion(),
                             //label: const Text('Save'),
                             label: Text(lang.save),
                           )
@@ -292,16 +265,4 @@ class _AppVersionModDialogState extends State<AppVersionModDialog> {
       ],
     );
   }
-}
-
-class _SizeInfo {
-  final double? alertFontSize;
-  final EdgeInsetsGeometry padding;
-  final double innerSpacing;
-
-  const _SizeInfo({
-    this.alertFontSize = 18,
-    this.padding = const EdgeInsets.all(24),
-    this.innerSpacing = 24,
-  });
 }

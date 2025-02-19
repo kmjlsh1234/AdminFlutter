@@ -10,6 +10,7 @@ import '../../../models/admin/admin_mod_param.dart';
 class AdminModDialog extends StatefulWidget {
   const AdminModDialog({super.key, required this.admin});
   final Admin admin;
+
   @override
   State<AdminModDialog> createState() => _AdminModDialogState();
 }
@@ -33,7 +34,7 @@ class _AdminModDialogState extends State<AdminModDialog> {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController mobileController = TextEditingController();
 
-  //관리자 추가
+  //관리자 정보 변경
   Future<void> modAdmin() async {
     try {
       AdminModParam adminModParam = AdminModParam(
@@ -43,39 +44,10 @@ class _AdminModDialogState extends State<AdminModDialog> {
           password: null,
           mobile: mobileController.text);
       Admin admin = await adminManageService.modAdmin(widget.admin.adminId, adminModParam);
-      showAddAdminSuccessDialog();
+      showSuccessDialog();
     } catch (e) {
       ErrorHandler.handleError(e, context);
     }
-  }
-
-  void showAddAdminSuccessDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(''),
-          content: Text('관리자 변경 성공'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pop(true);
-              },
-              child: Text('확인'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  @override
-  void dispose(){
-    nameController.dispose();
-    emailController.dispose();
-    mobileController.dispose();
-    super.dispose();
   }
 
   @override
@@ -84,6 +56,14 @@ class _AdminModDialogState extends State<AdminModDialog> {
     nameController.text = widget.admin.name;
     emailController.text = widget.admin.email;
     mobileController.text = widget.admin.mobile;
+  }
+
+  @override
+  void dispose(){
+    nameController.dispose();
+    emailController.dispose();
+    mobileController.dispose();
+    super.dispose();
   }
 
   @override
@@ -263,6 +243,27 @@ class _AdminModDialogState extends State<AdminModDialog> {
           ],
         ),
       ),
+    );
+  }
+
+  void showSuccessDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(''),
+          content: Text('관리자 변경 성공'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop(true);
+              },
+              child: Text('확인'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

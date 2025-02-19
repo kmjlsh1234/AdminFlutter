@@ -27,11 +27,11 @@ class SignupView extends StatefulWidget {
 class _SignupViewState extends State<SignupView> {
   bool showPassword = false;
 
-  late TextEditingController nameController;
-  late TextEditingController emailController;
-  late TextEditingController passwordController;
-  late TextEditingController passwordCheckController;
-  late TextEditingController mobileController;
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController passwordCheckController = TextEditingController();
+  final TextEditingController mobileController = TextEditingController();
 
   final AdminService adminService = AdminService();
 
@@ -46,7 +46,9 @@ class _SignupViewState extends State<SignupView> {
       );
 
       bool isSuccess = await adminService.join(adminJoinParam);
-      showJoinSuccessDialog(context);
+      if(isSuccess){
+        showJoinSuccessDialog(context);
+      }
     } catch (e){
       ErrorHandler.handleError(e, context);
     }
@@ -54,22 +56,17 @@ class _SignupViewState extends State<SignupView> {
 
   @override
   void dispose(){
-    super.dispose();
     nameController.dispose();
     emailController.dispose();
     passwordController.dispose();
     passwordCheckController.dispose();
     mobileController.dispose();
+    super.dispose();
   }
 
   @override
   void initState(){
     super.initState();
-    nameController = TextEditingController();
-    emailController = TextEditingController();
-    passwordController = TextEditingController();
-    passwordCheckController = TextEditingController();
-    mobileController = TextEditingController();
   }
 
   @override

@@ -2,7 +2,7 @@
 import 'dart:ui';
 
 import 'package:acnoo_flutter_admin_panel/app/pages/admin_manage_page/widget/admin_mod_popup.dart';
-import 'package:acnoo_flutter_admin_panel/app/pages/admin_manage_page/widget/admin_nav_tab_bar.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/admin_manage_page/widget/admin_nav_bar.dart';
 import 'package:flutter/material.dart';
 
 import '../../../generated/l10n.dart' as l;
@@ -73,9 +73,11 @@ class _AdminProfileViewState extends State<AdminProfileView> {
     final l.S lang = l.S.of(context);
     final double padding = 16;
 
-    return isLoading
-        ? Center(child: CircularProgressIndicator())
-        : Scaffold(
+    if(isLoading){
+      return Center(child: CircularProgressIndicator());
+    }
+
+    return Scaffold(
             body: LayoutBuilder(
               builder: (BuildContext context, BoxConstraints constraints) {
                 return Padding(
@@ -88,14 +90,16 @@ class _AdminProfileViewState extends State<AdminProfileView> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Expanded(
-                              child: AdminNavTabBar(onTabSelected: (value) {
+                              child: AdminNavBar(
+                                onTabSelected: (value) {
                                 setState(() {
                                   currentMenu = AdminMenu.values.firstWhere(
                                     (menu) => menu.value == value,
                                     orElse: () => AdminMenu.profile,
                                   );
                                 });
-                              }),
+                              },
+                                adminMenu: AdminMenu.profile),
                             ),
                           ],
                         ),

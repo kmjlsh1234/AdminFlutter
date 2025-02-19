@@ -30,18 +30,18 @@ class UserListView extends StatefulWidget {
 }
 
 class _UserListViewState extends State<UserListView> {
-  final UserManageService userManageService = UserManageService();
   final ScrollController scrollController = ScrollController();
+  final UserManageService userManageService = UserManageService();
 
-  List<UserProfile> userList = [];
+  late List<UserProfile> userList;
   bool isLoading = true;
 
   //Paging
-  int currentPage = 0;
+  int currentPage = 1;
   int rowsPerPage = 10;
   int totalPage = 0;
 
-  //Search_Type
+  //Search
   UserSearchType searchType = UserSearchType.none;
   String searchValue = '';
 
@@ -51,33 +51,47 @@ class _UserListViewState extends State<UserListView> {
   final TextEditingController endDateController = TextEditingController();
 
   //유저 리스트 조회
-  Future<void> getUserList(BuildContext context) async {
+  Future<List<UserProfile>> getUserList() async {
     List<UserProfile> list = [];
     try {
-      setState(() => isLoading = true);
       UserSearchParam userSearchParam = getUserSearchParam();
       list = await userManageService.getUserList(userSearchParam);
     } catch (e) {
       ErrorHandler.handleError(e, context);
     }
-    setState(() {
-      userList = list;
-      isLoading = false;
-    });
+    return list;
   }
 
   //유저 리스트 갯수 조회
-  Future<void> getUserListCount(BuildContext context) async {
+  Future<int> getUserListCount() async {
     int count = 0;
     try {
-      setState(() => isLoading = true);
       UserSearchParam userSearchParam = getUserSearchParam();
       count = await userManageService.getUserListCount(userSearchParam);
     } catch (e) {
       ErrorHandler.handleError(e, context);
     }
+    int totalPage = (count / rowsPerPage).ceil();
+    return totalPage;
+  }
+
+  //LIST + COUNT
+  Future<void> searchListWithCount() async {
+    setState(() => isLoading = true);
+    List<dynamic> results = await Future.wait([getUserList(), getUserListCount()]);
     setState(() {
-      totalPage = (count / rowsPerPage).ceil();
+      userList = results[0];
+      totalPage = results[1];
+      isLoading = false;
+    });
+  }
+
+  //LIST
+  Future<void> searchList() async {
+    setState(() => isLoading = true);
+    List<UserProfile> list = await getUserList();
+    setState(() {
+      userList = list;
       isLoading = false;
     });
   }
@@ -89,16 +103,33 @@ class _UserListViewState extends State<UserListView> {
         searchDateType == UserSearchDateType.none ? null : searchDateType.value,
         startDateController.text,
         endDateController.text,
-        currentPage + 1,
+        currentPage,
         rowsPerPage
     );
+  }
+
+  void goToNextPage() {
+    if (currentPage < totalPage) {
+      setState(() {
+        currentPage++;
+        searchList();
+      });
+    }
+  }
+
+  void goToPreviousPage() {
+    if (currentPage > 1) {
+      setState(() {
+        currentPage--;
+        searchList();
+      });
+    }
   }
 
   @override
   void initState() {
     super.initState();
-    getUserList(context);
-    getUserListCount(context);
+    searchListWithCount();
   }
 
   @override
@@ -113,6 +144,10 @@ class _UserListViewState extends State<UserListView> {
     TextTheme textTheme = Theme.of(context).textTheme;
     final theme = Theme.of(context);
     final lang = l.S.of(context);
+
+    if(isLoading){
+      return Center(child: CircularProgressIndicator());
+    }
 
     return Scaffold(
       body: Padding(
@@ -145,8 +180,7 @@ class _UserListViewState extends State<UserListView> {
                                 lang: lang,
                                 onPressed: (searchValue) {
                                   this.searchValue = searchValue;
-                                  getUserList(context);
-                                  getUserListCount(context);
+                                  searchListWithCount();
                                 }),
                           ),
                           Spacer(flex: 2),
@@ -162,9 +196,7 @@ class _UserListViewState extends State<UserListView> {
                         constraints: BoxConstraints(
                           minWidth: constraints.maxWidth,
                         ),
-                        child: isLoading
-                            ? Center(child: CircularProgressIndicator())
-                            : userListDataTable(context),
+                        child: userListDataTable(context),
                       ),
                     ),
 
@@ -183,26 +215,6 @@ class _UserListViewState extends State<UserListView> {
     );
   }
 
-  ///_____________________________________go_next_page________________
-  void goToNextPage() {
-    if (currentPage < totalPage - 1) {
-      setState(() {
-        currentPage++;
-        getUserList(context);
-      });
-    }
-  }
-
-  ///_____________________________________go_previous_page____________
-  void goToPreviousPage() {
-    if (currentPage > 0) {
-      setState(() {
-        currentPage--;
-        getUserList(context);
-      });
-    }
-  }
-
   ///_______________________________________________________________pagination_footer_______________________________
   Row paginatedSection(ThemeData theme, TextTheme textTheme) {
     //final lang = l.S.of(context);
@@ -211,12 +223,12 @@ class _UserListViewState extends State<UserListView> {
       children: [
         Expanded(
           child: Text(
-            '${l.S.of(context).showing} ${currentPage * rowsPerPage + 1} ${l.S.of(context).to} ${currentPage * rowsPerPage + userList.length} ${l.S.of(context).OF} ${userList.length} ${l.S.of(context).entries}',
+            '${l.S.of(context).showing} ${(currentPage -1) * rowsPerPage + 1} ${l.S.of(context).to} ${(currentPage -1) * rowsPerPage + userList.length} ${l.S.of(context).OF} ${userList.length} ${l.S.of(context).entries}',
             overflow: TextOverflow.ellipsis,
           ),
         ),
         DataTablePaginator(
-          currentPage: currentPage + 1,
+          currentPage: currentPage,
           totalPages: totalPage,
           onPreviousTap: goToPreviousPage,
           onNextTap: goToNextPage,
@@ -253,25 +265,6 @@ class _UserListViewState extends State<UserListView> {
         },
       ),
     );
-  }
-
-  void showFormDialog(BuildContext context, UserProfile userProfile) async {
-    bool isUserStatusMod = await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return BackdropFilter(
-            filter: ImageFilter.blur(
-              sigmaX: 5,
-              sigmaY: 5,
-            ),
-            child: UserModDialog(userProfile: userProfile));
-      },
-    );
-
-    if (isUserStatusMod) {
-      getUserList(context);
-      getUserListCount(context);
-    }
   }
 
   ///_______________________________________________________________User_List_Data_Table___________________________
@@ -380,5 +373,23 @@ class _UserListViewState extends State<UserListView> {
         ).toList(),
       ),
     );
+  }
+
+  void showFormDialog(BuildContext context, UserProfile userProfile) async {
+    bool isUserStatusMod = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return BackdropFilter(
+            filter: ImageFilter.blur(
+              sigmaX: 5,
+              sigmaY: 5,
+            ),
+            child: UserModDialog(userProfile: userProfile));
+      },
+    );
+
+    if (isUserStatusMod) {
+      searchListWithCount();
+    }
   }
 }

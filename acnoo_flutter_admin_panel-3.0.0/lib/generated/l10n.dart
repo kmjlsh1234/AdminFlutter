@@ -2848,6 +2848,16 @@ class S {
     );
   }
 
+  /// `Add New Category`
+  String get addNewCategory {
+    return Intl.message(
+      'Add New Category',
+      name: 'addNewCategory',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Mod Admin`
   String get modAdmin {
     return Intl.message(

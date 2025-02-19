@@ -1,7 +1,7 @@
 // 🐦 Flutter imports:
 import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/widget/chip_record_widget.dart';
 import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/widget/nav_bar/currency_nav_tab_bar.dart';
-import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/widget/nav_bar/user_nav_tab_bar.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/widget/nav_bar/user_nav_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_grid/responsive_grid.dart';
 
@@ -64,7 +64,7 @@ class _UserCurrencyRecordViewState extends State<UserCurrencyRecordView> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
-                        child: UserNavTabBar(selectMenu: currentMenu, userId: widget.userId),
+                        child: UserNavBar(userMenu: currentMenu, userId: widget.userId),
                       ),
                     ],
                   ),

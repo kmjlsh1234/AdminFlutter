@@ -14,6 +14,7 @@ class UserCurrencyModDialog extends StatefulWidget {
   final int userId;
   final String currencyType;
   final int count;
+
   @override
   State<UserCurrencyModDialog> createState() => _UserCurrencyModDialogState();
 }

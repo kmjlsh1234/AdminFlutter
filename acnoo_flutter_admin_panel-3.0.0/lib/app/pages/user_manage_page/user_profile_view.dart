@@ -1,34 +1,20 @@
 // 🐦 Flutter imports:
-import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/widget/nav_bar/user_nav_tab_bar.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/widget/nav_bar/user_nav_bar.dart';
 import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/widget/user_profile_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_grid/responsive_grid.dart';
 
-import '../../../../generated/l10n.dart' as l;
 import '../../constants/user/user_menu.dart';
 import '../../widgets/widgets.dart';
 
-class UserProfileView extends StatefulWidget {
+class UserProfileView extends StatelessWidget {
   const UserProfileView({super.key, required this.userId});
   final int userId;
-
-  @override
-  State<UserProfileView> createState() => _UserProfileViewState();
-}
-
-class _UserProfileViewState extends State<UserProfileView> {
-  UserMenu currentMenu = UserMenu.profile;
-
-  @override
-  void initState(){
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
     final theme = Theme.of(context);
-    final lang = l.S.of(context);
     final double padding = responsiveValue<double>(
       context,
       xs: 16,
@@ -50,7 +36,7 @@ class _UserProfileViewState extends State<UserProfileView> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
-                        child: UserNavTabBar(selectMenu: currentMenu, userId: widget.userId),
+                        child: UserNavBar(userMenu: UserMenu.profile, userId: userId),
                       ),
                     ],
                   ),
@@ -67,7 +53,7 @@ class _UserProfileViewState extends State<UserProfileView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    UserProfileWidget(padding: padding, theme: theme, textTheme: textTheme, userId: widget.userId)
+                    UserProfileWidget(padding: padding, theme: theme, textTheme: textTheme, userId: userId)
                   ],
                 ),
               ),

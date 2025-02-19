@@ -32,6 +32,11 @@ enum ErrorCode {
   APP_VERSION_REGEX_VALIDATION(400, 141102, "버전 형식이 맞지 않음"),
   INVALID_VERSION_PARAMETER(400, 141103, "이전 버전보다 낮음"),
   NOT_FOUND_ANY_PUBLISH_VERSION(404, 141104, "해당 버전을 제외하고 출시된 버전이 존재하지 않음"),
+
+  //Category(1501XX)
+  CATEGORY_NOT_EXIST(404, 150101, "해당 카테고리가 존재하지 않음"),
+  DUPLICATE_CATEGORY_NAME(400,150102, "중복된 이름의 카테고리가 존재함"),
+  CATEGORY_HAS_MAPPING_WITH_ITEM(400,150103, "카테고리가 아이템에 매핑되어 있음"),
   ;
 
   const ErrorCode(this.statusCode, this.errorCode, this.message);

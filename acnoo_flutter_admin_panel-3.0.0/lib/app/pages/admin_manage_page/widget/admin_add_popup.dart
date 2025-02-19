@@ -33,25 +33,33 @@ class _AddAdminDialogState extends State<AddAdminDialog> {
       ];
 
   final AdminManageService adminManageService = AdminManageService();
-  late TextEditingController nameController;
-  late TextEditingController emailController;
-  late TextEditingController passwordController;
-  late TextEditingController mobileController;
 
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController mobileController = TextEditingController();
+
+  //Admin 추가
   Future<void> addAdmin() async {
     try {
       AdminAddParam adminAddParam = AdminAddParam(
-          roleId: 1, //TODO : 나중에 ROLE 작업 시 변경하기
+          //TODO : 나중에 ROLE 작업 시 변경하기
+          roleId: 1,
           name: nameController.text,
           email: emailController.text,
           password: passwordController.text,
           mobile: mobileController.text
       );
       Admin admin = await adminManageService.addAdmin(adminAddParam);
-      showAddAdminSuccessDialog(context);
+      showSuccessDialog(context);
     } catch (e) {
       ErrorHandler.handleError(e, context);
     }
+  }
+
+  @override
+  void initState(){
+    super.initState();
   }
 
   @override
@@ -64,20 +72,12 @@ class _AddAdminDialogState extends State<AddAdminDialog> {
   }
 
   @override
-  void initState(){
-    super.initState();
-    nameController = TextEditingController();
-    emailController = TextEditingController();
-    passwordController = TextEditingController();
-    mobileController = TextEditingController();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final lang = l.S.of(context);
     final _sizeInfo = SizeConfig.getSizeInfo(context);
     TextTheme textTheme = Theme.of(context).textTheme;
     final theme = Theme.of(context);
+
     return AlertDialog(
       contentPadding: EdgeInsets.zero,
       alignment: Alignment.center,
@@ -252,7 +252,7 @@ class _AddAdminDialogState extends State<AddAdminDialog> {
     );
   }
 
-  void showAddAdminSuccessDialog(BuildContext context) {
+  void showSuccessDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {

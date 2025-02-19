@@ -31,14 +31,14 @@ class AdminsListView extends StatefulWidget {
 }
 
 class _AdminsListViewState extends State<AdminsListView> {
-  late ScrollController scrollController;
+  final ScrollController scrollController = ScrollController();
   final AdminManageService adminManageService = AdminManageService();
 
   late List<Admin> adminList;
   bool isLoading = true;
 
   //Paging
-  int currentPage = 0;
+  int currentPage = 1;
   int rowsPerPage = 10;
   int totalPage = 0;
 
@@ -47,7 +47,7 @@ class _AdminsListViewState extends State<AdminsListView> {
   String searchValue = "";
 
   //ADMIN 리스트 조회
-  Future<void> getAdminList() async {
+  Future<List<Admin>> getAdminList() async {
     List<Admin> list = [];
     try {
       AdminSearchParam adminSearchParam = getAdminSearchParam();
@@ -55,11 +55,11 @@ class _AdminsListViewState extends State<AdminsListView> {
     } catch (e) {
       ErrorHandler.handleError(e, context);
     }
-    adminList = list;
+    return list;
   }
 
   //ADMIN 리스트 갯수 조회
-  Future<void> getAdminListCount() async {
+  Future<int> getAdminListCount() async {
     int count = 0;
     try {
       AdminSearchParam adminSearchParam = getAdminSearchParam();
@@ -67,37 +67,58 @@ class _AdminsListViewState extends State<AdminsListView> {
     } catch (e) {
       ErrorHandler.handleError(e, context);
     }
-    totalPage = (count / rowsPerPage).ceil();
+    int totalPage = (count / rowsPerPage).ceil();
+    return totalPage;
   }
 
   //LIST + COUNT
   Future<void> searchListWithCount() async {
     setState(() => isLoading = true);
-    await getAdminList();
-    await getAdminListCount();
-    setState(() => isLoading = false);
+    List<dynamic> results =
+    await Future.wait([getAdminList(), getAdminListCount()]);
+    setState(() {
+      adminList = results[0];
+      totalPage = results[1];
+      isLoading = false;
+    });
   }
 
   //LIST
   Future<void> searchList() async {
     setState(() => isLoading = true);
-    await getAdminList();
-    setState(() => isLoading = false);
+    List<Admin> list = await getAdminList();
+    setState(() {
+      adminList = list;
+      isLoading = false;
+    });
   }
 
-  AdminSearchParam getAdminSearchParam(){
+  AdminSearchParam getAdminSearchParam() {
     return AdminSearchParam(
         searchType == AdminSearchType.none ? null : searchType.value,
         searchValue,
-        currentPage + 1,
-        rowsPerPage
-    );
+        currentPage,
+        rowsPerPage);
   }
+
+  void goToNextPage() {
+    if (currentPage < totalPage) {
+      currentPage++;
+      getAdminList();
+    }
+  }
+
+  void goToPreviousPage() {
+    if (currentPage > 1) {
+      currentPage--;
+      getAdminList();
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     searchListWithCount();
-    scrollController = ScrollController();
   }
 
   @override
@@ -113,9 +134,11 @@ class _AdminsListViewState extends State<AdminsListView> {
     final theme = Theme.of(context);
     final lang = l.S.of(context);
 
-    return isLoading
-        ? Center(child: CircularProgressIndicator())
-        : Scaffold(
+    if (isLoading) {
+      return Center(child: CircularProgressIndicator());
+    }
+
+    return Scaffold(
       body: Padding(
         padding: _sizeInfo.padding,
         child: ShadowContainer(
@@ -125,10 +148,6 @@ class _AdminsListViewState extends State<AdminsListView> {
             physics: const AlwaysScrollableScrollPhysics(),
             child: LayoutBuilder(
               builder: (BuildContext context, BoxConstraints constraints) {
-                final isMobile = constraints.maxWidth < 481;
-                final isTablet =
-                    constraints.maxWidth < 992 && constraints.maxWidth >= 481;
-
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -144,7 +163,7 @@ class _AdminsListViewState extends State<AdminsListView> {
                           ),
                           const SizedBox(width: 16.0),
                           Expanded(
-                            flex: isTablet || isMobile ? 2 : 3,
+                            flex: 3,
                             child: SearchFormField(
                                 textTheme: textTheme,
                                 lang: lang,
@@ -153,12 +172,11 @@ class _AdminsListViewState extends State<AdminsListView> {
                                   searchListWithCount();
                                 }),
                           ),
-                          Spacer(flex: isTablet || isMobile ? 1 : 2),
+                          Spacer(flex: 2),
                           CustomButton(
                               textTheme: textTheme,
                               label: lang.addNewAdmin,
-                              onPressed: () => showAddFormDialog(context)
-                          ),
+                              onPressed: () => showAddFormDialog(context)),
                         ],
                       ),
                     ),
@@ -168,11 +186,10 @@ class _AdminsListViewState extends State<AdminsListView> {
                       controller: scrollController,
                       scrollDirection: Axis.horizontal,
                       child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          minWidth: constraints.maxWidth,
-                        ),
-                        child: userListDataTable(
-                                context, lang, theme, textTheme),
+                          constraints: BoxConstraints(
+                            minWidth: constraints.maxWidth,
+                          ),
+                          child: userListDataTable(lang, theme, textTheme)
                       ),
                     ),
 
@@ -229,22 +246,6 @@ class _AdminsListViewState extends State<AdminsListView> {
     }
   }
 
-  ///_____________________________________go_next_page________________
-  void goToNextPage() {
-    if (currentPage < totalPage - 1) {
-      currentPage++;
-      getAdminList();
-    }
-  }
-
-  ///_____________________________________go_previous_page____________
-  void goToPreviousPage() {
-    if (currentPage > 0) {
-      currentPage--;
-      getAdminList();
-    }
-  }
-
   ///_______________________________________________________________pagination_footer_______________________________
   Row paginatedSection(ThemeData theme, TextTheme textTheme) {
     return Row(
@@ -252,15 +253,25 @@ class _AdminsListViewState extends State<AdminsListView> {
       children: [
         Expanded(
           child: Text(
-            '${l.S.of(context).showing} ${currentPage * rowsPerPage + 1} ${l.S.of(context).to} ${currentPage * rowsPerPage + adminList.length} ${l.S.of(context).OF} ${adminList.length} ${l.S.of(context).entries}',
+            '${l.S.of(context).showing} ${(currentPage - 1) * rowsPerPage + 1} ${l.S.of(context).to} ${(currentPage - 1) * rowsPerPage + adminList.length} ${l.S.of(context).OF} ${adminList.length} ${l.S.of(context).entries}',
             overflow: TextOverflow.ellipsis,
           ),
         ),
         DataTablePaginator(
-          currentPage: currentPage + 1,
+          currentPage: currentPage,
           totalPages: totalPage,
-          onPreviousTap: goToPreviousPage,
-          onNextTap: goToNextPage,
+          onPreviousTap: () {
+            if (currentPage > 1) {
+              currentPage--;
+              getAdminList();
+            }
+          },
+          onNextTap: () {
+            if (currentPage < totalPage) {
+              currentPage++;
+              getAdminList();
+            }
+          },
         )
       ],
     );
@@ -290,15 +301,14 @@ class _AdminsListViewState extends State<AdminsListView> {
           );
         }).toList(),
         onChanged: (value) {
-          searchType = value??AdminSearchType.none;
+          searchType = value ?? AdminSearchType.none;
         },
       ),
     );
   }
 
   ///_______________________________________________________________User_List_Data_Table___________________________
-  Theme userListDataTable(
-      BuildContext context, l.S lang, ThemeData theme, TextTheme textTheme) {
+  Theme userListDataTable(l.S lang, ThemeData theme, TextTheme textTheme) {
     return Theme(
       data: ThemeData(
           dividerColor: theme.colorScheme.outline,
@@ -361,7 +371,8 @@ class _AdminsListViewState extends State<AdminsListView> {
                           showModStatusFormDialog(context, data);
                           break;
                         case 'View':
-                          GoRouter.of(context).go('/admins/profile/${data.adminId}');
+                          GoRouter.of(context)
+                              .go('/admins/profile/${data.adminId}');
                           break;
                         case 'Delete':
                           setState(() {});

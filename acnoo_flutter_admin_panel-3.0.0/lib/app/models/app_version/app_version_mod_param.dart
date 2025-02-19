@@ -10,6 +10,5 @@ class AppVersionModParam {
   AppVersionModParam(this.publishAt, this.publishStatus);
 
   factory AppVersionModParam.fromJson(Map<String, dynamic> json) => _$AppVersionModParamFromJson(json);
-
   Map<String, dynamic> toJson() => _$AppVersionModParamToJson(this);
 }

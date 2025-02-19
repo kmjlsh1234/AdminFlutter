@@ -1,4 +1,5 @@
 // 🐦 Flutter imports:
+import 'package:acnoo_flutter_admin_panel/app/constants/app_version/publish_status.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/service/app_version/app_version_service.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/utils/size_config.dart';
@@ -6,8 +7,6 @@ import 'package:acnoo_flutter_admin_panel/app/models/app_version/app_version_add
 import 'package:flutter/material.dart';
 import 'package:iconly/iconly.dart';
 import 'package:intl/intl.dart';
-// 📦 Package imports:
-import 'package:responsive_framework/responsive_framework.dart' as rf;
 
 // 🌎 Project imports:
 import '../../../../generated/l10n.dart' as l;
@@ -24,23 +23,22 @@ class AppVersionAddDialog extends StatefulWidget {
 }
 
 class _AppVersionAddDialogState extends State<AppVersionAddDialog> {
-  String? selectType;
-  String? selectStatus;
 
-  List<String> get _types => AppVersionType.values.map((e) => e.value).toList();
-  
   final AppVersionService appVersionService = AppVersionService();
   final TextEditingController versionController = TextEditingController();
   final TextEditingController publishDateController = TextEditingController();
 
+  AppVersionType selectType = AppVersionType.force;
+  PublishStatus selectStatus = PublishStatus.publish;
+
   //앱버전 추가
-  Future<void> addAppVersion(BuildContext context) async {
+  Future<void> addAppVersion() async {
     try {
       AppVersionAddParam appVersionAddParam = AppVersionAddParam(
           version: versionController.text,
-          versionType: selectType!,
+          versionType: selectType.value,
           publishAt: publishDateController.text,
-          publishStatus: selectStatus!
+          publishStatus: selectStatus.value
       );
 
       AppVersion version = await appVersionService.addAppVersion(appVersionAddParam);
@@ -48,27 +46,6 @@ class _AppVersionAddDialogState extends State<AppVersionAddDialog> {
     } catch (e) {
       ErrorHandler.handleError(e, context);
     }
-  }
-
-  void showAddAppVersionSuccessDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(''),
-          content: Text('앱 버전 추가 성공'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pop(true);
-              },
-              child: Text('확인'),
-            ),
-          ],
-        );
-      },
-    );
   }
 
   @override
@@ -136,23 +113,22 @@ class _AppVersionAddDialogState extends State<AppVersionAddDialog> {
                     const SizedBox(height: 20),
                     Text(lang.type, style: textTheme.bodySmall),
                     const SizedBox(height: 8),
-                    DropdownButtonFormField<String>(
+                    DropdownButtonFormField<AppVersionType>(
                       dropdownColor: theme.colorScheme.primaryContainer,
                       value: selectType,
                       hint: Text(
                         lang.selectPosition,
-                        //'Select Position',
                         style: textTheme.bodySmall,
                       ),
-                      items: _types.map((position) {
-                        return DropdownMenuItem<String>(
-                          value: position,
-                          child: Text(position),
+                      items: AppVersionType.values.map((type) {
+                        return DropdownMenuItem<AppVersionType>(
+                          value: type,
+                          child: Text(type.value),
                         );
                       }).toList(),
-                      onChanged: (value) {
+                      onChanged: (type) {
                         setState(() {
-                          selectType = value;
+                          selectType = type??AppVersionType.force;
                         });
                       },
                       validator: (value) =>
@@ -212,7 +188,7 @@ class _AppVersionAddDialogState extends State<AppVersionAddDialog> {
                             ],
                           ),
                         ),
-                        SizedBox(width: const _SizeInfo().innerSpacing),
+                        SizedBox(width: 24),
                       ],
                     ),
                     const SizedBox(height: 20),
@@ -221,9 +197,9 @@ class _AppVersionAddDialogState extends State<AppVersionAddDialog> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          _buildCheckbox('PUBLISH', 'PUBLISH'),
+                          buildCheckbox(PublishStatus.publish),
                           const SizedBox(width: 10),
-                          _buildCheckbox('NOT_PUBLISH', 'NOT_PUBLISH'),
+                          buildCheckbox(PublishStatus.notPublish),
                         ],
                       ),
                     ),
@@ -260,7 +236,7 @@ class _AppVersionAddDialogState extends State<AppVersionAddDialog> {
                               padding: EdgeInsets.symmetric(
                                   horizontal: _sizeInfo.innerSpacing),
                             ),
-                            onPressed: () => addAppVersion(context),
+                            onPressed: () => addAppVersion(),
                             //label: const Text('Save'),
                             label: Text(lang.save),
                           )
@@ -277,39 +253,48 @@ class _AppVersionAddDialogState extends State<AppVersionAddDialog> {
     );
   }
 
-  Widget _buildCheckbox(String label, String value) {
+  void showAddAppVersionSuccessDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(''),
+          content: Text('앱 버전 추가 성공'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop(true);
+              },
+              child: Text('확인'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget buildCheckbox(PublishStatus status) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Checkbox(
-          value: selectStatus == value,
+          value: selectStatus == status,
           onChanged: (bool? newValue) {
             if (newValue == true) {
               setState(() {
-                selectStatus = value;
+                selectStatus = status;
               });
-            } else if (selectStatus == value) {
+            } else {
               setState(() {
-                selectStatus = value; // Deselect if it's the current selected one
+                selectStatus = status; // Deselect if it's the current selected one
               });
             }
           },
         ),
         const SizedBox(width: 4.0),
-        Text(label),
+        Text(status.value),
       ],
     );
   }
-}
-
-class _SizeInfo {
-  final double? alertFontSize;
-  final EdgeInsetsGeometry padding;
-  final double innerSpacing;
-
-  const _SizeInfo({
-    this.alertFontSize = 18,
-    this.padding = const EdgeInsets.all(24),
-    this.innerSpacing = 24,
-  });
 }

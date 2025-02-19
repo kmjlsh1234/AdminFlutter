@@ -1,8 +1,10 @@
+import 'package:acnoo_flutter_admin_panel/app/core/error/custom_exception.dart';
 import 'package:acnoo_flutter_admin_panel/app/models/admin/admin_mod_status_param.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../../generated/l10n.dart' as l;
 import '../../../constants/admin/admin_status.dart';
+import '../../../core/error/error_code.dart';
 import '../../../core/error/error_handler.dart';
 import '../../../core/service/admin/admin_manage_service.dart';
 import '../../../core/theme/_app_colors.dart';
@@ -18,40 +20,24 @@ class AdminModStatusDialog extends StatefulWidget {
 }
 
 class _AdminModStatusDialogState extends State<AdminModStatusDialog> {
-  String adminStatus = "";
+
   List<String> get statuses => AdminStatus.values.map((e) => e.value).toList();
   final AdminManageService adminManageService = AdminManageService();
+  late String adminStatus;
 
   //관리자 상태 변경
   Future<void> modAdminStatus(BuildContext context) async {
     try {
       AdminModStatusParam adminModStatusParam = AdminModStatusParam(status: adminStatus);
       bool isSuccess = await adminManageService.modAdminStatus(widget.admin.adminId, adminModStatusParam);
-      showSuccessDialog(context);
+      if(isSuccess){
+        showSuccessDialog(context);
+      } else{
+        throw CustomException(ErrorCode.UNKNOWN_ERROR);
+      }
     } catch (e) {
       ErrorHandler.handleError(e, context);
     }
-  }
-
-  void showSuccessDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(''),
-          content: Text('관리자 상태 변경 성공'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pop(true);
-              },
-              child: Text('확인'),
-            ),
-          ],
-        );
-      },
-    );
   }
 
   @override
@@ -66,6 +52,7 @@ class _AdminModStatusDialogState extends State<AdminModStatusDialog> {
     final _sizeInfo = SizeConfig.getSizeInfo(context);
     TextTheme textTheme = Theme.of(context).textTheme;
     final theme = Theme.of(context);
+
     return AlertDialog(
       contentPadding: EdgeInsets.zero,
       alignment: Alignment.center,
@@ -180,6 +167,27 @@ class _AdminModStatusDialogState extends State<AdminModStatusDialog> {
           ],
         ),
       ),
+    );
+  }
+
+  void showSuccessDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(''),
+          content: Text('관리자 상태 변경 성공'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop(true);
+              },
+              child: Text('확인'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

@@ -29,8 +29,8 @@ class _SigninViewState extends State<SigninView> {
   bool rememberMe = false;
   bool showPassword = false;
   AdminService adminService = AdminService();
-  late TextEditingController emailController;
-  late TextEditingController passwordController;
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   //로그인
   Future<void> login() async {
@@ -45,16 +45,14 @@ class _SigninViewState extends State<SigninView> {
 
   @override
   void dispose(){
-    super.dispose();
     emailController.dispose();
     passwordController.dispose();
+    super.dispose();
   }
 
   @override
   void initState() {
     super.initState();
-    emailController = TextEditingController();
-    passwordController = TextEditingController();
   }
 
   @override

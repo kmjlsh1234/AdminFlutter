@@ -31,14 +31,16 @@ class UserCurrencyWidget extends StatefulWidget {
 }
 
 class _UserCurrencyWidgetState extends State<UserCurrencyWidget> {
+
+  final CurrencyService currencyService = CurrencyService();
   bool isLoading = true;
 
   late int chip;
   late int coin;
   late int diamond;
-  final CurrencyService currencyService = CurrencyService();
 
-  Future<void> getCurrency(BuildContext context) async {
+  //재화 정보 가져오기
+  Future<void> getCurrency() async {
     setState(() => isLoading = true);
     try{
       chip = await currencyService.getChip(widget.userId);
@@ -50,29 +52,15 @@ class _UserCurrencyWidgetState extends State<UserCurrencyWidget> {
     setState(() => isLoading = false);
   }
 
-  void showFormDialog(BuildContext context, String currencyType, int count) async {
-    bool isCurrencyMod = await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return BackdropFilter(
-            filter: ImageFilter.blur(
-              sigmaX: 5,
-              sigmaY: 5,
-            ),
-            child: UserCurrencyModDialog(userId: widget.userId, currencyType: currencyType, count: count)
-        );
-      },
-    );
-
-    if(isCurrencyMod){
-      getCurrency(context);
-    }
-  }
-
   @override
   void initState() {
     super.initState();
-    getCurrency(context);
+    getCurrency();
+  }
+
+  @override
+  void dispose(){
+    super.dispose();
   }
 
   @override
@@ -175,5 +163,24 @@ class _UserCurrencyWidgetState extends State<UserCurrencyWidget> {
       color: widget.theme.colorScheme.outline,
       height: 0.0,
     );
+  }
+
+  void showFormDialog(BuildContext context, String currencyType, int count) async {
+    bool isCurrencyMod = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return BackdropFilter(
+            filter: ImageFilter.blur(
+              sigmaX: 5,
+              sigmaY: 5,
+            ),
+            child: UserCurrencyModDialog(userId: widget.userId, currencyType: currencyType, count: count)
+        );
+      },
+    );
+
+    if(isCurrencyMod){
+      getCurrency();
+    }
   }
 }

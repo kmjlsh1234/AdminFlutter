@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 import '../app_config/app_config.dart';
 
 class DioFactory{
+
   static List<String> excludeURL = [
     '/admin/login',
     '/admin/v1/join',
