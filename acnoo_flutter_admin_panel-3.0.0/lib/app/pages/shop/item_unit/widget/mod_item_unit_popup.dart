@@ -4,65 +4,71 @@ import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:image_picker/image_picker.dart';
-// 📦 Package imports:
-import 'package:responsive_framework/responsive_framework.dart' as rf;
 
 // 🌎 Project imports:
-import '../../../../generated/l10n.dart' as l;
-import '../../../constants/file/file_category.dart';
-import '../../../constants/file/file_type.dart';
-import '../../../constants/shop/item_unit/item_unit_type.dart';
-import '../../../core/error/error_code.dart';
-import '../../../core/service/file/file_service.dart';
-import '../../../core/service/shop/item_unit/item_unit_service.dart';
-import '../../../core/theme/_app_colors.dart';
-import '../../../models/shop/item_unit/item_unit.dart';
-import '../../../models/shop/item_unit/item_unit_add_param.dart';
+import '../../../../../generated/l10n.dart' as l;
+import '../../../../constants/file/file_category.dart';
+import '../../../../constants/file/file_type.dart';
+import '../../../../constants/shop/item_unit/item_unit_type.dart';
+import '../../../../core/error/error_code.dart';
+import '../../../../core/service/file/file_service.dart';
+import '../../../../core/service/shop/item_unit/item_unit_service.dart';
+import '../../../../core/theme/_app_colors.dart';
+import '../../../../core/utils/size_config.dart';
+import '../../../../models/shop/item_unit/item_unit.dart';
+import '../../../../models/shop/item_unit/item_unit_add_param.dart';
+import '../../../common_widget/dotted_borderer_container.dart';
 
-class AddItemUnitDialog extends StatefulWidget {
-  const AddItemUnitDialog({super.key});
+class ModItemUnitDialog extends StatefulWidget {
+  const ModItemUnitDialog({super.key, required this.itemUnit});
+  final ItemUnit itemUnit;
 
   @override
-  State<AddItemUnitDialog> createState() => _AddItemUnitDialogState();
+  State<ModItemUnitDialog> createState() => _ModItemUnitDialogState();
 }
 
-class _AddItemUnitDialogState extends State<AddItemUnitDialog> {
-  final ImagePicker picker = ImagePicker();
-  final FileService fileService = FileService();
-  final ItemUnitService itemUnitService = ItemUnitService();
+class _ModItemUnitDialogState extends State<ModItemUnitDialog> {
+
   final TextEditingController skuController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController descController = TextEditingController();
   final TextEditingController attributeController = TextEditingController();
+  final ItemUnitService itemUnitService = ItemUnitService();
+  final FileService fileService = FileService();
+  final ImagePicker picker = ImagePicker();
 
-  String selectType = ItemUnitType.consumable.value;
+  ItemUnitType selectType = ItemUnitType.consumable;
 
-  List<String> get _types => ItemUnitType.values.map((e) => e.value).toList();
-  String? imagePath;
   XFile? selectFile;
+  String? imagePath;
 
   //이미지 로컬에서 가져오기
-  Future<void> pickImage(BuildContext context) async {
+  Future<void> pickImage() async {
     try{
       XFile? pickFile = await picker.pickImage(source: ImageSource.gallery);
-      if(pickFile!= null){
-        setState(() {
-          selectFile = pickFile;
-          imagePath = pickFile.path;
-        });
+
+      if(pickFile == null){
+        throw CustomException(ErrorCode.FAIL_TO_CONVERT_FILE);
       }
+
+      setState(() {
+        selectFile = pickFile;
+        imagePath = pickFile.path;
+      });
     } catch (e){
-      ErrorHandler.handleError(ErrorCode.FAIL_TO_CONVERT_FILE, context);
+      ErrorHandler.handleError(e, context);
     }
   }
 
-  //아이템 유닛 추가
-  Future<void> addItemUnit(BuildContext context) async {
+  //아이템 유닛 변경
+  Future<void> modItemUnit() async {
     try{
       if(selectFile == null){
         throw CustomException(ErrorCode.FAIL_TO_CONVERT_FILE);
       }
+
       Uint8List? bytes = await selectFile?.readAsBytes();
       MultipartFile multipartFile = MultipartFile.fromBytes(bytes!, filename: selectFile!.name);
       FormData formData = FormData.fromMap({"file": multipartFile});
@@ -74,76 +80,44 @@ class _AddItemUnitDialogState extends State<AddItemUnitDialog> {
           image: remotePath,
           description: descController.text,
           attributes: attributeController.text,
-          type: selectType
+          type: selectType.value
       );
 
       ItemUnit itemUnit = await itemUnitService.addItemUnit(itemUnitAddParam);
-      showAddItemUnitSuccessDialog(context);
-
+      showSuccessDialog(context);
     } catch(e){
       ErrorHandler.handleError(ErrorCode.FAIL_TO_CONVERT_FILE, context);
     }
   }
 
-  void showAddItemUnitSuccessDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(''),
-          content: Text('아이템 유닛 추가 성공'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pop(true);
-              },
-              child: Text('확인'),
-            ),
-          ],
-        );
-      },
-    );
+  @override
+  void initState(){
+    super.initState();
+    skuController.text = widget.itemUnit.sku;
+    nameController.text = widget.itemUnit.name;
+    descController.text = widget.itemUnit.description;
+    attributeController.text = widget.itemUnit.attributes;
+    imagePath = widget.itemUnit.image;
+    selectType = ItemUnitType.values.firstWhere((type) => type.value == widget.itemUnit.type,
+        orElse: () => throw CustomException(ErrorCode.UNKNOWN_ERROR));
+  }
+
+  @override
+  void dispose(){
+    skuController.dispose();
+    nameController.dispose();
+    descController.dispose();
+    attributeController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final lang = l.S.of(context);
-    final _sizeInfo = rf.ResponsiveValue<_SizeInfo>(
-      context,
-      conditionalValues: [
-        const rf.Condition.between(
-          start: 0,
-          end: 480,
-          value: _SizeInfo(
-            alertFontSize: 12,
-            padding: EdgeInsets.all(16),
-            innerSpacing: 16,
-          ),
-        ),
-        const rf.Condition.between(
-          start: 481,
-          end: 576,
-          value: _SizeInfo(
-            alertFontSize: 14,
-            padding: EdgeInsets.all(16),
-            innerSpacing: 16,
-          ),
-        ),
-        const rf.Condition.between(
-          start: 577,
-          end: 992,
-          value: _SizeInfo(
-            alertFontSize: 14,
-            padding: EdgeInsets.all(16),
-            innerSpacing: 16,
-          ),
-        ),
-      ],
-      defaultValue: const _SizeInfo(),
-    ).value;
+    final _sizeInfo = SizeConfig.getSizeInfo(context);
     TextTheme textTheme = Theme.of(context).textTheme;
     final theme = Theme.of(context);
+
     return AlertDialog(
       contentPadding: EdgeInsets.zero,
       alignment: Alignment.center,
@@ -164,7 +138,7 @@ class _AddItemUnitDialogState extends State<AddItemUnitDialog> {
                   // const Text('Form Dialog'),
                   Text(lang.formDialog),
                   IconButton(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => Navigator.of(context).pop(false),
                     icon: const Icon(
                       Icons.close,
                       color: AcnooAppColors.kError,
@@ -192,7 +166,7 @@ class _AddItemUnitDialogState extends State<AddItemUnitDialog> {
                     const SizedBox(height: 8),
                     DottedBorderContainer(
                       child: GestureDetector(
-                        onTap: () => pickImage(context),
+                        onTap: () => pickImage(),
                         child: imagePath == null
                             ? Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -266,7 +240,7 @@ class _AddItemUnitDialogState extends State<AddItemUnitDialog> {
                     const SizedBox(height: 20),
                     Text(lang.type, style: textTheme.bodySmall),
                     const SizedBox(height: 8),
-                    DropdownButtonFormField<String>(
+                    DropdownButtonFormField<ItemUnitType>(
                       dropdownColor: theme.colorScheme.primaryContainer,
                       value: selectType,
                       hint: Text(
@@ -274,15 +248,15 @@ class _AddItemUnitDialogState extends State<AddItemUnitDialog> {
                         //'Select Type',
                         style: textTheme.bodySmall,
                       ),
-                      items: _types.map((type) {
-                        return DropdownMenuItem<String>(
+                      items: ItemUnitType.values.map((type) {
+                        return DropdownMenuItem<ItemUnitType>(
                           value: type,
-                          child: Text(type),
+                          child: Text(type.value),
                         );
                       }).toList(),
                       onChanged: (value) {
                         setState(() {
-                          selectType = value??ItemUnitType.consumable.value;
+                          selectType = value??ItemUnitType.consumable;
                         });
                       },
                       validator: (value) =>
@@ -308,7 +282,7 @@ class _AddItemUnitDialogState extends State<AddItemUnitDialog> {
                                     ?.copyWith(color: AcnooAppColors.kError),
                                 side: const BorderSide(
                                     color: AcnooAppColors.kError)),
-                            onPressed: () => Navigator.pop(context),
+                            onPressed: () => Navigator.of(context).pop(false),
                             label: Text(
                               lang.cancel,
                               //'Cancel',
@@ -322,7 +296,7 @@ class _AddItemUnitDialogState extends State<AddItemUnitDialog> {
                               padding: EdgeInsets.symmetric(
                                   horizontal: _sizeInfo.innerSpacing),
                             ),
-                            onPressed: () => addItemUnit(context),
+                            onPressed: () => modItemUnit(),
                             //label: const Text('Save'),
                             label: Text(lang.save),
                           )
@@ -338,80 +312,25 @@ class _AddItemUnitDialogState extends State<AddItemUnitDialog> {
       ),
     );
   }
-}
 
-class _SizeInfo {
-  final double? alertFontSize;
-  final EdgeInsetsGeometry padding;
-  final double innerSpacing;
-  const _SizeInfo({
-    this.alertFontSize = 18,
-    this.padding = const EdgeInsets.all(24),
-    this.innerSpacing = 24,
-  });
-}
-
-// -------------------Dotted Border
-
-class DottedBorderContainer extends StatelessWidget {
-  final Widget child;
-
-  const DottedBorderContainer({super.key, required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return CustomPaint(
-      painter:
-          DottedBorderPainter(color: Theme.of(context).colorScheme.outline),
-      child: Container(
-        padding: const EdgeInsets.all(4),
-        height: 120,
-        width: 120,
-        child: Center(child: child),
-      ),
+  void showSuccessDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(''),
+          content: Text('아이템 유닛 추가 성공'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop(true);
+              },
+              child: Text('확인'),
+            ),
+          ],
+        );
+      },
     );
-  }
-}
-
-class DottedBorderPainter extends CustomPainter {
-  final Color color;
-
-  DottedBorderPainter({required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-
-    const radius = Radius.circular(5.0);
-    const rect = Rect.fromLTWH(0, 0, 120, 120);
-    final rrect = RRect.fromRectAndRadius(rect, radius);
-
-    final path = Path()..addRRect(rrect);
-
-    const dashWidth = 4.0;
-    const dashSpace = 4.0;
-
-    double distance = 0.0;
-    final pathMetrics = path.computeMetrics();
-    for (final pathMetric in pathMetrics) {
-      while (distance < pathMetric.length) {
-        final start = distance;
-        final end = distance + dashWidth;
-
-        final lineSegment = pathMetric.extractPath(start, end);
-        canvas.drawPath(lineSegment, paint);
-
-        distance += dashWidth + dashSpace;
-      }
-      distance = 0.0; // Reset distance for the next segment
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
   }
 }

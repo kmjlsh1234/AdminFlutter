@@ -2858,11 +2858,41 @@ class S {
     );
   }
 
+  /// `Add New ItemUnit`
+  String get addNewItemUnit {
+    return Intl.message(
+      'Add New ItemUnit',
+      name: 'addNewItemUnit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add New Item`
+  String get addNewItem {
+    return Intl.message(
+      'Add New Item',
+      name: 'addNewItem',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Mod Admin`
   String get modAdmin {
     return Intl.message(
       'Mod Admin',
       name: 'modAdmin',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Mod ItemUnit`
+  String get modItemUnit {
+    return Intl.message(
+      'Mod ItemUnit',
+      name: 'modItemUnit',
       desc: '',
       args: [],
     );

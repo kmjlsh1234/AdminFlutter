@@ -8,17 +8,17 @@ import 'package:flutter/material.dart';
 
 // 🌎 Project imports:
 import '../../../../generated/l10n.dart' as l;
+import '../../../constants/shop/item/currency_type.dart';
 import '../../../core/theme/_app_colors.dart';
 
 class UserCurrencyWidget extends StatefulWidget {
-  const UserCurrencyWidget({
-    super.key,
-    required this.padding,
-    required this.theme,
-    required this.textTheme,
-    required this.userId,
-    required this.lang
-  });
+  const UserCurrencyWidget(
+      {super.key,
+      required this.padding,
+      required this.theme,
+      required this.textTheme,
+      required this.userId,
+      required this.lang});
 
   final int userId;
   final double padding;
@@ -31,35 +31,41 @@ class UserCurrencyWidget extends StatefulWidget {
 }
 
 class _UserCurrencyWidgetState extends State<UserCurrencyWidget> {
-
   final CurrencyService currencyService = CurrencyService();
-  bool isLoading = true;
 
-  late int chip;
-  late int coin;
-  late int diamond;
+  late Future<int> chip;
+  late Future<int> coin;
+  late Future<int> diamond;
 
   //재화 정보 가져오기
-  Future<void> getCurrency() async {
-    setState(() => isLoading = true);
-    try{
-      chip = await currencyService.getChip(widget.userId);
-      coin = await currencyService.getCoin(widget.userId);
-      diamond = await currencyService.getDiamond(widget.userId);
-    } catch (e){
+  Future<int> getCurrency(CurrencyType currencyType) async {
+    try {
+      switch (currencyType) {
+        case CurrencyType.diamond:
+          return await currencyService.getDiamond(widget.userId);
+        case CurrencyType.coin:
+          return await currencyService.getCoin(widget.userId);
+        case CurrencyType.chip:
+          return await currencyService.getChip(widget.userId);
+        default:
+          return await currencyService.getChip(widget.userId);
+      }
+    } catch (e) {
       ErrorHandler.handleError(e, context);
+      rethrow;
     }
-    setState(() => isLoading = false);
   }
 
   @override
   void initState() {
     super.initState();
-    getCurrency();
+    chip = getCurrency(CurrencyType.chip);
+    coin = getCurrency(CurrencyType.coin);
+    diamond = getCurrency(CurrencyType.diamond);
   }
 
   @override
-  void dispose(){
+  void dispose() {
     super.dispose();
   }
 
@@ -70,33 +76,31 @@ class _UserCurrencyWidgetState extends State<UserCurrencyWidget> {
       children: [
         Padding(
           padding: EdgeInsets.all(widget.padding),
-          child: isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : Container(
-                      decoration: BoxDecoration(
-                        color: widget.theme.colorScheme.primaryContainer,
-                        borderRadius: BorderRadius.circular(8.0),
-                        border: Border.all(
-                          color: widget.theme.colorScheme.outline,
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          buildProfileDetailRow(widget.lang.chip, chip),
-                          buildDivider(),
-                          buildProfileDetailRow(widget.lang.coin, coin),
-                          buildDivider(),
-                          buildProfileDetailRow(widget.lang.diamond, diamond),
-                        ],
-                      ),
-                    ),
+          child: Container(
+              decoration: BoxDecoration(
+                color: widget.theme.colorScheme.primaryContainer,
+                borderRadius: BorderRadius.circular(8.0),
+                border: Border.all(
+                  color: widget.theme.colorScheme.outline,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildFutureCurrencyRow(CurrencyType.chip, chip),
+                  buildDivider(),
+                  buildFutureCurrencyRow(CurrencyType.coin, coin),
+                  buildDivider(),
+                  buildFutureCurrencyRow(CurrencyType.diamond, diamond),
+                ],
+              ),
+          ),
         ),
       ],
     );
   }
 
-  ElevatedButton modAdminButton(TextTheme textTheme, String currencyType, int count) {
+  ElevatedButton modAdminButton(TextTheme textTheme, CurrencyType currencyType, int count) {
     final lang = l.S.of(context);
     return ElevatedButton.icon(
       style: ElevatedButton.styleFrom(
@@ -115,7 +119,30 @@ class _UserCurrencyWidgetState extends State<UserCurrencyWidget> {
     );
   }
 
-  Widget buildProfileDetailRow(String currencyType, int count) {
+  Widget buildFutureCurrencyRow(CurrencyType currencyType, Future<int> future) {
+    return FutureBuilder<int>(
+      future: future,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Padding(
+            padding: EdgeInsets.all(widget.padding),
+            child: const Center(child: CircularProgressIndicator()),
+          );
+        }
+        if (snapshot.hasError) {
+          return Padding(
+            padding: EdgeInsets.all(widget.padding),
+            child: Text('Error: ${snapshot.error}', style: widget.textTheme.bodyLarge),
+          );
+        }
+
+        final count = snapshot.data ?? 0;
+        return buildProfileDetailRow(currencyType, count);
+      },
+    );
+  }
+
+  Widget buildProfileDetailRow(CurrencyType currencyType, int count) {
     return Padding(
       padding: EdgeInsets.all(widget.padding),
       child: Row(
@@ -123,7 +150,7 @@ class _UserCurrencyWidgetState extends State<UserCurrencyWidget> {
           Expanded(
             flex: 1,
             child: Text(
-              currencyType,
+              currencyType.value,
               style: widget.textTheme.bodyLarge,
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
@@ -140,7 +167,7 @@ class _UserCurrencyWidgetState extends State<UserCurrencyWidget> {
                 const SizedBox(width: 8.0),
                 Flexible(
                   child: Text(
-                    count.toString()??"EMPTY",
+                    count.toString() ?? "EMPTY",
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
                     style: widget.textTheme.bodyLarge,
@@ -158,15 +185,15 @@ class _UserCurrencyWidgetState extends State<UserCurrencyWidget> {
     );
   }
 
-  Widget buildDivider(){
+  Widget buildDivider() {
     return Divider(
       color: widget.theme.colorScheme.outline,
       height: 0.0,
     );
   }
 
-  void showFormDialog(BuildContext context, String currencyType, int count) async {
-    bool isCurrencyMod = await showDialog(
+  void showFormDialog(BuildContext context, CurrencyType currencyType, int count) async {
+    bool success = await showDialog(
       context: context,
       builder: (BuildContext context) {
         return BackdropFilter(
@@ -174,13 +201,29 @@ class _UserCurrencyWidgetState extends State<UserCurrencyWidget> {
               sigmaX: 5,
               sigmaY: 5,
             ),
-            child: UserCurrencyModDialog(userId: widget.userId, currencyType: currencyType, count: count)
-        );
+            child: UserCurrencyModDialog(
+                userId: widget.userId,
+                currencyType: currencyType.value,
+                count: count));
       },
     );
 
-    if(isCurrencyMod){
-      getCurrency();
+    if (success) {
+      setState(() {
+        switch(currencyType){
+          case CurrencyType.chip:
+            chip = getCurrency(CurrencyType.chip);
+            break;
+          case CurrencyType.diamond:
+            diamond = getCurrency(CurrencyType.diamond);
+            break;
+          case CurrencyType.coin:
+            coin = getCurrency(CurrencyType.coin);
+            break;
+          default:
+            break;
+        }
+      });
     }
   }
 }

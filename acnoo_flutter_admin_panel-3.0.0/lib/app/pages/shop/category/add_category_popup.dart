@@ -1,17 +1,12 @@
 // 🐦 Flutter imports:
 import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
-import 'package:acnoo_flutter_admin_panel/app/core/service/admin/admin_manage_service.dart';
-import 'package:acnoo_flutter_admin_panel/app/models/admin/admin_add_param.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-
-// 📦 Package imports:
-import 'package:responsive_framework/responsive_framework.dart' as rf;
 
 // 🌎 Project imports:
 import '../../../../generated/l10n.dart' as l;
 import '../../../core/service/shop/category/category_service.dart';
 import '../../../core/theme/_app_colors.dart';
+import '../../../core/utils/size_config.dart';
 import '../../../models/shop/category/category.dart';
 import '../../../models/shop/category/category_add_param.dart';
 
@@ -29,7 +24,7 @@ class _AddCategoryDialogState extends State<AddCategoryDialog> {
   final TextEditingController descController = TextEditingController();
 
   //카테고리 추가
-  Future<void> addCategory(BuildContext context) async {
+  Future<void> addCategory() async {
     try {
       CategoryAddParam categoryAddParam = CategoryAddParam(
           name: nameController.text,
@@ -37,71 +32,31 @@ class _AddCategoryDialogState extends State<AddCategoryDialog> {
       );
 
       Category category = await categoryService.addCategory(categoryAddParam);
-      showAddCategorySuccessDialog(context);
+      showSuccessDialog();
     } catch (e) {
       ErrorHandler.handleError(e, context);
     }
   }
 
-  void showAddCategorySuccessDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(''),
-          content: Text('카테고리 추가 성공'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pop(true);
-              },
-              child: Text('확인'),
-            ),
-          ],
-        );
-      },
-    );
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose(){
+    nameController.dispose();
+    descController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final lang = l.S.of(context);
-    final _sizeInfo = rf.ResponsiveValue<_SizeInfo>(
-      context,
-      conditionalValues: [
-        const rf.Condition.between(
-          start: 0,
-          end: 480,
-          value: _SizeInfo(
-            alertFontSize: 12,
-            padding: EdgeInsets.all(16),
-            innerSpacing: 16,
-          ),
-        ),
-        const rf.Condition.between(
-          start: 481,
-          end: 576,
-          value: _SizeInfo(
-            alertFontSize: 14,
-            padding: EdgeInsets.all(16),
-            innerSpacing: 16,
-          ),
-        ),
-        const rf.Condition.between(
-          start: 577,
-          end: 992,
-          value: _SizeInfo(
-            alertFontSize: 14,
-            padding: EdgeInsets.all(16),
-            innerSpacing: 16,
-          ),
-        ),
-      ],
-      defaultValue: const _SizeInfo(),
-    ).value;
+    final _sizeInfo = SizeConfig.getSizeInfo(context);
     TextTheme textTheme = Theme.of(context).textTheme;
     final theme = Theme.of(context);
+
     return AlertDialog(
       contentPadding: EdgeInsets.zero,
       alignment: Alignment.center,
@@ -201,7 +156,7 @@ class _AddCategoryDialogState extends State<AddCategoryDialog> {
                               padding: EdgeInsets.symmetric(
                                   horizontal: _sizeInfo.innerSpacing),
                             ),
-                            onPressed: () => addCategory(context),
+                            onPressed: () => addCategory(),
                             //label: const Text('Save'),
                             label: Text(lang.save),
                           )
@@ -217,16 +172,25 @@ class _AddCategoryDialogState extends State<AddCategoryDialog> {
       ),
     );
   }
-}
 
-class _SizeInfo {
-  final double? alertFontSize;
-  final EdgeInsetsGeometry padding;
-  final double innerSpacing;
-
-  const _SizeInfo({
-    this.alertFontSize = 18,
-    this.padding = const EdgeInsets.all(24),
-    this.innerSpacing = 24,
-  });
+  void showSuccessDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(''),
+          content: Text('카테고리 추가 성공'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop(true);
+              },
+              child: Text('확인'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }

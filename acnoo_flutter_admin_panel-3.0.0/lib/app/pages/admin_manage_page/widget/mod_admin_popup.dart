@@ -7,15 +7,15 @@ import '../../../core/utils/size_config.dart';
 import '../../../models/admin/admin.dart';
 import '../../../models/admin/admin_mod_param.dart';
 
-class AdminModDialog extends StatefulWidget {
-  const AdminModDialog({super.key, required this.admin});
+class ModAdminDialog extends StatefulWidget {
+  const ModAdminDialog({super.key, required this.admin});
   final Admin admin;
 
   @override
-  State<AdminModDialog> createState() => _AdminModDialogState();
+  State<ModAdminDialog> createState() => _ModAdminDialogState();
 }
 
-class _AdminModDialogState extends State<AdminModDialog> {
+class _ModAdminDialogState extends State<ModAdminDialog> {
   String? selectRole;
   List<String> get roles => [
     //'Manager',
@@ -92,7 +92,7 @@ class _AdminModDialogState extends State<AdminModDialog> {
                   // const Text('Form Dialog'),
                   Text(lang.formDialog),
                   IconButton(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => Navigator.of(context).pop(false),
                     icon: const Icon(
                       Icons.close,
                       color: AcnooAppColors.kError,

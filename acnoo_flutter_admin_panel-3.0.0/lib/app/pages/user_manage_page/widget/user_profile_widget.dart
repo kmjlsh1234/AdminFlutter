@@ -27,34 +27,27 @@ class UserProfileWidget extends StatefulWidget {
 
 class _UserProfileWidgetState extends State<UserProfileWidget> {
   final UserManageService userManageService = UserManageService();
-  late UserDetail user;
-  bool isLoading = true;
+  late Future<UserDetail> user;
 
   //User 단일 조회
-  Future<void> getUser() async {
+  Future<UserDetail> getUser() async {
     try {
-      setState(() => isLoading = true);
-      UserDetail user = await userManageService.getUser(widget.userId);
-      this.user = user;
+      return await userManageService.getUser(widget.userId);
     } catch (e) {
       ErrorHandler.handleError(e, context);
+      rethrow;
     }
-    setState(() => isLoading = false);
   }
 
   @override
   void initState() {
     super.initState();
-    getUser();
+    user = getUser();
   }
 
   @override
   Widget build(BuildContext context) {
     final lang = l.S.of(context);
-
-    if (isLoading) {
-      return Center(child: CircularProgressIndicator());
-    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -62,45 +55,56 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
         Padding(
           padding: EdgeInsets.all(widget.padding),
           child: Container(
-            decoration: BoxDecoration(
-              color: widget.theme.colorScheme.primaryContainer,
-              borderRadius: BorderRadius.circular(8.0),
-              border: Border.all(
-                color: widget.theme.colorScheme.outline,
+              decoration: BoxDecoration(
+                color: widget.theme.colorScheme.primaryContainer,
+                borderRadius: BorderRadius.circular(8.0),
+                border: Border.all(
+                  color: widget.theme.colorScheme.outline,
+                ),
               ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                buildProfileDetailRow(lang.fullName, user.nickname),
-                buildDivider(),
-                buildProfileDetailRow(lang.email, user.email),
-                buildDivider(),
-                buildProfileDetailRow(lang.phoneNumber, user.mobile),
-                buildDivider(),
-                buildProfileDetailRow(lang.status, user.status),
-                buildDivider(),
-                buildProfileDetailRow(lang.type, user.userType),
-                buildDivider(),
-                buildProfileDetailRow(lang.loginAt, user.loginAt),
-                buildDivider(),
-                buildProfileDetailRow(lang.logoutAt, user.logoutAt),
-                buildDivider(),
-                buildProfileDetailRow(lang.createdAt, user.createdAt),
-                buildDivider(),
-                buildProfileDetailRow(lang.updatedAt, user.updatedAt),
-                buildDivider(),
-                buildProfileDetailCheckBoxRow(lang.agreeTerm, user.agreeTerm),
-                buildDivider(),
-                buildProfileDetailCheckBoxRow(lang.agreePrivacy, user.agreePrivacy),
-                buildDivider(),
-                buildProfileDetailCheckBoxRow(lang.agreeSensitive, user.agreeSensitive),
-                buildDivider(),
-                buildProfileDetailCheckBoxRow(lang.agreeMarketing, user.agreeMarketing),
-                buildDivider(),
-                buildProfileDetailRow(lang.marketingModifiedAt, user.marketingModifiedAt),
-              ],
-            ),
+              child: FutureBuilder<UserDetail>(
+                  future: user,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    }
+                    final user = snapshot.data!;
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        buildProfileDetailRow(lang.fullName, user.nickname),
+                        buildDivider(),
+                        buildProfileDetailRow(lang.email, user.email),
+                        buildDivider(),
+                        buildProfileDetailRow(lang.phoneNumber, user.mobile),
+                        buildDivider(),
+                        buildProfileDetailRow(lang.status, user.status),
+                        buildDivider(),
+                        buildProfileDetailRow(lang.type, user.userType),
+                        buildDivider(),
+                        buildProfileDetailRow(lang.loginAt, user.loginAt),
+                        buildDivider(),
+                        buildProfileDetailRow(lang.logoutAt, user.logoutAt),
+                        buildDivider(),
+                        buildProfileDetailRow(lang.createdAt, user.createdAt),
+                        buildDivider(),
+                        buildProfileDetailRow(lang.updatedAt, user.updatedAt),
+                        buildDivider(),
+                        buildProfileDetailCheckBoxRow(lang.agreeTerm, user.agreeTerm),
+                        buildDivider(),
+                        buildProfileDetailCheckBoxRow(lang.agreePrivacy, user.agreePrivacy),
+                        buildDivider(),
+                        buildProfileDetailCheckBoxRow(lang.agreeSensitive, user.agreeSensitive),
+                        buildDivider(),
+                        buildProfileDetailCheckBoxRow(lang.agreeMarketing, user.agreeMarketing),
+                        buildDivider(),
+                        buildProfileDetailRow(lang.marketingModifiedAt, user.marketingModifiedAt),
+                      ],
+                    );
+                  })
           ),
         )
       ],

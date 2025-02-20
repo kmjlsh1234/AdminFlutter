@@ -1,52 +1,49 @@
-// 🐦 Flutter imports:
-import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
+import 'package:acnoo_flutter_admin_panel/app/core/error/custom_exception.dart';
+import 'package:acnoo_flutter_admin_panel/app/models/admin/admin_mod_status_param.dart';
 import 'package:flutter/material.dart';
 
-// 🌎 Project imports:
-import '../../../../generated/l10n.dart' as l;
-import '../../../core/service/shop/category/category_service.dart';
+import '../../../../../generated/l10n.dart' as l;
+import '../../../constants/admin/admin_status.dart';
+import '../../../core/error/error_code.dart';
+import '../../../core/error/error_handler.dart';
+import '../../../core/service/admin/admin_manage_service.dart';
 import '../../../core/theme/_app_colors.dart';
 import '../../../core/utils/size_config.dart';
-import '../../../models/shop/category/category.dart';
-import '../../../models/shop/category/category_mod_param.dart';
+import '../../../models/admin/admin.dart';
 
-class ModCategoryDialog extends StatefulWidget {
-  const ModCategoryDialog({super.key, required this.category});
-  final Category category;
+class ModAdminStatusDialog extends StatefulWidget {
+  const ModAdminStatusDialog({super.key, required this.admin});
+  final Admin admin;
 
   @override
-  State<ModCategoryDialog> createState() => _ModCategoryDialogState();
+  State<ModAdminStatusDialog> createState() => _ModAdminStatusDialogState();
 }
 
-class _ModCategoryDialogState extends State<ModCategoryDialog> {
+class _ModAdminStatusDialogState extends State<ModAdminStatusDialog> {
 
-  final CategoryService categoryService = CategoryService();
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController descController = TextEditingController();
+  List<String> get statuses => AdminStatus.values.map((e) => e.value).toList();
+  final AdminManageService adminManageService = AdminManageService();
+  late String adminStatus;
 
-  //카테고리 변경
-  Future<void> modCategory(BuildContext context) async {
+  //관리자 상태 변경
+  Future<void> modAdminStatus(BuildContext context) async {
     try {
-      CategoryModParam categoryModParam = CategoryModParam(nameController.text, descController.text);
-      Category category = await categoryService.modCategory(widget.category.id, categoryModParam);
-      showSuccessDialog(context);
+      AdminModStatusParam adminModStatusParam = AdminModStatusParam(status: adminStatus);
+      bool isSuccess = await adminManageService.modAdminStatus(widget.admin.adminId, adminModStatusParam);
+      if(isSuccess){
+        showSuccessDialog(context);
+      } else{
+        throw CustomException(ErrorCode.UNKNOWN_ERROR);
+      }
     } catch (e) {
       ErrorHandler.handleError(e, context);
     }
   }
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
-    nameController.text = widget.category.name;
-    descController.text = widget.category.description;
-  }
-
-  @override
-  void dispose(){
-    nameController.dispose();
-    descController.dispose();
-    super.dispose();
+    adminStatus = widget.admin.status;
   }
 
   @override
@@ -100,27 +97,28 @@ class _ModCategoryDialogState extends State<ModCategoryDialog> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ///---------------- Text Field section
-                    Text(lang.fullName, style: textTheme.bodySmall),
+                    Text(lang.status, style: textTheme.bodySmall),
                     const SizedBox(height: 8),
-                    TextFormField(
-                      controller: nameController,
-                      decoration: InputDecoration(
-                          hintText: lang.enterYourFullName,
-                          hintStyle: textTheme.bodySmall),
-                      validator: (value) => value?.isEmpty ?? true
-                          ? lang.pleaseEnterYourFullName
-                          : null,
-                    ),
-                    const SizedBox(height: 20),
-                    Text(lang.description, style: textTheme.bodySmall),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: descController,
-                      decoration: InputDecoration(
-                        //hintText: 'Write Something',
-                          hintText: lang.writeSomething,
-                          hintStyle: textTheme.bodySmall),
-                      maxLines: 3,
+                    DropdownButtonFormField<String>(
+                      dropdownColor: theme.colorScheme.primaryContainer,
+                      value: adminStatus,
+                      hint: Text(
+                        lang.selectYouStatus,
+                        style: textTheme.bodySmall,
+                      ),
+                      items: statuses.map((status) {
+                        return DropdownMenuItem<String>(
+                          value: status,
+                          child: Text(status),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          adminStatus = value??"NORMAL";
+                        });
+                      },
+                      validator: (value) =>
+                      value == null ? lang.pleaseSelectAPosition : null,
                     ),
                     const SizedBox(height: 24),
 
@@ -136,7 +134,7 @@ class _ModCategoryDialogState extends State<ModCategoryDialog> {
                                 padding: EdgeInsets.symmetric(
                                     horizontal: _sizeInfo.innerSpacing),
                                 backgroundColor:
-                                    theme.colorScheme.primaryContainer,
+                                theme.colorScheme.primaryContainer,
                                 textStyle: textTheme.bodySmall
                                     ?.copyWith(color: AcnooAppColors.kError),
                                 side: const BorderSide(
@@ -155,7 +153,7 @@ class _ModCategoryDialogState extends State<ModCategoryDialog> {
                               padding: EdgeInsets.symmetric(
                                   horizontal: _sizeInfo.innerSpacing),
                             ),
-                            onPressed: () => modCategory(context),
+                            onPressed: () => modAdminStatus(context),
                             //label: const Text('Save'),
                             label: Text(lang.save),
                           )
@@ -178,7 +176,7 @@ class _ModCategoryDialogState extends State<ModCategoryDialog> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(''),
-          content: Text('카테고리 변경 성공'),
+          content: Text('관리자 상태 변경 성공'),
           actions: [
             TextButton(
               onPressed: () {
@@ -193,4 +191,3 @@ class _ModCategoryDialogState extends State<ModCategoryDialog> {
     );
   }
 }
-

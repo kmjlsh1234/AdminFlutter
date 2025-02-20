@@ -1,13 +1,12 @@
 // 🐦 Flutter imports:
 import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
+import 'package:acnoo_flutter_admin_panel/app/core/utils/size_config.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iconly/iconly.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-// 📦 Package imports:
-import 'package:responsive_framework/responsive_framework.dart' as rf;
 
 // 🌎 Project imports:
 import '../../../../generated/l10n.dart' as l;
@@ -16,7 +15,6 @@ import '../../../constants/file/file_type.dart';
 import '../../../constants/shop/item/currency_type.dart';
 import '../../../constants/shop/item/image_select_type.dart';
 import '../../../constants/shop/item/item_period_type.dart';
-import '../../../constants/shop/item_unit/item_unit_type.dart';
 import '../../../core/error/error_code.dart';
 import '../../../core/service/file/file_service.dart';
 import '../../../core/service/shop/category/category_service.dart';
@@ -26,6 +24,7 @@ import '../../../core/theme/_app_colors.dart';
 import '../../../models/shop/category/category.dart';
 import '../../../models/shop/item/item.dart';
 import '../../../models/shop/item/item_add_param.dart';
+import '../../common_widget/dotted_borderer_container.dart';
 
 class AddItemDialog extends StatefulWidget {
   const AddItemDialog({super.key});
@@ -35,11 +34,7 @@ class AddItemDialog extends StatefulWidget {
 }
 
 class _AddItemDialogState extends State<AddItemDialog> {
-  final ImagePicker picker = ImagePicker();
-  final FileService fileService = FileService();
-  final ItemService itemService = ItemService();
-  final CategoryService categoryService = CategoryService();
-
+  final ScrollController scrollController = ScrollController();
   final TextEditingController skuController = TextEditingController();
   final TextEditingController unitSkuController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
@@ -51,26 +46,28 @@ class _AddItemDialogState extends State<AddItemDialog> {
   final TextEditingController expirationController = TextEditingController();
   final TextEditingController amountController = TextEditingController();
 
-  int? categoryId;
-  String currencyType = CurrencyType.chip.value;
-  String periodType = ItemPeriodType.none.value;
+  final CategoryService categoryService = CategoryService();
+  final ItemService itemService = ItemService();
+  final FileService fileService = FileService();
+  final ImagePicker picker = ImagePicker();
 
-  late List<Category> categoryList;
-  List<String> get _currencyTypes => CurrencyType.values.map((e) => e.value).toList();
-  List<String> get _periodTypes => ItemPeriodType.values.map((e) => e.value).toList();
+  late Future<List<Category>> categoryList;
+
+  CurrencyType currencyType = CurrencyType.chip;
+  ItemPeriodType periodType = ItemPeriodType.none;
   String? thumbnailPath;
   String? imagePath;
   XFile? imageFile;
   XFile? thumbnailFile;
-  bool isLoading = true;
+  int? categoryId;
 
   //이미지 로컬에서 가져오기
   Future<void> pickImage(BuildContext context, ImageSelectType type) async {
-    try{
+    try {
       XFile? pickFile = await picker.pickImage(source: ImageSource.gallery);
-      if(pickFile!= null){
+      if (pickFile != null) {
         setState(() {
-          switch(type){
+          switch (type) {
             case ImageSelectType.thumbnail:
               thumbnailFile = pickFile;
               thumbnailPath = pickFile.path;
@@ -82,138 +79,92 @@ class _AddItemDialogState extends State<AddItemDialog> {
           }
         });
       }
-    } catch (e){
-
+    } catch (e) {
       ErrorHandler.handleError(ErrorCode.FAIL_TO_CONVERT_FILE, context);
     }
   }
 
   //카테고리 목록 전부 조회
-  Future<void> getAllCategoryList(BuildContext context) async {
-    List<Category> list = [];
-    setState(() {
-      isLoading = true;
-    });
-    try{
-      list = await categoryService.getAllCategoryList();
-    } catch(e) {
+  Future<List<Category>> getAllCategoryList(BuildContext context) async {
+    try {
+      return await categoryService.getAllCategoryList();
+    } catch (e) {
       ErrorHandler.handleError(e, context);
+      rethrow;
     }
-    setState(() {
-      categoryList = list;
-      categoryId = categoryList[0].id;
-      isLoading = false;
-    });
   }
 
   //아이템 추가
-  Future<void> addItem(BuildContext context) async {
-    try{
+  Future<void> addItem() async {
+    try {
+      //TODO: 파일 서버에 파일 전송 후 경로 받기
       String thumbnailPath = await uploadFile(thumbnailFile!);
       String imagePath = await uploadFile(imageFile!);
 
       ItemAddParam itemAddParam = ItemAddParam(
-        categoryId: categoryId!,
-        sku: skuController.text,
-        unitSku: unitSkuController.text,
-        name: nameController.text,
-        description: descController.text,
-        num: int.tryParse(numController.text)??0,
-        stockQuantity: int.tryParse(stockQuantityController.text)??0,
-        thumbnail: thumbnailPath,
-        image: imagePath,
-        info: infoController.text,
-        periodType: periodType,
-        period: int.tryParse(periodController.text)??0,
-        expiration: expirationController.text,
-        currencyType: currencyType,
-        amount: int.tryParse(amountController.text)??0
-      );
+          categoryId: categoryId!,
+          sku: skuController.text,
+          unitSku: unitSkuController.text,
+          name: nameController.text,
+          description: descController.text,
+          num: int.tryParse(numController.text) ?? 0,
+          stockQuantity: int.tryParse(stockQuantityController.text) ?? 0,
+          thumbnail: thumbnailPath,
+          image: imagePath,
+          info: infoController.text,
+          periodType: periodType.value,
+          period: int.tryParse(periodController.text) ?? 0,
+          expiration: expirationController.text,
+          currencyType: currencyType.value,
+          amount: int.tryParse(amountController.text) ?? 0);
 
       Item item = await itemService.addItem(itemAddParam);
-      showAddItemSuccessDialog(context);
-
-    } catch(e){
+      showSuccessDialog(context);
+    } catch (e) {
       ErrorHandler.handleError(e, context);
     }
   }
 
-  Future<String> uploadFile(XFile file) async{
+  Future<String> uploadFile(XFile file) async {
     Uint8List? bytes = await file.readAsBytes();
-    MultipartFile multipartFile = MultipartFile.fromBytes(bytes, filename: file.name);
+    MultipartFile multipartFile =
+        MultipartFile.fromBytes(bytes, filename: file.name);
     FormData formData = FormData.fromMap({"file": multipartFile});
-    String remotePath = await fileService.uploadFile(FileCategory.profile, FileType.image, formData);
+    String remotePath = await fileService.uploadFile(
+        FileCategory.profile, FileType.image, formData);
     return remotePath;
-  }
-
-  void showAddItemSuccessDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(''),
-          content: Text('아이템 추가 성공'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pop(true);
-              },
-              child: Text('확인'),
-            ),
-          ],
-        );
-      },
-    );
   }
 
   @override
   void initState() {
     super.initState();
-    getAllCategoryList(context);
+    categoryList = getAllCategoryList(context);
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    skuController.dispose();
+    unitSkuController.dispose();
+    nameController.dispose();
+    descController.dispose();
+    numController.dispose();
+    stockQuantityController.dispose();
+    infoController.dispose();
+    periodController.dispose();
+    expirationController.dispose();
+    amountController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final lang = l.S.of(context);
-    final _sizeInfo = rf.ResponsiveValue<_SizeInfo>(
-      context,
-      conditionalValues: [
-        const rf.Condition.between(
-          start: 0,
-          end: 480,
-          value: _SizeInfo(
-            alertFontSize: 12,
-            padding: EdgeInsets.all(16),
-            innerSpacing: 16,
-          ),
-        ),
-        const rf.Condition.between(
-          start: 481,
-          end: 576,
-          value: _SizeInfo(
-            alertFontSize: 14,
-            padding: EdgeInsets.all(16),
-            innerSpacing: 16,
-          ),
-        ),
-        const rf.Condition.between(
-          start: 577,
-          end: 992,
-          value: _SizeInfo(
-            alertFontSize: 14,
-            padding: EdgeInsets.all(16),
-            innerSpacing: 16,
-          ),
-        ),
-      ],
-      defaultValue: const _SizeInfo(),
-    ).value;
+    final _sizeInfo = SizeConfig.getSizeInfo(context);
     TextTheme textTheme = Theme.of(context).textTheme;
     final theme = Theme.of(context);
-    return isLoading
-        ? Center(child: CircularProgressIndicator())
-        : AlertDialog(
+
+    return AlertDialog(
       contentPadding: EdgeInsets.zero,
       alignment: Alignment.center,
       shape: RoundedRectangleBorder(
@@ -233,7 +184,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
                   // const Text('Form Dialog'),
                   Text(lang.formDialog),
                   IconButton(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => Navigator.of(context).pop(false),
                     icon: const Icon(
                       Icons.close,
                       color: AcnooAppColors.kError,
@@ -267,27 +218,30 @@ class _AddItemDialogState extends State<AddItemDialog> {
                             const SizedBox(height: 8),
                             DottedBorderContainer(
                               child: GestureDetector(
-                                onTap: () => pickImage(context, ImageSelectType.thumbnail),
+                                onTap: () => pickImage(
+                                    context, ImageSelectType.thumbnail),
                                 child: thumbnailPath == null
                                     ? Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.camera_alt_outlined,
-                                      color: theme.colorScheme.onTertiary,
-                                    ),
-                                    Text(lang.uploadImage),
-                                  ],
-                                ) : ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: Image.network(
-                                      thumbnailPath!,
-                                      width: 120,
-                                      height: 120,
-                                      fit: BoxFit.cover,
-                                    )
-                                ),
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.camera_alt_outlined,
+                                            color: theme.colorScheme.onTertiary,
+                                          ),
+                                          Text(lang.uploadImage),
+                                        ],
+                                      )
+                                    : ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: Image.network(
+                                          thumbnailPath!,
+                                          width: 120,
+                                          height: 120,
+                                          fit: BoxFit.cover,
+                                        )),
                               ),
                             ),
                           ],
@@ -300,27 +254,30 @@ class _AddItemDialogState extends State<AddItemDialog> {
                             const SizedBox(height: 8),
                             DottedBorderContainer(
                               child: GestureDetector(
-                                onTap: () => pickImage(context, ImageSelectType.image),
+                                onTap: () =>
+                                    pickImage(context, ImageSelectType.image),
                                 child: imagePath == null
                                     ? Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.camera_alt_outlined,
-                                      color: theme.colorScheme.onTertiary,
-                                    ),
-                                    Text(lang.uploadImage),
-                                  ],
-                                ) : ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: Image.network(
-                                      imagePath!,
-                                      width: 120,
-                                      height: 120,
-                                      fit: BoxFit.cover,
-                                    )
-                                ),
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.camera_alt_outlined,
+                                            color: theme.colorScheme.onTertiary,
+                                          ),
+                                          Text(lang.uploadImage),
+                                        ],
+                                      )
+                                    : ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: Image.network(
+                                          imagePath!,
+                                          width: 120,
+                                          height: 120,
+                                          fit: BoxFit.cover,
+                                        )),
                               ),
                             ),
                           ],
@@ -383,7 +340,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
                     TextFormField(
                       controller: descController,
                       decoration: InputDecoration(
-                        //hintText: 'Write Something',
+                          //hintText: 'Write Something',
                           hintText: lang.writeSomething,
                           hintStyle: textTheme.bodySmall),
                       maxLines: 3,
@@ -397,7 +354,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
                     TextFormField(
                       controller: numController,
                       keyboardType: TextInputType.number,
-                      inputFormatters: [ FilteringTextInputFormatter.digitsOnly],
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       decoration: InputDecoration(
                           hintText: lang.enterYourFullName,
                           hintStyle: textTheme.bodySmall),
@@ -413,7 +370,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
                     const SizedBox(height: 8),
                     TextFormField(
                       keyboardType: TextInputType.number,
-                      inputFormatters: [ FilteringTextInputFormatter.digitsOnly],
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       controller: stockQuantityController,
                       decoration: InputDecoration(
                           hintText: lang.enterYourFullName,
@@ -431,7 +388,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
                     TextFormField(
                       controller: infoController,
                       decoration: InputDecoration(
-                        //hintText: 'Write Something',
+                          //hintText: 'Write Something',
                           hintText: lang.writeSomething,
                           hintStyle: textTheme.bodySmall),
                       maxLines: 3,
@@ -442,7 +399,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
                     //---------------------8.PERIOD_TYPE---------------------//
                     Text(lang.periodType, style: textTheme.bodySmall),
                     const SizedBox(height: 8),
-                    DropdownButtonFormField<String>(
+                    DropdownButtonFormField<ItemPeriodType>(
                       dropdownColor: theme.colorScheme.primaryContainer,
                       value: periodType,
                       hint: Text(
@@ -450,24 +407,24 @@ class _AddItemDialogState extends State<AddItemDialog> {
                         //'Select Type',
                         style: textTheme.bodySmall,
                       ),
-                      items: _periodTypes.map((type) {
-                        return DropdownMenuItem<String>(
+                      items: ItemPeriodType.values.map((type) {
+                        return DropdownMenuItem<ItemPeriodType>(
                           value: type,
-                          child: Text(type),
+                          child: Text(type.value),
                         );
                       }).toList(),
                       onChanged: (value) {
                         setState(() {
-                          periodType = value??ItemUnitType.consumable.value;
+                          periodType = value!;
                         });
                       },
                       validator: (value) =>
-                      value == null ? lang.pleaseSelectAPosition : null,
+                          value == null ? lang.pleaseSelectAPosition : null,
                     ),
 
                     //---------------------9.PERIOD---------------------//
                     Visibility(
-                      visible: periodType != ItemPeriodType.none.value,
+                      visible: periodType != ItemPeriodType.none,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -504,9 +461,8 @@ class _AddItemDialogState extends State<AddItemDialog> {
                           fontSize: 12,
                           fontWeight: FontWeight.w400,
                         ),
-                        hintText: 'yyyy-MM-ddTHH:mm:ss',//'mm/dd/yyyy',
-                        suffixIcon:
-                        const Icon(IconlyLight.calendar, size: 20),
+                        hintText: 'yyyy-MM-ddTHH:mm:ss', //'mm/dd/yyyy',
+                        suffixIcon: const Icon(IconlyLight.calendar, size: 20),
                       ),
                       onTap: () async {
                         final _result = await showDatePicker(
@@ -539,7 +495,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
                     //---------------------11.TYPE---------------------//
                     Text(lang.type, style: textTheme.bodySmall),
                     const SizedBox(height: 8),
-                    DropdownButtonFormField<String>(
+                    DropdownButtonFormField<CurrencyType>(
                       dropdownColor: theme.colorScheme.primaryContainer,
                       value: currencyType,
                       hint: Text(
@@ -547,15 +503,15 @@ class _AddItemDialogState extends State<AddItemDialog> {
                         //'Currency Type',
                         style: textTheme.bodySmall,
                       ),
-                      items: _currencyTypes.map((type) {
-                        return DropdownMenuItem<String>(
+                      items: CurrencyType.values.map((type) {
+                        return DropdownMenuItem<CurrencyType>(
                           value: type,
-                          child: Text(type),
+                          child: Text(type.value),
                         );
                       }).toList(),
                       onChanged: (value) {
                         setState(() {
-                          currencyType = value??CurrencyType.chip.value;
+                          currencyType = value!;
                         });
                       },
                       validator: (value) =>
@@ -567,27 +523,43 @@ class _AddItemDialogState extends State<AddItemDialog> {
                     //---------------------12.Category---------------------//
                     Text(lang.category, style: textTheme.bodySmall),
                     const SizedBox(height: 8),
-                    DropdownButtonFormField<int>(
-                      dropdownColor: theme.colorScheme.primaryContainer,
-                      value: categoryId??0,
-                      hint: Text(
-                        lang.category,
-                        style: textTheme.bodySmall,
-                      ),
-                      items: categoryList.map((category) {
-                        return DropdownMenuItem<int>(
-                          value: category.id??0,
-                          child: Text(category.name??'NONE'),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          categoryId = value??0;
-                        });
-                      },
-                      validator: (value) =>
-                      value == null ? lang.pleaseSelectAPosition : null,
-                    ),
+                    FutureBuilder<List<Category>>(
+                        future: categoryList,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          }
+                          if (snapshot.hasError) {
+                            return Center(
+                                child: Text('Error: ${snapshot.error}'));
+                          }
+                          final categoryList = snapshot.data!;
+                          return DropdownButtonFormField<int>(
+                            dropdownColor: theme.colorScheme.primaryContainer,
+                            value: categoryId ?? categoryList.first.id,
+                            hint: Text(
+                              lang.category,
+                              style: textTheme.bodySmall,
+                            ),
+                            items: categoryList.map((category) {
+                              return DropdownMenuItem<int>(
+                                value: category.id ?? categoryList.first.id,
+                                child: Text(
+                                    category.name ?? categoryList.first.name),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                categoryId = value ?? 2;
+                              });
+                            },
+                            validator: (value) => value == null
+                                ? lang.pleaseSelectAPosition
+                                : null,
+                          );
+                        }),
 
                     const SizedBox(height: 20),
 
@@ -597,7 +569,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
                     TextFormField(
                       controller: amountController,
                       keyboardType: TextInputType.number,
-                      inputFormatters: [ FilteringTextInputFormatter.digitsOnly],
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       decoration: InputDecoration(
                           hintText: lang.enterYourFullName,
                           hintStyle: textTheme.bodySmall),
@@ -624,7 +596,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
                                     ?.copyWith(color: AcnooAppColors.kError),
                                 side: const BorderSide(
                                     color: AcnooAppColors.kError)),
-                            onPressed: () => Navigator.pop(context),
+                            onPressed: () => Navigator.of(context).pop(false),
                             label: Text(
                               lang.cancel,
                               //'Cancel',
@@ -638,7 +610,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
                               padding: EdgeInsets.symmetric(
                                   horizontal: _sizeInfo.innerSpacing),
                             ),
-                            onPressed: () => addItem(context),
+                            onPressed: () => addItem(),
                             //label: const Text('Save'),
                             label: Text(lang.save),
                           )
@@ -654,80 +626,25 @@ class _AddItemDialogState extends State<AddItemDialog> {
       ),
     );
   }
-}
 
-class _SizeInfo {
-  final double? alertFontSize;
-  final EdgeInsetsGeometry padding;
-  final double innerSpacing;
-  const _SizeInfo({
-    this.alertFontSize = 18,
-    this.padding = const EdgeInsets.all(24),
-    this.innerSpacing = 24,
-  });
-}
-
-// -------------------Dotted Border
-
-class DottedBorderContainer extends StatelessWidget {
-  final Widget child;
-
-  const DottedBorderContainer({super.key, required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return CustomPaint(
-      painter:
-          DottedBorderPainter(color: Theme.of(context).colorScheme.outline),
-      child: Container(
-        padding: const EdgeInsets.all(4),
-        height: 120,
-        width: 120,
-        child: Center(child: child),
-      ),
+  void showSuccessDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(''),
+          content: Text('아이템 추가 성공'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop(true);
+              },
+              child: Text('확인'),
+            ),
+          ],
+        );
+      },
     );
-  }
-}
-
-class DottedBorderPainter extends CustomPainter {
-  final Color color;
-
-  DottedBorderPainter({required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-
-    const radius = Radius.circular(5.0);
-    const rect = Rect.fromLTWH(0, 0, 120, 120);
-    final rrect = RRect.fromRectAndRadius(rect, radius);
-
-    final path = Path()..addRRect(rrect);
-
-    const dashWidth = 4.0;
-    const dashSpace = 4.0;
-
-    double distance = 0.0;
-    final pathMetrics = path.computeMetrics();
-    for (final pathMetric in pathMetrics) {
-      while (distance < pathMetric.length) {
-        final start = distance;
-        final end = distance + dashWidth;
-
-        final lineSegment = pathMetric.extractPath(start, end);
-        canvas.drawPath(lineSegment, paint);
-
-        distance += dashWidth + dashSpace;
-      }
-      distance = 0.0; // Reset distance for the next segment
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
   }
 }

@@ -1,76 +1,51 @@
 // 🐦 Flutter imports:
+import 'package:acnoo_flutter_admin_panel/app/constants/app_version/publish_status.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/service/app_version/app_version_service.dart';
-import 'package:acnoo_flutter_admin_panel/app/models/app_version/app_version_mod_param.dart';
+import 'package:acnoo_flutter_admin_panel/app/core/utils/size_config.dart';
+import 'package:acnoo_flutter_admin_panel/app/models/app_version/app_version_add_param.dart';
 import 'package:flutter/material.dart';
 import 'package:iconly/iconly.dart';
 import 'package:intl/intl.dart';
 
 // 🌎 Project imports:
-import '../../../../generated/l10n.dart' as l;
-import '../../core/static/_static_values.dart';
-import '../../core/theme/_app_colors.dart';
-import '../../core/utils/size_config.dart';
-import '../../models/app_version/app_version.dart';
+import '../../../../../generated/l10n.dart' as l;
+import '../../../constants/app_version/app_version_type.dart';
+import '../../../core/static/_static_values.dart';
+import '../../../core/theme/_app_colors.dart';
+import '../../../models/app_version/app_version.dart';
 
-class AppVersionModDialog extends StatefulWidget {
-  const AppVersionModDialog({super.key, required this.version});
-  final AppVersion version;
+class AddAppVersionDialog extends StatefulWidget {
+  const AddAppVersionDialog({super.key});
+
   @override
-  State<AppVersionModDialog> createState() => _AppVersionModDialogState();
+  State<AddAppVersionDialog> createState() => _AddAppVersionDialogState();
 }
 
-class _AppVersionModDialogState extends State<AppVersionModDialog> {
+class _AddAppVersionDialogState extends State<AddAppVersionDialog> {
 
-  final TextEditingController publishDateController = TextEditingController();
   final AppVersionService appVersionService = AppVersionService();
+  final TextEditingController versionController = TextEditingController();
+  final TextEditingController publishDateController = TextEditingController();
 
-  late String selectType;
-  late String selectStatus;
+  AppVersionType selectType = AppVersionType.force;
+  PublishStatus selectStatus = PublishStatus.publish;
 
-  //앱버전 변경
-  Future<void> modAppVersion() async {
+  //앱버전 추가
+  Future<void> addAppVersion() async {
     try {
-      AppVersionModParam appVersionModParam = AppVersionModParam(publishDateController.text, selectStatus);
-      AppVersion version = await appVersionService.modAppVersion(widget.version.id, appVersionModParam);
-      showModAppVersionSuccessDialog(context);
+      AppVersionAddParam appVersionAddParam = AppVersionAddParam(
+          version: versionController.text,
+          versionType: selectType.value,
+          publishAt: publishDateController.text,
+          publishStatus: selectStatus.value
+      );
+
+      AppVersion version = await appVersionService.addAppVersion(appVersionAddParam);
+      showAddAppVersionSuccessDialog(context);
     } catch (e) {
       ErrorHandler.handleError(e, context);
     }
-  }
-
-  void showModAppVersionSuccessDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(''),
-          content: Text('앱 버전 변경 성공'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pop(true);
-              },
-              child: Text('확인'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    publishDateController.text = widget.version.publishAt;
-    selectStatus = widget.version.publishStatus;
-  }
-
-  @override
-  void dispose() {
-    publishDateController.dispose();
-    super.dispose();
   }
 
   @override
@@ -100,7 +75,7 @@ class _AppVersionModDialogState extends State<AppVersionModDialog> {
                   // const Text('Form Dialog'),
                   Text(lang.formDialog),
                   IconButton(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => Navigator.of(context).pop(false),
                     icon: const Icon(
                       Icons.close,
                       color: AcnooAppColors.kError,
@@ -124,6 +99,42 @@ class _AppVersionModDialogState extends State<AppVersionModDialog> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ///---------------- Text Field section
+                    Text(lang.appVersion, style: textTheme.bodySmall),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: versionController,
+                      decoration: InputDecoration(
+                          hintText: lang.enterYourFullName,
+                          hintStyle: textTheme.bodySmall),
+                      validator: (value) => value?.isEmpty ?? true
+                          ? lang.pleaseEnterYourFullName
+                          : null,
+                    ),
+                    const SizedBox(height: 20),
+                    Text(lang.type, style: textTheme.bodySmall),
+                    const SizedBox(height: 8),
+                    DropdownButtonFormField<AppVersionType>(
+                      dropdownColor: theme.colorScheme.primaryContainer,
+                      value: selectType,
+                      hint: Text(
+                        lang.selectPosition,
+                        style: textTheme.bodySmall,
+                      ),
+                      items: AppVersionType.values.map((type) {
+                        return DropdownMenuItem<AppVersionType>(
+                          value: type,
+                          child: Text(type.value),
+                        );
+                      }).toList(),
+                      onChanged: (type) {
+                        setState(() {
+                          selectType = type??AppVersionType.force;
+                        });
+                      },
+                      validator: (value) =>
+                          value == null ? lang.pleaseSelectAPosition : null,
+                    ),
+                    const SizedBox(height: 20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -133,7 +144,7 @@ class _AppVersionModDialogState extends State<AppVersionModDialog> {
                             children: [
                               //Text('Start Date', style: textTheme.bodyMedium),
                               Text(lang.publishAt, style: textTheme.bodyMedium),
-                              const SizedBox(height: 20),
+                              const SizedBox(height: 8),
                               TextFormField(
                                 controller: publishDateController,
                                 keyboardType: TextInputType.visiblePassword,
@@ -177,7 +188,7 @@ class _AppVersionModDialogState extends State<AppVersionModDialog> {
                             ],
                           ),
                         ),
-                        SizedBox(width: _sizeInfo.innerSpacing),
+                        SizedBox(width: 24),
                       ],
                     ),
                     const SizedBox(height: 20),
@@ -186,9 +197,9 @@ class _AppVersionModDialogState extends State<AppVersionModDialog> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          _buildCheckbox('PUBLISH', 'PUBLISH'),
+                          buildCheckbox(PublishStatus.publish),
                           const SizedBox(width: 10),
-                          _buildCheckbox('NOT_PUBLISH', 'NOT_PUBLISH'),
+                          buildCheckbox(PublishStatus.notPublish),
                         ],
                       ),
                     ),
@@ -225,7 +236,7 @@ class _AppVersionModDialogState extends State<AppVersionModDialog> {
                               padding: EdgeInsets.symmetric(
                                   horizontal: _sizeInfo.innerSpacing),
                             ),
-                            onPressed: () => modAppVersion(),
+                            onPressed: () => addAppVersion(),
                             //label: const Text('Save'),
                             label: Text(lang.save),
                           )
@@ -242,26 +253,47 @@ class _AppVersionModDialogState extends State<AppVersionModDialog> {
     );
   }
 
-  Widget _buildCheckbox(String label, String value) {
+  void showAddAppVersionSuccessDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(''),
+          content: Text('앱 버전 추가 성공'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop(true);
+              },
+              child: Text('확인'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget buildCheckbox(PublishStatus status) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Checkbox(
-          value: selectStatus == value,
+          value: selectStatus == status,
           onChanged: (bool? newValue) {
             if (newValue == true) {
               setState(() {
-                selectStatus = value;
+                selectStatus = status;
               });
-            } else if (selectStatus == value) {
+            } else {
               setState(() {
-                selectStatus = value; // Deselect if it's the current selected one
+                selectStatus = status; // Deselect if it's the current selected one
               });
             }
           },
         ),
         const SizedBox(width: 4.0),
-        Text(label),
+        Text(status.value),
       ],
     );
   }

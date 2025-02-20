@@ -37,6 +37,24 @@ enum ErrorCode {
   CATEGORY_NOT_EXIST(404, 150101, "해당 카테고리가 존재하지 않음"),
   DUPLICATE_CATEGORY_NAME(400,150102, "중복된 이름의 카테고리가 존재함"),
   CATEGORY_HAS_MAPPING_WITH_ITEM(400,150103, "카테고리가 아이템에 매핑되어 있음"),
+
+  // ITEM_UNIT(1504XX)
+  ITEM_UNIT_NOT_EXIST(404, 150401, '아이템 유닛이 존재하지 않음'),
+  DUPLICATE_ITEM_UNIT_SKU(400, 150402, '아이템 유닛 sku가 존재함'),
+  DUPLICATE_ITEM_UNIT_NAME(400, 150403, '아이템 유닛 이름이 존재함'),
+  ITEM_UNIT_HAS_MAPPING_WITH_ITEM(400, 150404, '매핑된 아이템이 존재함'),
+  INVALID_ITEM_UNIT_MOD_PARAMETER(400, 150405, '잘못된 변경 파라미터가 포함됨.(매핑된 아이템이 준비 중이 아닌데, NAME, SKU, TYPE 변경 시도)'),
+
+  // ITEM(1505XX)
+  ITEM_NOT_EXIST(404, 150501, '아이템이 존재하지 않음'),
+  DUPLICATE_ITEM_NAME(400, 150502, '아이템 이름이 중복됨'),
+  DUPLICATE_ITEM_SKU(400, 150503, '아이템 sku가 중복됨'),
+  INVALID_ITEM_STOCK_QUANTITY(400, 150504, '아이템 재고가 적절하지 않음'),
+  INVALID_ITEM_EXPIRATION(400, 150505, '아이템 판매 기한이 적절하지 않음'),
+  INVALID_ITEM_MOD_PARAMETER(400, 150506, '잘못된 변경 파라미터가 포함됨.(아이템이 준비 중이 아닌데 categoryId, itemUnitId, name, sku, currencyType, num, amount 변경 시도)'),
+  EMPTY_ITEM_PARAMETER(400, 150507, '아이템 sku와 이름이 빈 값(ready → on_sale)'),
+  ITEM_HAS_MAPPING_WITH_BUNDLE(400, 150508, '아이템이 번들에 매핑되어 있음(매핑된 번들이 READY, ON_SALE상태)'),
+  INVALID_ITEM_STATUS(400, 150509, '아이템 상태가 적합하지 않음'),
   ;
 
   const ErrorCode(this.statusCode, this.errorCode, this.message);

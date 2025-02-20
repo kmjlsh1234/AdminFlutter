@@ -1,34 +1,56 @@
 // 🐦 Flutter imports:
 import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
+import 'package:acnoo_flutter_admin_panel/app/core/service/admin/admin_manage_service.dart';
+import 'package:acnoo_flutter_admin_panel/app/models/admin/admin_add_param.dart';
 import 'package:flutter/material.dart';
+// 📦 Package imports:
+import 'package:responsive_framework/responsive_framework.dart' as rf;
 
 // 🌎 Project imports:
-import '../../../../generated/l10n.dart' as l;
-import '../../../core/service/shop/category/category_service.dart';
+import '../../../../../generated/l10n.dart' as l;
 import '../../../core/theme/_app_colors.dart';
 import '../../../core/utils/size_config.dart';
-import '../../../models/shop/category/category.dart';
-import '../../../models/shop/category/category_mod_param.dart';
+import '../../../models/admin/admin.dart';
 
-class ModCategoryDialog extends StatefulWidget {
-  const ModCategoryDialog({super.key, required this.category});
-  final Category category;
+class AddAdminDialog extends StatefulWidget {
+  const AddAdminDialog({super.key});
 
   @override
-  State<ModCategoryDialog> createState() => _ModCategoryDialogState();
+  State<AddAdminDialog> createState() => _AddAdminDialogState();
 }
 
-class _ModCategoryDialogState extends State<ModCategoryDialog> {
+class _AddAdminDialogState extends State<AddAdminDialog> {
+  String? selectRole;
+  List<String> get roles => [
+        //'Manager',
+        l.S.current.manager,
+        //'Developer',
+        l.S.current.developer,
+        //'Designer',
+        l.S.current.designer,
+        //'Tester'
+        l.S.current.tester,
+      ];
 
-  final CategoryService categoryService = CategoryService();
+  final AdminManageService adminManageService = AdminManageService();
+
   final TextEditingController nameController = TextEditingController();
-  final TextEditingController descController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController mobileController = TextEditingController();
 
-  //카테고리 변경
-  Future<void> modCategory(BuildContext context) async {
+  //Admin 추가
+  Future<void> addAdmin() async {
     try {
-      CategoryModParam categoryModParam = CategoryModParam(nameController.text, descController.text);
-      Category category = await categoryService.modCategory(widget.category.id, categoryModParam);
+      AdminAddParam adminAddParam = AdminAddParam(
+          //TODO : 나중에 ROLE 작업 시 변경하기
+          roleId: 1,
+          name: nameController.text,
+          email: emailController.text,
+          password: passwordController.text,
+          mobile: mobileController.text
+      );
+      Admin admin = await adminManageService.addAdmin(adminAddParam);
       showSuccessDialog(context);
     } catch (e) {
       ErrorHandler.handleError(e, context);
@@ -38,15 +60,15 @@ class _ModCategoryDialogState extends State<ModCategoryDialog> {
   @override
   void initState(){
     super.initState();
-    nameController.text = widget.category.name;
-    descController.text = widget.category.description;
   }
 
   @override
   void dispose(){
-    nameController.dispose();
-    descController.dispose();
     super.dispose();
+    nameController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    mobileController.dispose();
   }
 
   @override
@@ -112,15 +134,74 @@ class _ModCategoryDialogState extends State<ModCategoryDialog> {
                           : null,
                     ),
                     const SizedBox(height: 20),
-                    Text(lang.description, style: textTheme.bodySmall),
+                    Text(lang.email, style: textTheme.bodySmall),
                     const SizedBox(height: 8),
                     TextFormField(
-                      controller: descController,
+                      controller: emailController,
                       decoration: InputDecoration(
-                        //hintText: 'Write Something',
-                          hintText: lang.writeSomething,
+                          //hintText: 'Enter Your Email',
+                          hintText: lang.enterYourEmail,
                           hintStyle: textTheme.bodySmall),
-                      maxLines: 3,
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (value) => value?.isEmpty ?? true
+                          //? 'Please enter your email'
+                          ? lang.pleaseEnterYourEmail
+                          : null,
+                    ),
+                    const SizedBox(height: 20),
+                    Text(lang.password, style: textTheme.bodySmall),
+                    const SizedBox(height: 20),
+                    TextFormField(
+                      controller: passwordController,
+                      decoration: InputDecoration(
+                          //hintText: 'Enter Your Password',
+                          hintText: lang.enterYourPassword,
+                          hintStyle: textTheme.bodySmall),
+                      keyboardType: TextInputType.visiblePassword,
+                      validator: (value) => value?.isEmpty ?? true
+                          //? 'Please enter your email'
+                          ? lang.pleaseEnterYourPassword
+                          : null,
+                    ),
+                    const SizedBox(height: 20),
+                    Text(lang.phoneNumber, style: textTheme.bodySmall),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: mobileController,
+                      decoration: InputDecoration(
+                          // hintText: 'Enter Your Phone Number',
+                          hintText: lang.enterYourPhoneNumber,
+                          hintStyle: textTheme.bodySmall),
+                      keyboardType: TextInputType.phone,
+                      validator: (value) => value?.isEmpty ?? true
+                          //? 'Please enter your phone number'
+                          ? lang.pleaseEnterYourPhoneNumber
+                          : null,
+                    ),
+                    const SizedBox(height: 20),
+                    Text(lang.position, style: textTheme.bodySmall),
+                    const SizedBox(height: 8),
+                    DropdownButtonFormField<String>(
+                      dropdownColor: theme.colorScheme.primaryContainer,
+                      value: selectRole,
+                      hint: Text(
+                        lang.selectPosition,
+                        //'Select Position',
+                        style: textTheme.bodySmall,
+                      ),
+                      items: roles.map((position) {
+                        return DropdownMenuItem<String>(
+                          value: position,
+                          child: Text(position),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          selectRole = value;
+                        });
+                      },
+                      validator: (value) =>
+                          value == null ? lang.pleaseSelectAPosition : null,
                     ),
                     const SizedBox(height: 24),
 
@@ -155,8 +236,7 @@ class _ModCategoryDialogState extends State<ModCategoryDialog> {
                               padding: EdgeInsets.symmetric(
                                   horizontal: _sizeInfo.innerSpacing),
                             ),
-                            onPressed: () => modCategory(context),
-                            //label: const Text('Save'),
+                            onPressed: () => addAdmin(),
                             label: Text(lang.save),
                           )
                         ],
@@ -178,7 +258,7 @@ class _ModCategoryDialogState extends State<ModCategoryDialog> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(''),
-          content: Text('카테고리 변경 성공'),
+          content: Text('관리자 추가 성공'),
           actions: [
             TextButton(
               onPressed: () {
@@ -193,4 +273,3 @@ class _ModCategoryDialogState extends State<ModCategoryDialog> {
     );
   }
 }
-

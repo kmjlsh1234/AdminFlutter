@@ -4,12 +4,10 @@ import 'dart:ui';
 // 🐦 Flutter imports:
 import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 // 🌎 Project imports:
 import '../../../../generated/l10n.dart' as l;
 import '../../../core/service/shop/category/category_service.dart';
-import '../../../core/theme/_app_colors.dart';
 import '../../../core/utils/size_config.dart';
 import '../../../models/common/paging_param.dart';
 import '../../../models/shop/category/category.dart';
@@ -29,92 +27,58 @@ class CategoryListView extends StatefulWidget {
 class _CategoryListViewState extends State<CategoryListView> {
   final ScrollController scrollController = ScrollController();
   final CategoryService categoryService = CategoryService();
-
-  late List<Category> categoryList;
-  bool isLoading = true;
+  late Future<List<Category>> categoryList;
 
   //Paging
   int currentPage = 1;
   int rowsPerPage = 10;
-  int totalPage = 0;
+  late Future<int> totalPage;
 
   //카테고리 리스트 조회
   Future<List<Category>> getCategoryList() async {
-    List<Category> list = [];
     try {
       PagingParam pagingParam = PagingParam(currentPage, rowsPerPage);
-      list = await categoryService.getCategoryList(pagingParam);
+      return await categoryService.getCategoryList(pagingParam);
     } catch (e) {
       ErrorHandler.handleError(e, context);
+      rethrow;
     }
-    return list;
   }
 
   //카테고리 리스트 갯수 조회
-  Future<int> getCategoryListCount() async {
-    int count = 0;
+  Future<int> getTotalCount() async {
     try {
-      count = await categoryService.getCategoryListCount();
+      int count = await categoryService.getCategoryListCount();
+      int totalPage = (count / rowsPerPage).ceil();
+      return totalPage;
     } catch (e) {
       ErrorHandler.handleError(e, context);
+      rethrow;
     }
-    int totalPage = (count / rowsPerPage).ceil();
-    return totalPage;
   }
 
   //카테고리 삭제
   Future<void> delCategory(int categoryId) async {
-    setState(() => isLoading = true);
     try {
       await categoryService.delCategory(categoryId);
+      loadAllData();
     } catch (e) {
       ErrorHandler.handleError(e, context);
     }
+  }
+
+  //List + Total
+  void loadAllData(){
     setState(() {
-      searchListWithCount();
-      isLoading = false;
+      categoryList = getCategoryList();
+      totalPage = getTotalCount();
     });
-  }
-
-  //LIST + COUNT
-  Future<void> searchListWithCount() async {
-    setState(() => isLoading = true);
-    List<dynamic> results = await Future.wait([getCategoryList(), getCategoryListCount()]);
-    setState(() {
-      categoryList = results[0];
-      totalPage = results[1];
-      isLoading = false;
-    });
-  }
-
-  //LIST
-  Future<void> searchList() async {
-    setState(() => isLoading = true);
-    List<Category> list = await getCategoryList();
-    setState(() {
-      categoryList = list;
-      isLoading = false;
-    });
-  }
-
-  void goToNextPage() {
-    if (currentPage < totalPage) {
-      currentPage++;
-      searchList();
-    }
-  }
-
-  void goToPreviousPage() {
-    if (currentPage > 1) {
-      currentPage--;
-      searchList();
-    }
   }
 
   @override
   void initState() {
     super.initState();
-    searchListWithCount();
+    loadAllData();
   }
 
   @override
@@ -129,10 +93,6 @@ class _CategoryListViewState extends State<CategoryListView> {
     final TextTheme textTheme = Theme.of(context).textTheme;
     final theme = Theme.of(context);
     final lang = l.S.of(context);
-
-    if(isLoading){
-      return Center(child: CircularProgressIndicator());
-    }
 
     return Scaffold(
       body: Padding(
@@ -157,8 +117,7 @@ class _CategoryListViewState extends State<CategoryListView> {
                           CustomButton(
                               textTheme: textTheme,
                               label: lang.addNewCategory,
-                              onPressed: () => showAddFormDialog(context)
-                          ),
+                              onPressed: () => showAddFormDialog(context)),
                         ],
                       ),
                     ),
@@ -168,18 +127,46 @@ class _CategoryListViewState extends State<CategoryListView> {
                       controller: scrollController,
                       scrollDirection: Axis.horizontal,
                       child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          minWidth: constraints.maxWidth,
-                        ),
-                        child: userListDataTable(lang, theme, textTheme),
-                      ),
+                          constraints: BoxConstraints(
+                            minWidth: constraints.maxWidth,
+                          ),
+                          child: FutureBuilder<List<Category>>(
+                              future: categoryList,
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const Center(
+                                      child: CircularProgressIndicator());
+                                }
+                                if (snapshot.hasError) {
+                                  return Center(
+                                      child: Text('Error: ${snapshot.error}'));
+                                }
+                                final categoryList = snapshot.data!;
+                                return dataTable(
+                                    lang, theme, textTheme, categoryList);
+                              })),
                     ),
 
                     //______________________________________________________________________footer__________________
                     Padding(
-                      padding: _sizeInfo.padding,
-                      child: paginatedSection(theme, textTheme),
-                    ),
+                        padding: _sizeInfo.padding,
+                        child: FutureBuilder<int>(
+                            future: totalPage,
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Center(
+                                    child: CircularProgressIndicator());
+                              }
+                              if (snapshot.hasError) {
+                                return Center(
+                                    child: Text('Error: ${snapshot.error}'));
+                              }
+                              final totalPage = snapshot.data!;
+                              return paginatedSection(
+                                  theme, textTheme, totalPage);
+                            })),
                   ],
                 );
               },
@@ -191,28 +178,53 @@ class _CategoryListViewState extends State<CategoryListView> {
   }
 
   ///_______________________________________________________________pagination_footer_______________________________
-  Row paginatedSection(ThemeData theme, TextTheme textTheme) {
+  Row paginatedSection(ThemeData theme, TextTheme textTheme, int totalPage) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Expanded(
-          child: Text(
-            '${l.S.of(context).showing} ${(currentPage - 1) * rowsPerPage + 1} ${l.S.of(context).to} ${(currentPage - 1) * rowsPerPage + categoryList.length} ${l.S.of(context).OF} ${categoryList.length} ${l.S.of(context).entries}',
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
+        FutureBuilder<List<Category>>(
+            future: categoryList,
+            builder: (context, snapshot){
+              int currentEntriesCount = 0;
+              if (snapshot.hasData) {
+                currentEntriesCount = snapshot.data!.length;
+              }
+              return Expanded(
+                child: Text(
+                  '${l.S.of(context).showing} ${(currentPage - 1) * rowsPerPage + 1} ${l.S.of(context).to} ${(currentPage - 1) * rowsPerPage + currentEntriesCount} ${l.S.of(context).OF} $currentEntriesCount ${l.S.of(context).entries}',
+                  overflow: TextOverflow.ellipsis,
+                ),
+              );
+            }),
+
         DataTablePaginator(
           currentPage: currentPage,
           totalPages: totalPage,
-          onPreviousTap: goToPreviousPage,
-          onNextTap: goToNextPage,
+          onPreviousTap: () {
+            if (currentPage > 1) {
+              setState(() {
+                currentPage--;
+                categoryList = getCategoryList();
+              });
+
+            }
+          },
+          onNextTap: () {
+            if (currentPage < totalPage) {
+              setState(() {
+                currentPage++;
+                categoryList = getCategoryList();
+              });
+            }
+          },
         )
       ],
     );
   }
 
   ///_______________________________________________________________User_List_Data_Table___________________________
-  Theme userListDataTable(l.S lang, ThemeData theme, TextTheme textTheme) {
+  Theme dataTable(l.S lang, ThemeData theme, TextTheme textTheme,
+      List<Category> categoryList) {
     return Theme(
       data: ThemeData(
           dividerColor: theme.colorScheme.outline,
@@ -298,7 +310,7 @@ class _CategoryListViewState extends State<CategoryListView> {
     );
 
     if (success) {
-      searchListWithCount();
+      loadAllData();
     }
   }
 
@@ -316,7 +328,7 @@ class _CategoryListViewState extends State<CategoryListView> {
     );
 
     if (success) {
-      searchListWithCount();
+      loadAllData();
     }
   }
 }

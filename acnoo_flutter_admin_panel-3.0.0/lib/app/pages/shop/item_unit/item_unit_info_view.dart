@@ -1,5 +1,8 @@
+import 'dart:ui';
+
 import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/service/shop/item_unit/item_unit_service.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/shop/item_unit/widget/mod_item_unit_popup.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../generated/l10n.dart' as l;
@@ -9,40 +12,36 @@ import '../../../models/shop/item_unit/item_unit.dart';
 class ItemUnitInfoView extends StatefulWidget {
   const ItemUnitInfoView({super.key, required this.unitId});
   final int unitId;
+
   @override
   State<ItemUnitInfoView> createState() => _ItemUnitInfoViewState();
 }
 
 class _ItemUnitInfoViewState extends State<ItemUnitInfoView> {
-  final ScrollController _scrollController = ScrollController();
+  final ScrollController scrollController = ScrollController();
   final ItemUnitService itemUnitService = ItemUnitService();
-
-  late ItemUnit itemUnit;
-  bool isLoading = true;
+  late Future<ItemUnit> itemUnit;
 
   //아이템 유닛 단일 조회
-  Future<void> getItemUnit() async {
+  Future<ItemUnit> getItemUnit() async {
     try{
-      ItemUnit itemUnit = await itemUnitService.getItemUnit(widget.unitId);
-      this.itemUnit = itemUnit;
-      setState(() {
-        isLoading = false;
-      });
+      return await itemUnitService.getItemUnit(widget.unitId);
     } catch(e){
       ErrorHandler.handleError(e, context);
+      rethrow;
     }
-  }
-
-  @override
-  void dispose(){
-    super.dispose();
-    _scrollController.dispose();
   }
 
   @override
   void initState(){
     super.initState();
-    getItemUnit();
+    itemUnit = getItemUnit();
+  }
+
+  @override
+  void dispose(){
+    scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -51,87 +50,92 @@ class _ItemUnitInfoViewState extends State<ItemUnitInfoView> {
     final TextTheme textTheme = Theme.of(context).textTheme;
     final lang = l.S.of(context);
 
-    return Padding(
-      padding: const EdgeInsets.all(16), // 전체 패딩 추가
-      child: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Column(
-        crossAxisAlignment: CrossAxisAlignment.start, // 왼쪽 정렬
-        children: [
-          // 🔹 왼쪽 정렬된 이미지
-          Align(
-            alignment: Alignment.centerLeft,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Image.network(
-                itemUnit.image,
-                width: 150,
-                height: 150,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return const Icon(Icons.broken_image, size: 100, color: Colors.grey);
-                },
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 16), // 이미지와 표 사이 간격 추가
-
-          // 🔹 표 컨테이너
-          Container(
-            padding: const EdgeInsets.all(16), // 표 내부 패딩 추가
-            decoration: BoxDecoration(
-              color: theme.colorScheme.primaryContainer,
-              borderRadius: BorderRadius.circular(8.0),
-              border: Border.all(
-                color: theme.colorScheme.outline,
-              ),
-            ),
+    return FutureBuilder<ItemUnit>(
+        future: itemUnit,
+        builder: (context, snapshot){
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+          final itemUnit = snapshot.data!;
+          return Padding(
+            padding: const EdgeInsets.all(16), // 전체 패딩 추가
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start, // 왼쪽 정렬
               children: [
-                buildProfileDetailRow('${lang.sku}', itemUnit.sku, textTheme),
-                _buildDivider(theme),
-                buildProfileDetailRow(lang.name, itemUnit.name, textTheme),
-                _buildDivider(theme),
-                buildProfileDetailRow(lang.description, itemUnit.description, textTheme),
-                _buildDivider(theme),
-                buildProfileDetailRow(lang.attributes, itemUnit.attributes, textTheme),
-                _buildDivider(theme),
-                buildProfileDetailRow(lang.type, itemUnit.type, textTheme),
-                _buildDivider(theme),
-                buildProfileDetailRow(lang.createdAt, itemUnit.createdAt.toString(), textTheme),
-                _buildDivider(theme),
-                buildProfileDetailRow(lang.updatedAt, itemUnit.updatedAt.toString(), textTheme),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.network(
+                      itemUnit.image,
+                      width: 150,
+                      height: 150,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return const Icon(Icons.broken_image, size: 100, color: Colors.grey);
+                      },
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(16), // 표 내부 패딩 추가
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(8.0),
+                    border: Border.all(
+                      color: theme.colorScheme.outline,
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildProfileDetailRow(lang.sku, itemUnit.sku, textTheme),
+                      _buildDivider(theme),
+                      buildProfileDetailRow(lang.name, itemUnit.name, textTheme),
+                      _buildDivider(theme),
+                      buildProfileDetailRow(lang.description, itemUnit.description, textTheme),
+                      _buildDivider(theme),
+                      buildProfileDetailRow(lang.attributes, itemUnit.attributes, textTheme),
+                      _buildDivider(theme),
+                      buildProfileDetailRow(lang.type, itemUnit.type, textTheme),
+                      _buildDivider(theme),
+                      buildProfileDetailRow(lang.createdAt, itemUnit.createdAt.toString(), textTheme),
+                      _buildDivider(theme),
+                      buildProfileDetailRow(lang.updatedAt, itemUnit.updatedAt.toString(), textTheme),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  color: theme.colorScheme.primaryContainer,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      modAdminButton(textTheme, itemUnit),
+                    ],
+                  ),
+                )
               ],
             ),
-          ),
-          const SizedBox(height: 16),
-          Container(
-            color: theme.colorScheme.primaryContainer,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                modAdminButton(textTheme),
-              ],
-            ),
-          )
-        ],
-      ),
-    );
+          );
+        });
   }
 
-  ElevatedButton modAdminButton(TextTheme textTheme) {
+  ElevatedButton modAdminButton(TextTheme textTheme, ItemUnit itemUnit) {
     final lang = l.S.of(context);
     return ElevatedButton.icon(
       style: ElevatedButton.styleFrom(
         padding: const EdgeInsets.fromLTRB(14, 8, 14, 8),
       ),
       onPressed: () {
-        //showFormDialog(context);
+        showModFormDialog(itemUnit);
       },
       label: Text(
-        lang.modAdmin,
+        lang.modItemUnit,
         style: textTheme.bodySmall?.copyWith(
           color: AcnooAppColors.kWhiteColor,
           fontWeight: FontWeight.bold,
@@ -146,6 +150,7 @@ class _ItemUnitInfoViewState extends State<ItemUnitInfoView> {
       height: 12.0,
     );
   }
+
   Widget buildProfileDetailRow(
       String label, String? value, TextTheme textTheme) {
     return Padding(
@@ -172,7 +177,7 @@ class _ItemUnitInfoViewState extends State<ItemUnitInfoView> {
                 const SizedBox(width: 8.0),
                 Flexible(
                   child: Text(
-                    value ?? "EMPTY",
+                    value ?? "N/A",
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
                     style: textTheme.bodyLarge,
@@ -185,16 +190,24 @@ class _ItemUnitInfoViewState extends State<ItemUnitInfoView> {
       ),
     );
   }
-}
 
-class _SizeInfo {
-  final double? alertFontSize;
-  final EdgeInsetsGeometry padding;
-  final double innerSpacing;
+  void showModFormDialog(ItemUnit itemUnit) async {
+    bool success = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return BackdropFilter(
+            filter: ImageFilter.blur(
+              sigmaX: 5,
+              sigmaY: 5,
+            ),
+            child: ModItemUnitDialog(itemUnit: itemUnit));
+      },
+    );
 
-  const _SizeInfo({
-    this.alertFontSize = 18,
-    this.padding = const EdgeInsets.all(24),
-    this.innerSpacing = 24,
-  });
+    if (success) {
+      setState(() {
+        this.itemUnit = getItemUnit();
+      });
+    }
+  }
 }

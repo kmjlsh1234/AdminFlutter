@@ -1,59 +1,90 @@
 // 🐦 Flutter imports:
+import 'package:acnoo_flutter_admin_panel/app/core/error/custom_exception.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
-import 'package:acnoo_flutter_admin_panel/app/core/service/admin/admin_manage_service.dart';
-import 'package:acnoo_flutter_admin_panel/app/models/admin/admin_add_param.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-// 📦 Package imports:
-import 'package:responsive_framework/responsive_framework.dart' as rf;
+import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 
 // 🌎 Project imports:
 import '../../../../../generated/l10n.dart' as l;
-import '../../../core/theme/_app_colors.dart';
-import '../../../core/utils/size_config.dart';
-import '../../../models/admin/admin.dart';
+import '../../../../constants/file/file_category.dart';
+import '../../../../constants/file/file_type.dart';
+import '../../../../constants/shop/item_unit/item_unit_type.dart';
+import '../../../../core/error/error_code.dart';
+import '../../../../core/service/file/file_service.dart';
+import '../../../../core/service/shop/item_unit/item_unit_service.dart';
+import '../../../../core/theme/_app_colors.dart';
+import '../../../../core/utils/size_config.dart';
+import '../../../../models/shop/item_unit/item_unit.dart';
+import '../../../../models/shop/item_unit/item_unit_add_param.dart';
+import '../../../common_widget/dotted_borderer_container.dart';
 
-class AddAdminDialog extends StatefulWidget {
-  const AddAdminDialog({super.key});
+class AddItemUnitDialog extends StatefulWidget {
+  const AddItemUnitDialog({super.key});
 
   @override
-  State<AddAdminDialog> createState() => _AddAdminDialogState();
+  State<AddItemUnitDialog> createState() => _AddItemUnitDialogState();
 }
 
-class _AddAdminDialogState extends State<AddAdminDialog> {
-  String? selectRole;
-  List<String> get roles => [
-        //'Manager',
-        l.S.current.manager,
-        //'Developer',
-        l.S.current.developer,
-        //'Designer',
-        l.S.current.designer,
-        //'Tester'
-        l.S.current.tester,
-      ];
+class _AddItemUnitDialogState extends State<AddItemUnitDialog> {
 
-  final AdminManageService adminManageService = AdminManageService();
-
+  final TextEditingController skuController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final TextEditingController mobileController = TextEditingController();
+  final TextEditingController descController = TextEditingController();
+  final TextEditingController attributeController = TextEditingController();
+  final ItemUnitService itemUnitService = ItemUnitService();
+  final FileService fileService = FileService();
+  final ImagePicker picker = ImagePicker();
 
-  //Admin 추가
-  Future<void> addAdmin() async {
-    try {
-      AdminAddParam adminAddParam = AdminAddParam(
-          //TODO : 나중에 ROLE 작업 시 변경하기
-          roleId: 1,
-          name: nameController.text,
-          email: emailController.text,
-          password: passwordController.text,
-          mobile: mobileController.text
-      );
-      Admin admin = await adminManageService.addAdmin(adminAddParam);
-      showSuccessDialog(context);
-    } catch (e) {
+  ItemUnitType selectType = ItemUnitType.consumable;
+
+  XFile? selectFile;
+  String? imagePath;
+
+  //이미지 로컬에서 가져오기
+  Future<void> pickImage() async {
+    try{
+      XFile? pickFile = await picker.pickImage(source: ImageSource.gallery);
+
+      if(pickFile == null){
+        throw CustomException(ErrorCode.FAIL_TO_CONVERT_FILE);
+      }
+
+      setState(() {
+        selectFile = pickFile;
+        imagePath = pickFile.path;
+      });
+    } catch (e){
       ErrorHandler.handleError(e, context);
+    }
+  }
+
+  //아이템 유닛 추가
+  Future<void> addItemUnit() async {
+    try{
+      if(selectFile == null){
+        throw CustomException(ErrorCode.FAIL_TO_CONVERT_FILE);
+      }
+
+      Uint8List? bytes = await selectFile?.readAsBytes();
+      MultipartFile multipartFile = MultipartFile.fromBytes(bytes!, filename: selectFile!.name);
+      FormData formData = FormData.fromMap({"file": multipartFile});
+      String remotePath = await fileService.uploadFile(FileCategory.profile, FileType.image, formData);
+
+      ItemUnitAddParam itemUnitAddParam = ItemUnitAddParam(
+          sku: skuController.text,
+          name:  nameController.text,
+          image: remotePath,
+          description: descController.text,
+          attributes: attributeController.text,
+          type: selectType.value
+      );
+
+      ItemUnit itemUnit = await itemUnitService.addItemUnit(itemUnitAddParam);
+      showSuccessDialog(context);
+    } catch(e){
+      ErrorHandler.handleError(ErrorCode.FAIL_TO_CONVERT_FILE, context);
     }
   }
 
@@ -64,11 +95,11 @@ class _AddAdminDialogState extends State<AddAdminDialog> {
 
   @override
   void dispose(){
-    super.dispose();
+    skuController.dispose();
     nameController.dispose();
-    emailController.dispose();
-    passwordController.dispose();
-    mobileController.dispose();
+    descController.dispose();
+    attributeController.dispose();
+    super.dispose();
   }
 
   @override
@@ -98,7 +129,7 @@ class _AddAdminDialogState extends State<AddAdminDialog> {
                   // const Text('Form Dialog'),
                   Text(lang.formDialog),
                   IconButton(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => Navigator.of(context).pop(false),
                     icon: const Icon(
                       Icons.close,
                       color: AcnooAppColors.kError,
@@ -121,7 +152,49 @@ class _AddAdminDialogState extends State<AddAdminDialog> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    ///---------------- image section
+                    Text(lang.image, style: textTheme.bodySmall),
+                    const SizedBox(height: 8),
+                    DottedBorderContainer(
+                      child: GestureDetector(
+                        onTap: () => pickImage(),
+                        child: imagePath == null
+                            ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.camera_alt_outlined,
+                              color: theme.colorScheme.onTertiary,
+                            ),
+                            Text(lang.uploadImage),
+                          ],
+                        ) : ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.network(
+                            imagePath!,
+                            width: 120,
+                            height: 120,
+                            fit: BoxFit.cover,
+                          )
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
                     ///---------------- Text Field section
+                    Text(lang.sku, style: textTheme.bodySmall),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: skuController,
+                      decoration: InputDecoration(
+                          hintText: lang.enterYourFullName,
+                          hintStyle: textTheme.bodySmall),
+                      validator: (value) => value?.isEmpty ?? true
+                          ? lang.pleaseEnterYourFullName
+                          : null,
+                    ),
+                    const SizedBox(height: 20),
                     Text(lang.fullName, style: textTheme.bodySmall),
                     const SizedBox(height: 8),
                     TextFormField(
@@ -134,75 +207,53 @@ class _AddAdminDialogState extends State<AddAdminDialog> {
                           : null,
                     ),
                     const SizedBox(height: 20),
-                    Text(lang.email, style: textTheme.bodySmall),
+                    Text(lang.description, style: textTheme.bodySmall),
                     const SizedBox(height: 8),
                     TextFormField(
-                      controller: emailController,
+                      controller: descController,
                       decoration: InputDecoration(
-                          //hintText: 'Enter Your Email',
-                          hintText: lang.enterYourEmail,
+                        //hintText: 'Write Something',
+                          hintText: lang.writeSomething,
                           hintStyle: textTheme.bodySmall),
-                      keyboardType: TextInputType.emailAddress,
-                      validator: (value) => value?.isEmpty ?? true
-                          //? 'Please enter your email'
-                          ? lang.pleaseEnterYourEmail
-                          : null,
+                      maxLines: 3,
                     ),
                     const SizedBox(height: 20),
-                    Text(lang.password, style: textTheme.bodySmall),
-                    const SizedBox(height: 20),
-                    TextFormField(
-                      controller: passwordController,
-                      decoration: InputDecoration(
-                          //hintText: 'Enter Your Password',
-                          hintText: lang.enterYourPassword,
-                          hintStyle: textTheme.bodySmall),
-                      keyboardType: TextInputType.visiblePassword,
-                      validator: (value) => value?.isEmpty ?? true
-                          //? 'Please enter your email'
-                          ? lang.pleaseEnterYourPassword
-                          : null,
-                    ),
-                    const SizedBox(height: 20),
-                    Text(lang.phoneNumber, style: textTheme.bodySmall),
+                    Text(lang.attributes, style: textTheme.bodySmall),
                     const SizedBox(height: 8),
                     TextFormField(
-                      controller: mobileController,
+                      controller: attributeController,
                       decoration: InputDecoration(
-                          // hintText: 'Enter Your Phone Number',
-                          hintText: lang.enterYourPhoneNumber,
+                        //hintText: 'Write Something',
+                          hintText: lang.writeSomething,
                           hintStyle: textTheme.bodySmall),
-                      keyboardType: TextInputType.phone,
-                      validator: (value) => value?.isEmpty ?? true
-                          //? 'Please enter your phone number'
-                          ? lang.pleaseEnterYourPhoneNumber
-                          : null,
+                      maxLines: 3,
                     ),
                     const SizedBox(height: 20),
-                    Text(lang.position, style: textTheme.bodySmall),
+                    Text(lang.type, style: textTheme.bodySmall),
                     const SizedBox(height: 8),
-                    DropdownButtonFormField<String>(
+                    DropdownButtonFormField<ItemUnitType>(
                       dropdownColor: theme.colorScheme.primaryContainer,
-                      value: selectRole,
+                      value: selectType,
                       hint: Text(
-                        lang.selectPosition,
-                        //'Select Position',
+                        lang.type,
+                        //'Select Type',
                         style: textTheme.bodySmall,
                       ),
-                      items: roles.map((position) {
-                        return DropdownMenuItem<String>(
-                          value: position,
-                          child: Text(position),
+                      items: ItemUnitType.values.map((type) {
+                        return DropdownMenuItem<ItemUnitType>(
+                          value: type,
+                          child: Text(type.value),
                         );
                       }).toList(),
                       onChanged: (value) {
                         setState(() {
-                          selectRole = value;
+                          selectType = value??ItemUnitType.consumable;
                         });
                       },
                       validator: (value) =>
                           value == null ? lang.pleaseSelectAPosition : null,
                     ),
+
                     const SizedBox(height: 24),
 
                     ///---------------- Submit Button section
@@ -236,7 +287,8 @@ class _AddAdminDialogState extends State<AddAdminDialog> {
                               padding: EdgeInsets.symmetric(
                                   horizontal: _sizeInfo.innerSpacing),
                             ),
-                            onPressed: () => addAdmin(),
+                            onPressed: () => addItemUnit(),
+                            //label: const Text('Save'),
                             label: Text(lang.save),
                           )
                         ],
@@ -258,7 +310,7 @@ class _AddAdminDialogState extends State<AddAdminDialog> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(''),
-          content: Text('관리자 추가 성공'),
+          content: Text('아이템 유닛 추가 성공'),
           actions: [
             TextButton(
               onPressed: () {

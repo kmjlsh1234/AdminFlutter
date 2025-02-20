@@ -5,20 +5,12 @@ part 'item_unit_search_param.g.dart';
 
 @JsonSerializable(includeIfNull: true)
 class ItemUnitSearchParam extends PagingParam {
-  final String? itemUnitType;
   final String? searchType;
   final String? searchValue;
-  final String? searchDateType;
-  final String? startDate;
-  final String? endDate;
 
   ItemUnitSearchParam({
-    required this.itemUnitType,
     required this.searchType,
     required this.searchValue,
-    required this.searchDateType,
-    required this.startDate,
-    required this.endDate,
     required int page,
     required int limit
   }) : super(page,limit);

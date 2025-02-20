@@ -1,40 +1,35 @@
 import 'package:acnoo_flutter_admin_panel/app/core/error/custom_exception.dart';
-import 'package:acnoo_flutter_admin_panel/app/models/admin/admin_mod_status_param.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../../generated/l10n.dart' as l;
-import '../../../constants/admin/admin_status.dart';
+import '../../../constants/shop/item/item_status.dart';
 import '../../../core/error/error_code.dart';
 import '../../../core/error/error_handler.dart';
-import '../../../core/service/admin/admin_manage_service.dart';
+import '../../../core/service/shop/item/item_service.dart';
 import '../../../core/theme/_app_colors.dart';
 import '../../../core/utils/size_config.dart';
-import '../../../models/admin/admin.dart';
+import '../../../models/shop/item/item.dart';
+import '../../../models/shop/item/item_mod_status_param.dart';
 
-class AdminModStatusDialog extends StatefulWidget {
-  const AdminModStatusDialog({super.key, required this.admin});
-  final Admin admin;
+class ModItemStatusDialog extends StatefulWidget {
+  const ModItemStatusDialog({super.key, required this.item});
+  final Item item;
 
   @override
-  State<AdminModStatusDialog> createState() => _AdminModStatusDialogState();
+  State<ModItemStatusDialog> createState() => _ModItemStatusDialogState();
 }
 
-class _AdminModStatusDialogState extends State<AdminModStatusDialog> {
+class _ModItemStatusDialogState extends State<ModItemStatusDialog> {
 
-  List<String> get statuses => AdminStatus.values.map((e) => e.value).toList();
-  final AdminManageService adminManageService = AdminManageService();
-  late String adminStatus;
+  final ItemService itemService = ItemService();
+  late ItemStatus itemStatus;
 
-  //관리자 상태 변경
-  Future<void> modAdminStatus(BuildContext context) async {
+  //아이템 상태 변경
+  Future<void> modItemStatus() async {
     try {
-      AdminModStatusParam adminModStatusParam = AdminModStatusParam(status: adminStatus);
-      bool isSuccess = await adminManageService.modAdminStatus(widget.admin.adminId, adminModStatusParam);
-      if(isSuccess){
-        showSuccessDialog(context);
-      } else{
-        throw CustomException(ErrorCode.UNKNOWN_ERROR);
-      }
+      ItemModStatusParam itemModStatusParam = ItemModStatusParam(status: itemStatus.value);
+      await itemService.modItemStatus(widget.item.id, itemModStatusParam);
+      showSuccessDialog(context);
     } catch (e) {
       ErrorHandler.handleError(e, context);
     }
@@ -43,7 +38,8 @@ class _AdminModStatusDialogState extends State<AdminModStatusDialog> {
   @override
   void initState() {
     super.initState();
-    adminStatus = widget.admin.status;
+    itemStatus = ItemStatus.values.firstWhere((status) => status.value == widget.item.status,
+        orElse: () => throw CustomException(ErrorCode.UNKNOWN_ERROR));
   }
 
   @override
@@ -73,7 +69,7 @@ class _AdminModStatusDialogState extends State<AdminModStatusDialog> {
                   // const Text('Form Dialog'),
                   Text(lang.formDialog),
                   IconButton(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => Navigator.of(context).pop(false),
                     icon: const Icon(
                       Icons.close,
                       color: AcnooAppColors.kError,
@@ -99,22 +95,22 @@ class _AdminModStatusDialogState extends State<AdminModStatusDialog> {
                     ///---------------- Text Field section
                     Text(lang.status, style: textTheme.bodySmall),
                     const SizedBox(height: 8),
-                    DropdownButtonFormField<String>(
+                    DropdownButtonFormField<ItemStatus>(
                       dropdownColor: theme.colorScheme.primaryContainer,
-                      value: adminStatus,
+                      value: itemStatus,
                       hint: Text(
                         lang.selectYouStatus,
                         style: textTheme.bodySmall,
                       ),
-                      items: statuses.map((status) {
-                        return DropdownMenuItem<String>(
+                      items: ItemStatus.values.map((status) {
+                        return DropdownMenuItem<ItemStatus>(
                           value: status,
-                          child: Text(status),
+                          child: Text(status.value),
                         );
                       }).toList(),
                       onChanged: (value) {
                         setState(() {
-                          adminStatus = value??"NORMAL";
+                          itemStatus = value!;
                         });
                       },
                       validator: (value) =>
@@ -153,7 +149,7 @@ class _AdminModStatusDialogState extends State<AdminModStatusDialog> {
                               padding: EdgeInsets.symmetric(
                                   horizontal: _sizeInfo.innerSpacing),
                             ),
-                            onPressed: () => modAdminStatus(context),
+                            onPressed: () => modItemStatus(),
                             //label: const Text('Save'),
                             label: Text(lang.save),
                           )
@@ -176,7 +172,7 @@ class _AdminModStatusDialogState extends State<AdminModStatusDialog> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(''),
-          content: Text('관리자 상태 변경 성공'),
+          content: Text('아이템 상태 변경 성공'),
           actions: [
             TextButton(
               onPressed: () {

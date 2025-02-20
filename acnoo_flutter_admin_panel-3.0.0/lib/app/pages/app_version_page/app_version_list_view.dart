@@ -1,11 +1,10 @@
 // 🐦 Flutter imports:
-import 'package:acnoo_flutter_admin_panel/app/core/error/custom_exception.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/service/app_version/app_version_service.dart';
 import 'package:acnoo_flutter_admin_panel/app/models/app_version/app_version.dart';
 import 'package:acnoo_flutter_admin_panel/app/models/app_version/app_version_search_param.dart';
 import 'package:acnoo_flutter_admin_panel/app/models/app_version/latest_app_version.dart';
-import 'package:acnoo_flutter_admin_panel/app/pages/app_version_page/app_version_add_popup.dart';
-import 'package:acnoo_flutter_admin_panel/app/pages/app_version_page/app_version_mod_popup.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/app_version_page/widget/add_app_version_popup.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/app_version_page/widget/mod_app_version_popup.dart';
 // 📦 Package imports:
 import 'package:feather_icons/feather_icons.dart';
 import 'package:flutter/material.dart';
@@ -15,10 +14,10 @@ import 'package:responsive_grid/responsive_grid.dart';
 import '../../../generated/l10n.dart' as l;
 import '../../constants/app_version/app_version_type.dart';
 import '../../constants/app_version/publish_status.dart';
-import '../../core/error/error_code.dart';
 import '../../core/error/error_handler.dart';
 import '../../core/theme/_app_colors.dart';
 import '../../widgets/widgets.dart';
+import '../common_widget/custom_button.dart';
 
 class AppVersionListView extends StatefulWidget {
   const AppVersionListView({super.key});
@@ -27,125 +26,86 @@ class AppVersionListView extends StatefulWidget {
   State<AppVersionListView> createState() => _AppVersionListViewState();
 }
 
-class _AppVersionListViewState extends State<AppVersionListView>
-    with SingleTickerProviderStateMixin {
-  late TabController tabController;
-  final ScrollController scrollController = ScrollController();
-  final AppVersionService appVersionService = AppVersionService();
+class _AppVersionListViewState extends State<AppVersionListView> with SingleTickerProviderStateMixin {
 
-  late List<AppVersion> versionList;
-  late LatestAppVersion latestAppVersion;
-  bool isLoading = true;
+  final AppVersionService appVersionService = AppVersionService();
+  final ScrollController scrollController = ScrollController();
+  late TabController tabController;
 
   List<String> get versionTypes => AppVersionType.values.map((e) => e.value).toList();
   AppVersionType appVersionType = AppVersionType.force;
 
+  late Future<List<AppVersion>> versionList;
+  late Future<LatestAppVersion> latestAppVersion;
+
   //Paging
   int currentPage = 1;
   int rowsPerPage = 10;
-  int totalPage = 0;
+  late Future<int> totalPage;
 
   //앱버전 리스트 조회
   Future<List<AppVersion>> getAppVersionList() async {
-    List<AppVersion> list = [];
     try {
       AppVersionSearchParam searchParam = getAppVersionSearchParam();
-      list = await appVersionService.getAppVersionList(searchParam);
-
-
+      return await appVersionService.getAppVersionList(searchParam);
     } catch (e) {
       ErrorHandler.handleError(e, context);
+      rethrow;
     }
-    return list;
   }
 
   //앱버전 리스트 갯수 조회
-  Future<int> getAppVersionListCount() async {
-    int count = 0;
+  Future<int> getTotalCount() async {
     try {
       AppVersionSearchParam searchParam = getAppVersionSearchParam();
-      count = await appVersionService.getAppVersionListCount(searchParam);
+      int count = await appVersionService.getAppVersionListCount(searchParam);
+      return (count / rowsPerPage).ceil();
     } catch (e) {
       ErrorHandler.handleError(e, context);
+      rethrow;
     }
-    int totalPage = (count / rowsPerPage).ceil();
-    return totalPage;
-  }
-
-  //LIST + COUNT
-  Future<void> searchListWithCount() async {
-    setState(() => isLoading = true);
-    List<dynamic> results =
-        await Future.wait([getAppVersionList(), getAppVersionListCount()]);
-    setState(() {
-      versionList = results[0];
-      totalPage = results[1];
-      isLoading = false;
-    });
-  }
-
-  //LIST
-  Future<void> searchList() async {
-    setState(() => isLoading = true);
-    List<AppVersion> list = await getAppVersionList();
-    setState(() {
-      versionList = list;
-      isLoading = false;
-    });
   }
 
   //현재 출시 버전 조회
-  Future<void> getLatestAppVersion() async {
-    setState(() => isLoading = true);
+  Future<LatestAppVersion> getLatestAppVersion() async {
     try {
-      latestAppVersion = await appVersionService.getLatestAppVersion();
+      return await appVersionService.getLatestAppVersion();
     } catch (e) {
       ErrorHandler.handleError(e, context);
+      rethrow;
     }
-    setState(() => isLoading = false);
   }
 
   //버전 삭제
-  Future<void> delAppVersion(BuildContext context, int id) async {
+  Future<void> delAppVersion(int id) async {
     try {
       bool isSuccess = await appVersionService.delAppVersion(id);
       if (isSuccess) {
-        getLatestAppVersion();
-        searchListWithCount();
+        setState(() {
+          latestAppVersion = getLatestAppVersion();
+          versionList = getAppVersionList();
+          totalPage = getTotalCount();
+        });
       }
     } catch (e) {
       ErrorHandler.handleError(e, context);
     }
   }
 
-  void goToNextPage() {
-    if (currentPage < totalPage) {
-      setState(() {
-        currentPage++;
-        searchList();
-      });
-    }
-  }
-
-  void goToPreviousPage() {
-    if (currentPage > 1) {
-      setState(() {
-        currentPage--;
-        searchList();
-      });
-    }
-  }
-
   AppVersionSearchParam getAppVersionSearchParam() {
     return AppVersionSearchParam(
-        appVersionType.value.toString(), "CREATED_AT", "DESC");
+        appVersionType.value,
+        "CREATED_AT",
+        "DESC"
+    );
   }
 
   @override
   void initState() {
     super.initState();
-    getLatestAppVersion();
-    searchListWithCount();
+    latestAppVersion = getLatestAppVersion();
+    versionList = getAppVersionList();
+    totalPage = getTotalCount();
     tabController = TabController(length: versionTypes.length, vsync: this);
   }
 
@@ -160,6 +120,7 @@ class _AppVersionListViewState extends State<AppVersionListView>
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
     final theme = Theme.of(context);
+    final lang = l.S.of(context);
     final double _padding = responsiveValue<double>(
       context,
       xs: 16,
@@ -167,10 +128,6 @@ class _AppVersionListViewState extends State<AppVersionListView>
       md: 16,
       lg: 16,
     );
-
-    if (isLoading) {
-      return Center(child: CircularProgressIndicator());
-    }
 
     return Scaffold(
       body: LayoutBuilder(
@@ -201,8 +158,9 @@ class _AppVersionListViewState extends State<AppVersionListView>
                           unselectedLabelColor: theme.colorScheme.onTertiary,
                           onTap: (value) => setState(() {
                             appVersionType = AppVersionType.values[value];
-                            getLatestAppVersion();
-                            searchListWithCount();
+                            latestAppVersion = getLatestAppVersion();
+                            versionList = getAppVersionList();
+                            totalPage = getTotalCount();
                           }),
                           tabs: versionTypes
                               .map(
@@ -227,7 +185,11 @@ class _AppVersionListViewState extends State<AppVersionListView>
                             children: [
                               SizedBox(
                                 height: 36,
-                                child: addAppVersion(textTheme, context),
+                                child: CustomButton(
+                                  textTheme: textTheme,
+                                  label: lang.addNewVersion,
+                                  onPressed: () => showAddDialog(context),
+                                )
                               ),
                             ],
                           ),
@@ -257,27 +219,38 @@ class _AppVersionListViewState extends State<AppVersionListView>
                         // Ensures proper alignment by pushing the next element to the end
                         SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              const SizedBox(width: 36),
-                              Text(
-                                'Force : ${latestAppVersion.forceUpdateVersion}',
-                                textAlign: TextAlign.right,
-                              ),
-                              const SizedBox(width: 36),
-                              Text(
-                                'Induce : ${latestAppVersion.induceUpdateVersion}',
-                                textAlign: TextAlign.right,
-                              ),
-                              const SizedBox(width: 36),
-                              Text(
-                                'Bundle : ${latestAppVersion.bundleUpdateVersion}',
-                                textAlign: TextAlign.right,
-                              ),
-                            ],
-                          ),
+                          child: FutureBuilder(
+                              future: latestAppVersion,
+                              builder: (context, snapshot){
+                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                  return const Center(child: CircularProgressIndicator());
+                                }
+                                if (snapshot.hasError) {
+                                  return Center(child: Text('Error: ${snapshot.error}'));
+                                }
+                                final latestAppVersion = snapshot.data!;
+                                return Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    const SizedBox(width: 36),
+                                    Text(
+                                      'Force : ${latestAppVersion.forceUpdateVersion}',
+                                      textAlign: TextAlign.right,
+                                    ),
+                                    const SizedBox(width: 36),
+                                    Text(
+                                      'Induce : ${latestAppVersion.induceUpdateVersion}',
+                                      textAlign: TextAlign.right,
+                                    ),
+                                    const SizedBox(width: 36),
+                                    Text(
+                                      'Bundle : ${latestAppVersion.bundleUpdateVersion}',
+                                      textAlign: TextAlign.right,
+                                    ),
+                                  ],
+                                );
+                              }),
                         ),
                       ],
                     ),
@@ -292,19 +265,43 @@ class _AppVersionListViewState extends State<AppVersionListView>
                         ),
                         child: Padding(
                           padding: EdgeInsets.only(top: _padding),
-                          child: dataTable(context),
+                          child: FutureBuilder<List<AppVersion>>(
+                              future: versionList,
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                  return const Center(child: CircularProgressIndicator());
+                                }
+                                if (snapshot.hasError) {
+                                  return Center(child: Text('Error: ${snapshot.error}'));
+                                }
+                                List<AppVersion> versionList = snapshot.data!;
+                                return dataTable(context, versionList);
+                              })
+
                         ),
                       ),
                     ),
 
                     //______________________________________________________________________footer__________________
-                    Padding(
-                      padding: EdgeInsets.all(_padding),
-                      child: paginatedSection(
-                        theme,
-                        textTheme,
-                      ),
-                    ),
+                    FutureBuilder<int>(
+                        future: totalPage,
+                        builder: (context, snapshot){
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return const Center(child: CircularProgressIndicator());
+                          }
+                          if (snapshot.hasError) {
+                            return Center(child: Text('Error: ${snapshot.error}'));
+                          }
+                          final int totalPage = snapshot.data!;
+                          return Padding(
+                            padding: EdgeInsets.all(_padding),
+                            child: paginatedSection(
+                              theme,
+                              textTheme,
+                              totalPage
+                            ),
+                          );
+                        })
                   ],
                 ),
               ),
@@ -315,46 +312,20 @@ class _AppVersionListViewState extends State<AppVersionListView>
     );
   }
 
-  ///_____________________________________________________________________add_AppVersion_button___________________________
-  ElevatedButton addAppVersion(TextTheme textTheme, BuildContext context) {
-    final lang = l.S.of(context);
-    return ElevatedButton.icon(
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.fromLTRB(14, 8, 14, 8),
-      ),
-      onPressed: () {
-        setState(() {
-          showAddDialog(context);
-        });
-      },
-      label: Text(
-        lang.addNewVersion,
-        maxLines: 1,
-        style: textTheme.bodySmall?.copyWith(
-          color: AcnooAppColors.kWhiteColor,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      iconAlignment: IconAlignment.start,
-      icon: const Icon(
-        Icons.add_circle_outline_outlined,
-        color: AcnooAppColors.kWhiteColor,
-        size: 20.0,
-      ),
-    );
-  }
-
   void showAddDialog(BuildContext context) async {
     bool success = await showDialog(
       context: context,
       builder: (BuildContext context) {
-        return const AppVersionAddDialog();
+        return const AddAppVersionDialog();
       },
     );
 
     if (success) {
-      getLatestAppVersion();
-      searchListWithCount();
+      setState(() {
+        latestAppVersion = getLatestAppVersion();
+        versionList = getAppVersionList();
+        totalPage = getTotalCount();
+      });
     }
   }
 
@@ -362,40 +333,71 @@ class _AppVersionListViewState extends State<AppVersionListView>
     bool isAppVersionMod = await showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AppVersionModDialog(version: version);
+        return ModAppVersionDialog(version: version);
       },
     );
 
     if (isAppVersionMod) {
-      getLatestAppVersion();
-      searchListWithCount();
+      setState(() {
+        latestAppVersion = getLatestAppVersion();
+        versionList = getAppVersionList();
+        totalPage = getTotalCount();
+      });
+
     }
   }
 
   ///_______________________________________________________________pagination_footer_______________________________
-  Row paginatedSection(ThemeData theme, TextTheme textTheme) {
-    // ignore: unused_local_variable
-    final lang = l.S.of(context);
+  Row paginatedSection(ThemeData theme, TextTheme textTheme, int totalPage) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Expanded(
-          child: Text(
-            '${l.S.of(context).showing} ${(currentPage - 1) * rowsPerPage + 1} ${l.S.of(context).to} ${(currentPage - 1) * rowsPerPage + versionList.length} ${l.S.of(context).OF} ${versionList.length} ${l.S.of(context).entries}',
-            overflow: TextOverflow.ellipsis,
-          ),
+        FutureBuilder<List<AppVersion>>(
+            future: versionList,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              }
+              int currentEntriesCount = 0;
+              if (snapshot.hasData) {
+                currentEntriesCount = snapshot.data!.length;
+              }
+              return Expanded(
+                child: Text(
+                  '${l.S.of(context).showing} ${(currentPage - 1) * rowsPerPage + 1} ${l.S.of(context).to} ${(currentPage - 1) * rowsPerPage + currentEntriesCount} ${l.S.of(context).OF} ${currentEntriesCount} ${l.S.of(context).entries}',
+                  overflow: TextOverflow.ellipsis,
+                ),
+              );
+            }
         ),
         DataTablePaginator(
           currentPage: currentPage,
           totalPages: totalPage,
-          onPreviousTap: goToPreviousPage,
-          onNextTap: goToNextPage,
+          onPreviousTap: (){
+            if (currentPage > 1) {
+              setState(() {
+                currentPage--;
+                versionList = getAppVersionList();
+              });
+            }
+          },
+          onNextTap: (){
+            if (currentPage < totalPage) {
+              setState(() {
+                currentPage++;
+                versionList = getAppVersionList();
+              });
+            }
+          },
         )
       ],
     );
   }
 
-  Theme dataTable(BuildContext context) {
+  Theme dataTable(BuildContext context, List<AppVersion> versionList) {
     final theme = Theme.of(context);
     final lang = l.S.of(context);
     final textTheme = theme.textTheme;
@@ -541,7 +543,7 @@ class _AppVersionListViewState extends State<AppVersionListView>
                       return switch (value) {
                         /*'View'*/ //0 => _showDetailsDialog(context, data),
                         /*'Edit'*/ 1 => showModDialog(context, data),
-                        /*'Delete'*/ 2 => delAppVersion(context, data.id),
+                        /*'Delete'*/ 2 => delAppVersion(data.id),
                         _ => null,
                       };
                     },

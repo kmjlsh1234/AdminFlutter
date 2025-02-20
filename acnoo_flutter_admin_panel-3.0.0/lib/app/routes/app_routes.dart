@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 // 🌎 Project imports:
+import '../pages/shop/item/item_info_view.dart';
 import '../pages/user_manage_page/user_profile_view.dart' as userMng;
 import '../pages/admin_manage_page/admin_profile_view.dart';
 import '../pages/admin_manage_page/admin_list_view.dart';
@@ -572,9 +573,9 @@ abstract class AcnooAppRoutes {
                 path: 'item/info/:id',
                 pageBuilder: (context, state) {
                   final String id = state.pathParameters['id']!;
-                  final int unitId = int.parse(id);
+                  final int itemId = int.parse(id);
                   return NoTransitionPage<void>(
-                    child: ItemUnitInfoView(unitId: unitId),
+                    child: ItemInfoView(itemId: itemId),
                   );
                 },
               ),

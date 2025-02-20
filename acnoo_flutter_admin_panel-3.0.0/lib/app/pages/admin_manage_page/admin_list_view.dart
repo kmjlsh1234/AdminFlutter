@@ -4,7 +4,7 @@ import 'dart:ui';
 // 🐦 Flutter imports:
 import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/service/admin/admin_manage_service.dart';
-import 'package:acnoo_flutter_admin_panel/app/pages/admin_manage_page/widget/admin_mod_status_popup.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/admin_manage_page/widget/mod_admin_status_popup.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -21,7 +21,7 @@ import '../../widgets/pagination_widgets/_pagination_widget.dart';
 import '../../widgets/shadow_container/_shadow_container.dart';
 import '../common_widget/custom_button.dart';
 import '../common_widget/search_form_field.dart';
-import 'widget/admin_add_popup.dart';
+import 'widget/add_admin_popup.dart';
 
 class AdminsListView extends StatefulWidget {
   const AdminsListView({super.key});
@@ -33,14 +33,12 @@ class AdminsListView extends StatefulWidget {
 class _AdminsListViewState extends State<AdminsListView> {
   final ScrollController scrollController = ScrollController();
   final AdminManageService adminManageService = AdminManageService();
-
-  late List<Admin> adminList;
-  bool isLoading = true;
+  late Future<List<Admin>> adminList;
 
   //Paging
   int currentPage = 1;
   int rowsPerPage = 10;
-  int totalPage = 0;
+  late Future<int> totalPage;
 
   //Search
   AdminSearchType searchType = AdminSearchType.none;
@@ -59,7 +57,7 @@ class _AdminsListViewState extends State<AdminsListView> {
   }
 
   //ADMIN 리스트 갯수 조회
-  Future<int> getAdminListCount() async {
+  Future<int> getTotalCount() async {
     int count = 0;
     try {
       AdminSearchParam adminSearchParam = getAdminSearchParam();
@@ -71,28 +69,6 @@ class _AdminsListViewState extends State<AdminsListView> {
     return totalPage;
   }
 
-  //LIST + COUNT
-  Future<void> searchListWithCount() async {
-    setState(() => isLoading = true);
-    List<dynamic> results =
-    await Future.wait([getAdminList(), getAdminListCount()]);
-    setState(() {
-      adminList = results[0];
-      totalPage = results[1];
-      isLoading = false;
-    });
-  }
-
-  //LIST
-  Future<void> searchList() async {
-    setState(() => isLoading = true);
-    List<Admin> list = await getAdminList();
-    setState(() {
-      adminList = list;
-      isLoading = false;
-    });
-  }
-
   AdminSearchParam getAdminSearchParam() {
     return AdminSearchParam(
         searchType == AdminSearchType.none ? null : searchType.value,
@@ -101,24 +77,11 @@ class _AdminsListViewState extends State<AdminsListView> {
         rowsPerPage);
   }
 
-  void goToNextPage() {
-    if (currentPage < totalPage) {
-      currentPage++;
-      getAdminList();
-    }
-  }
-
-  void goToPreviousPage() {
-    if (currentPage > 1) {
-      currentPage--;
-      getAdminList();
-    }
-  }
-
   @override
   void initState() {
     super.initState();
-    searchListWithCount();
+    adminList = getAdminList();
+    totalPage = getTotalCount();
   }
 
   @override
@@ -130,13 +93,9 @@ class _AdminsListViewState extends State<AdminsListView> {
   @override
   Widget build(BuildContext context) {
     final _sizeInfo = SizeConfig.getSizeInfo(context);
-    TextTheme textTheme = Theme.of(context).textTheme;
+    final TextTheme textTheme = Theme.of(context).textTheme;
     final theme = Theme.of(context);
     final lang = l.S.of(context);
-
-    if (isLoading) {
-      return Center(child: CircularProgressIndicator());
-    }
 
     return Scaffold(
       body: Padding(
@@ -168,8 +127,11 @@ class _AdminsListViewState extends State<AdminsListView> {
                                 textTheme: textTheme,
                                 lang: lang,
                                 onPressed: (searchValue) {
-                                  this.searchValue = searchValue;
-                                  searchListWithCount();
+                                  setState(() {
+                                    this.searchValue = searchValue;
+                                    adminList = getAdminList();
+                                    totalPage = getTotalCount();
+                                  });
                                 }),
                           ),
                           Spacer(flex: 2),
@@ -189,15 +151,41 @@ class _AdminsListViewState extends State<AdminsListView> {
                           constraints: BoxConstraints(
                             minWidth: constraints.maxWidth,
                           ),
-                          child: userListDataTable(lang, theme, textTheme)
+                          child: FutureBuilder<List<Admin>>(
+                              future: adminList,
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                  return const Center(child: CircularProgressIndicator());
+                                }
+                                if (snapshot.hasError) {
+                                  return Center(child: Text('Error: ${snapshot.error}'));
+                                }
+                                final adminList = snapshot.data!;
+                                return dataTable(lang, theme, textTheme, adminList);
+                              })
                       ),
                     ),
 
                     //______________________________________________________________________footer__________________
-                    Padding(
-                      padding: _sizeInfo.padding,
-                      child: paginatedSection(theme, textTheme),
-                    ),
+                    FutureBuilder<int>(
+                        future: totalPage,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          }
+                          if (snapshot.hasError) {
+                            return Center(
+                                child: Text('Error: ${snapshot.error}'));
+                          }
+                          final totalPage = snapshot.data!;
+                          return Padding(
+                            padding: _sizeInfo.padding,
+                            child:
+                                paginatedSection(theme, textTheme, totalPage),
+                          );
+                        }),
                   ],
                 );
               },
@@ -223,7 +211,10 @@ class _AdminsListViewState extends State<AdminsListView> {
     );
 
     if (success) {
-      searchListWithCount();
+      setState(() {
+        adminList = getAdminList();
+        totalPage = getTotalCount();
+      });
     }
   }
 
@@ -237,39 +228,55 @@ class _AdminsListViewState extends State<AdminsListView> {
               sigmaX: 5,
               sigmaY: 5,
             ),
-            child: AdminModStatusDialog(admin: admin));
+            child: ModAdminStatusDialog(admin: admin));
       },
     );
 
     if (success) {
-      searchListWithCount();
+      setState(() {
+        adminList = getAdminList();
+        totalPage = getTotalCount();
+      });
     }
   }
 
   ///_______________________________________________________________pagination_footer_______________________________
-  Row paginatedSection(ThemeData theme, TextTheme textTheme) {
+  Row paginatedSection(ThemeData theme, TextTheme textTheme, int totalPage) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Expanded(
-          child: Text(
-            '${l.S.of(context).showing} ${(currentPage - 1) * rowsPerPage + 1} ${l.S.of(context).to} ${(currentPage - 1) * rowsPerPage + adminList.length} ${l.S.of(context).OF} ${adminList.length} ${l.S.of(context).entries}',
-            overflow: TextOverflow.ellipsis,
-          ),
+        FutureBuilder<List<Admin>>(
+          future: adminList,
+          builder: (context, snapshot) {
+            int currentEntriesCount = 0;
+            if (snapshot.hasData) {
+              currentEntriesCount = snapshot.data!.length;
+            }
+            return Expanded(
+              child: Text(
+                '${l.S.of(context).showing} ${(currentPage - 1) * rowsPerPage + 1} ${l.S.of(context).to} ${(currentPage - 1) * rowsPerPage + currentEntriesCount} ${l.S.of(context).OF} $currentEntriesCount ${l.S.of(context).entries}',
+                overflow: TextOverflow.ellipsis,
+              ),
+            );
+          },
         ),
         DataTablePaginator(
           currentPage: currentPage,
           totalPages: totalPage,
           onPreviousTap: () {
             if (currentPage > 1) {
-              currentPage--;
-              getAdminList();
+              setState(() {
+                currentPage--;
+                adminList = getAdminList();
+              });
             }
           },
           onNextTap: () {
             if (currentPage < totalPage) {
-              currentPage++;
-              getAdminList();
+              setState(() {
+                currentPage++;
+                adminList = getAdminList();
+              });
             }
           },
         )
@@ -308,7 +315,8 @@ class _AdminsListViewState extends State<AdminsListView> {
   }
 
   ///_______________________________________________________________User_List_Data_Table___________________________
-  Theme userListDataTable(l.S lang, ThemeData theme, TextTheme textTheme) {
+  Theme dataTable(
+      l.S lang, ThemeData theme, TextTheme textTheme, List<Admin> adminList) {
     return Theme(
       data: ThemeData(
           dividerColor: theme.colorScheme.outline,
