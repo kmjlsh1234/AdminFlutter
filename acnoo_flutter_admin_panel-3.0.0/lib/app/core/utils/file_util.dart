@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:acnoo_flutter_admin_panel/app/core/error/custom_exception.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
 
 import '../error/error_code.dart';

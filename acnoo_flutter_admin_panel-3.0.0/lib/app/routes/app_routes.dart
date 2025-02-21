@@ -2,6 +2,7 @@
 import 'package:acnoo_flutter_admin_panel/app/pages/board_page/board_write_view.dart';
 import 'package:acnoo_flutter_admin_panel/app/pages/drop_out_user_page/drop_out_user_list_view.dart';
 import 'package:acnoo_flutter_admin_panel/app/pages/shop/item_unit/item_unit_list_view.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/shop/product/product_info_view.dart';
 import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/user_currency_record_view.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -9,6 +10,7 @@ import 'package:provider/provider.dart';
 
 // 🌎 Project imports:
 import '../pages/shop/item/item_info_view.dart';
+import '../pages/shop/product/products_list_view.dart';
 import '../pages/user_manage_page/user_profile_view.dart' as userMng;
 import '../pages/admin_manage_page/admin_profile_view.dart';
 import '../pages/admin_manage_page/admin_list_view.dart';
@@ -558,10 +560,31 @@ abstract class AcnooAppRoutes {
                 ),
               ),
               GoRoute(
-                path: 'product-list',
-                pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: BoardWriteView(),
-                ),
+                path: '/products',
+                redirect: (context, state) async {
+                  if (state.fullPath == '/products') {
+                    return 'products-list';
+                  }
+                  return null;
+                },
+                routes: [
+                  GoRoute(
+                    path: 'products-list',
+                    pageBuilder: (context, state) => const NoTransitionPage<void>(
+                      child: ProductsListView(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'info/:id',
+                    pageBuilder: (context, state) {
+                      final String id = state.pathParameters['id']!;
+                      final int productId = int.parse(id);
+                      return NoTransitionPage<void>(
+                        child: ProductInfoView(productId: productId),
+                      );
+                    },
+                  ),
+                ],
               ),
               GoRoute(
                 path: 'item-list',

@@ -33,6 +33,15 @@ enum ErrorCode {
   INVALID_VERSION_PARAMETER(400, 141103, "이전 버전보다 낮음"),
   NOT_FOUND_ANY_PUBLISH_VERSION(404, 141104, "해당 버전을 제외하고 출시된 버전이 존재하지 않음"),
 
+  //Product(1500XX)
+  PRODUCT_NOT_EXIST(404, 150001, '상품이 존재하지 않음'),
+  DUPLICATE_PRODUCT_NAME(400, 150002, '상품 이름이 존재함'),
+  INVALID_PRODUCT_PARAMETER(400, 150003, '적합하지 않은 파라미터가 포함됨(준비 중이 아니면 name, type, originPrice 못 바꿈)'),
+  INVALID_PRODUCT_COUNT(400, 150004, '상품 갯수가 적합하지 않음'),
+  PRODUCT_OPTION_NOT_EXIST(404, 150005, '상품 옵션이 존재하지 않음'),
+  INVALID_PRODUCT_OPTION_PARAMETER(400, 150006, '등록 옵션이 비었음'),
+  INVALID_PRODUCT_STATUS(400, 150007, '해당 상태로 변경이 불가'),
+
   //Category(1501XX)
   CATEGORY_NOT_EXIST(404, 150101, "해당 카테고리가 존재하지 않음"),
   DUPLICATE_CATEGORY_NAME(400,150102, "중복된 이름의 카테고리가 존재함"),

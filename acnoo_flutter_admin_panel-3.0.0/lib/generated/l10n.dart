@@ -360,6 +360,16 @@ class S {
     );
   }
 
+  /// `ProductType`
+  String get productType {
+    return Intl.message(
+      'ProductType',
+      name: 'productType',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `S M`
   String get sM {
     return Intl.message(
@@ -2873,6 +2883,16 @@ class S {
     return Intl.message(
       'Add New Item',
       name: 'addNewItem',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add New Product`
+  String get addNewProduct {
+    return Intl.message(
+      'Add New Product',
+      name: 'addNewProduct',
       desc: '',
       args: [],
     );
@@ -9968,6 +9988,16 @@ class S {
     return Intl.message(
       'Price',
       name: 'price',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Origin Price`
+  String get originPrice {
+    return Intl.message(
+      'Origin Price',
+      name: 'originPrice',
       desc: '',
       args: [],
     );

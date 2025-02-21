@@ -1,39 +1,38 @@
 // 🎯 Dart imports:
 import 'dart:ui';
 
-// 🐦 Flutter imports:
 import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
-import 'package:acnoo_flutter_admin_panel/app/core/service/admin/admin_manage_service.dart';
-import 'package:acnoo_flutter_admin_panel/app/pages/admin_manage_page/widget/mod_admin_status_popup.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 // 🌎 Project imports:
 import '../../../../generated/l10n.dart' as l;
-import '../../constants/admin/admin_search_type.dart';
-import '../../core/helpers/field_styles/_dropdown_styles.dart';
-import '../../core/theme/_app_colors.dart';
-import '../../core/utils/size_config.dart';
-import '../../models/admin/admin.dart';
-import '../../models/admin/admin_search_param.dart';
-import '../../widgets/pagination_widgets/_pagination_widget.dart';
-import '../../widgets/shadow_container/_shadow_container.dart';
-import '../common_widget/custom_button.dart';
-import '../common_widget/search_form_field.dart';
-import 'widget/add_admin_popup.dart';
+import '../../../constants/shop/product/product_status.dart';
+import '../../../core/helpers/field_styles/_dropdown_styles.dart';
+import '../../../core/service/shop/product/product_service.dart';
+import '../../../core/theme/_app_colors.dart';
+import '../../../core/utils/size_config.dart';
+import '../../../models/shop/product/product/product.dart';
+import '../../../models/shop/product/product/product_search_param.dart';
+import '../../../widgets/pagination_widgets/_pagination_widget.dart';
+import '../../../widgets/shadow_container/_shadow_container.dart';
+import '../../common_widget/custom_button.dart';
+import '../../common_widget/search_form_field.dart';
+import 'add_product_popup.dart';
+import 'mod_product_status_popup.dart';
 
-class AdminsListView extends StatefulWidget {
-  const AdminsListView({super.key});
+class ProductsListView extends StatefulWidget {
+  const ProductsListView({super.key});
 
   @override
-  State<AdminsListView> createState() => _AdminsListViewState();
+  State<ProductsListView> createState() => _ProductsListViewState();
 }
 
-class _AdminsListViewState extends State<AdminsListView> {
+class _ProductsListViewState extends State<ProductsListView> {
   final ScrollController scrollController = ScrollController();
-  final AdminManageService adminManageService = AdminManageService();
-  late Future<List<Admin>> adminList;
+  final ProductService productService = ProductService();
+  late Future<List<Product>> productList;
 
   //Paging
   int currentPage = 1;
@@ -41,25 +40,23 @@ class _AdminsListViewState extends State<AdminsListView> {
   late Future<int> totalPage;
 
   //Search
-  AdminSearchType searchType = AdminSearchType.none;
+  ProductStatus productStatus = ProductStatus.none;
   String searchValue = "";
 
-  //ADMIN 리스트 조회
-  Future<List<Admin>> getAdminList() async {
+  //상품 리스트 조회
+  Future<List<Product>> getProductList() async {
     try {
-      AdminSearchParam adminSearchParam = getAdminSearchParam();
-      return await adminManageService.getAdminList(adminSearchParam);
+      return await productService.getProductList(getProductSearchParam());
     } catch (e) {
       ErrorHandler.handleError(e, context);
       rethrow;
     }
   }
 
-  //ADMIN 리스트 갯수 조회
+  //상품 리스트 갯수 조회
   Future<int> getTotalCount() async {
     try {
-      AdminSearchParam adminSearchParam = getAdminSearchParam();
-      int count = await adminManageService.getAdminListCount(adminSearchParam);
+      int count = await productService.getProductListCount(getProductSearchParam());
       int totalPage = (count / rowsPerPage).ceil();
       return totalPage;
     } catch (e) {
@@ -68,26 +65,42 @@ class _AdminsListViewState extends State<AdminsListView> {
     }
   }
 
-  AdminSearchParam getAdminSearchParam() {
-    return AdminSearchParam(
-        searchType == AdminSearchType.none ? null : searchType.value,
-        searchValue,
-        currentPage,
-        rowsPerPage
+  //상품 삭제
+  Future<void> delProduct(int productId) async {
+    try{
+      await productService.delProduct(productId);
+      loadAllData();
+    } catch(e){
+      ErrorHandler.handleError(e, context);
+    }
+  }
+
+  void loadAllData(){
+    setState(() {
+      productList = getProductList();
+      totalPage = getTotalCount();
+    });
+  }
+
+  ProductSearchParam getProductSearchParam() {
+    return ProductSearchParam(
+        searchStatus: productStatus == ProductStatus.none ? null : productStatus.value,
+        searchValue: searchValue,
+        page:  currentPage,
+        limit: rowsPerPage
     );
   }
 
   @override
   void initState() {
     super.initState();
-    adminList = getAdminList();
-    totalPage = getTotalCount();
+    loadAllData();
   }
 
   @override
   void dispose() {
-    super.dispose();
     scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -127,17 +140,14 @@ class _AdminsListViewState extends State<AdminsListView> {
                                 textTheme: textTheme,
                                 lang: lang,
                                 onPressed: (searchValue) {
-                                  setState(() {
-                                    this.searchValue = searchValue;
-                                    adminList = getAdminList();
-                                    totalPage = getTotalCount();
-                                  });
+                                  this.searchValue = searchValue;
+                                  loadAllData();
                                 }),
                           ),
                           Spacer(flex: 2),
                           CustomButton(
                               textTheme: textTheme,
-                              label: lang.addNewAdmin,
+                              label: lang.addNewProduct,
                               onPressed: () => showAddFormDialog(context)),
                         ],
                       ),
@@ -151,8 +161,8 @@ class _AdminsListViewState extends State<AdminsListView> {
                           constraints: BoxConstraints(
                             minWidth: constraints.maxWidth,
                           ),
-                          child: FutureBuilder<List<Admin>>(
-                              future: adminList,
+                          child: FutureBuilder<List<Product>>(
+                              future: productList,
                               builder: (context, snapshot) {
                                 if (snapshot.connectionState == ConnectionState.waiting) {
                                   return const Center(child: CircularProgressIndicator());
@@ -160,8 +170,8 @@ class _AdminsListViewState extends State<AdminsListView> {
                                 if (snapshot.hasError) {
                                   return Center(child: Text('Error: ${snapshot.error}'));
                                 }
-                                final adminList = snapshot.data!;
-                                return dataTable(lang, theme, textTheme, adminList);
+                                final productList = snapshot.data!;
+                                return dataTable(lang, theme, textTheme, productList);
                               })
                       ),
                     ),
@@ -196,7 +206,7 @@ class _AdminsListViewState extends State<AdminsListView> {
     );
   }
 
-  //ADMIN 추가 팝업
+  //Product 추가 팝업
   void showAddFormDialog(BuildContext context) async {
     bool success = await showDialog(
       context: context,
@@ -206,20 +216,17 @@ class _AdminsListViewState extends State<AdminsListView> {
               sigmaX: 5,
               sigmaY: 5,
             ),
-            child: const AddAdminDialog());
+            child: const AddProductDialog());
       },
     );
 
     if (success) {
-      setState(() {
-        adminList = getAdminList();
-        totalPage = getTotalCount();
-      });
+      loadAllData();
     }
   }
 
-  //ADMIN 상태 변경 팝업
-  void showModStatusFormDialog(BuildContext context, Admin admin) async {
+  //Product 상태 변경 팝업
+  void showModStatusFormDialog(BuildContext context, Product product) async {
     bool success = await showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -228,15 +235,12 @@ class _AdminsListViewState extends State<AdminsListView> {
               sigmaX: 5,
               sigmaY: 5,
             ),
-            child: ModAdminStatusDialog(admin: admin));
+            child: ModProductStatusDialog(product: product));
       },
     );
 
     if (success) {
-      setState(() {
-        adminList = getAdminList();
-        totalPage = getTotalCount();
-      });
+      loadAllData();
     }
   }
 
@@ -245,8 +249,8 @@ class _AdminsListViewState extends State<AdminsListView> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        FutureBuilder<List<Admin>>(
-          future: adminList,
+        FutureBuilder<List<Product>>(
+          future: productList,
           builder: (context, snapshot) {
             int currentEntriesCount = 0;
             if (snapshot.hasData) {
@@ -267,7 +271,7 @@ class _AdminsListViewState extends State<AdminsListView> {
             if (currentPage > 1) {
               setState(() {
                 currentPage--;
-                adminList = getAdminList();
+                productList = getProductList();
               });
             }
           },
@@ -275,7 +279,7 @@ class _AdminsListViewState extends State<AdminsListView> {
             if (currentPage < totalPage) {
               setState(() {
                 currentPage++;
-                adminList = getAdminList();
+                productList = getProductList();
               });
             }
           },
@@ -289,7 +293,7 @@ class _AdminsListViewState extends State<AdminsListView> {
     final dropdownStyle = AcnooDropdownStyle(context);
     return Container(
       constraints: const BoxConstraints(maxWidth: 100, minWidth: 100),
-      child: DropdownButtonFormField2<AdminSearchType>(
+      child: DropdownButtonFormField2<ProductStatus>(
         hint: Text('검색 조건'),
         style: dropdownStyle.textStyle,
         iconStyleData: dropdownStyle.iconStyle,
@@ -297,26 +301,24 @@ class _AdminsListViewState extends State<AdminsListView> {
         dropdownStyleData: dropdownStyle.dropdownStyle,
         menuItemStyleData: dropdownStyle.menuItemStyle,
         isExpanded: true,
-        value: searchType,
-        items: AdminSearchType.values.map((AdminSearchType searchType) {
-          return DropdownMenuItem<AdminSearchType>(
-            value: searchType,
+        value: productStatus,
+        items: ProductStatus.values.map((ProductStatus status) {
+          return DropdownMenuItem<ProductStatus>(
+            value: status,
             child: Text(
-              searchType.value,
+              status.value,
               style: textTheme.bodySmall,
             ),
           );
         }).toList(),
         onChanged: (value) {
-          searchType = value ?? AdminSearchType.none;
+          productStatus = value!;
         },
       ),
     );
   }
 
-  ///_______________________________________________________________User_List_Data_Table___________________________
-  Theme dataTable(
-      l.S lang, ThemeData theme, TextTheme textTheme, List<Admin> adminList) {
+  Theme dataTable(l.S lang, ThemeData theme, TextTheme textTheme, List<Product> adminList) {
     return Theme(
       data: ThemeData(
           dividerColor: theme.colorScheme.outline,
@@ -331,12 +333,12 @@ class _AdminsListViewState extends State<AdminsListView> {
         showBottomBorder: true,
         columns: [
           DataColumn(label: Text(lang.serial)),
-          DataColumn(label: Text(lang.userName)),
-          DataColumn(label: Text(lang.email)),
-          DataColumn(label: Text(lang.phone)),
-          DataColumn(label: Text(lang.position)),
+          DataColumn(label: Text(lang.name)),
           DataColumn(label: Text(lang.status)),
-          DataColumn(label: Text(lang.registeredOn)),
+          DataColumn(label: Text(lang.type)),
+          DataColumn(label: Text(lang.stockQuantity)),
+          DataColumn(label: Text(lang.price)),
+          DataColumn(label: Text(lang.createdAt)),
           DataColumn(label: Text(lang.actions)),
         ],
         rows: adminList.map(
@@ -344,17 +346,14 @@ class _AdminsListViewState extends State<AdminsListView> {
             return DataRow(
               color: WidgetStateColor.transparent,
               cells: [
-                DataCell(Text(data.adminId.toString())),
+                DataCell(Text(data.id.toString())),
                 DataCell(Text(data.name)),
-                DataCell(Text(data.email)),
-                DataCell(Text(data.mobile)),
-                DataCell(Text(data.roleId.toString())),
                 DataCell(
                   Container(
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                     decoration: BoxDecoration(
-                      color: data.status == 'Active'
+                      color: data.status == ProductStatus.onSale.value
                           ? AcnooAppColors.kSuccess.withOpacity(0.2)
                           : AcnooAppColors.kError.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(16.0),
@@ -362,12 +361,15 @@ class _AdminsListViewState extends State<AdminsListView> {
                     child: Text(
                       data.status,
                       style: textTheme.bodySmall?.copyWith(
-                          color: data.status == 'Active'
+                          color: data.status == ProductStatus.onSale.value
                               ? AcnooAppColors.kSuccess
                               : AcnooAppColors.kError),
                     ),
                   ),
                 ),
+                DataCell(Text(data.type)),
+                DataCell(Text(data.stockQuantity.toString())),
+                DataCell(Text(data.price.toString())),
                 DataCell(Text(data.createdAt.toString())),
                 DataCell(
                   PopupMenuButton<String>(
@@ -379,10 +381,10 @@ class _AdminsListViewState extends State<AdminsListView> {
                           showModStatusFormDialog(context, data);
                           break;
                         case 'View':
-                          GoRouter.of(context).go('/admins/profile/${data.adminId}');
+                          GoRouter.of(context).go('/shops/products/info/${data.id}');
                           break;
                         case 'Delete':
-                          setState(() {});
+                          delProduct(data.id);
                           break;
                       }
                     },

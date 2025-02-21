@@ -336,7 +336,7 @@ List<GroupedMenuModel> get _groupedMenus {
             SidebarSubmenuModel(
               //name: "product",
               name: l.S.current.product,
-              navigationPath: "product-list",
+              navigationPath: "products/products-list",
             ),
             SidebarSubmenuModel(
               //name: "item",
