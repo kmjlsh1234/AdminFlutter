@@ -14,7 +14,7 @@ ProductAddParam _$ProductAddParamFromJson(Map<String, dynamic> json) =>
       image: json['image'] as String,
       info: json['info'] as String,
       type: json['type'] as String,
-      stockQuantity: (json['stockQuantity'] as num).toInt(),
+      stockQuantity: (json['stockQuantity'] as num?)?.toInt(),
       price: (json['price'] as num).toInt(),
       originPrice: (json['originPrice'] as num).toInt(),
     );

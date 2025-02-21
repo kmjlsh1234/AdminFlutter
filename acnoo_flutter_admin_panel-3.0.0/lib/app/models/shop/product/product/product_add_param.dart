@@ -1,7 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 part 'product_add_param.g.dart';
 
-@JsonSerializable(includeIfNull: false)
+@JsonSerializable(includeIfNull: true)
 class ProductAddParam{
   final String name;
   final String description;
@@ -9,7 +9,7 @@ class ProductAddParam{
   final String image;
   final String info;
   final String type;
-  final int stockQuantity;
+  final int? stockQuantity;
   final int price;
   final int originPrice;
 

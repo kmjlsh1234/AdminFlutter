@@ -1,6 +1,7 @@
 import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/service/board/board_service.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/service/file/file_service.dart';
+import 'package:acnoo_flutter_admin_panel/app/models/app_version/app_version.dart';
 import 'package:acnoo_flutter_admin_panel/app/models/board/board_add_param.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +25,6 @@ import '../../widgets/shadow_container/_shadow_container.dart';
 
 class BoardWriteView extends StatefulWidget {
   const BoardWriteView({super.key});
-
   @override
   State<BoardWriteView> createState() => _BoardWriteViewState();
 }

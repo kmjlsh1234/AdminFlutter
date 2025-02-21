@@ -1,6 +1,7 @@
 // 📦 Package imports:
 import 'package:acnoo_flutter_admin_panel/app/pages/board_page/board_write_view.dart';
 import 'package:acnoo_flutter_admin_panel/app/pages/drop_out_user_page/drop_out_user_list_view.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/shop/item/item_add_view.dart';
 import 'package:acnoo_flutter_admin_panel/app/pages/shop/item_unit/item_unit_list_view.dart';
 import 'package:acnoo_flutter_admin_panel/app/pages/shop/product/product_info_view.dart';
 import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/user_currency_record_view.dart';
@@ -590,6 +591,12 @@ abstract class AcnooAppRoutes {
                 path: 'item-list',
                 pageBuilder: (context, state) => const NoTransitionPage<void>(
                   child: ItemListView(),
+                ),
+              ),
+              GoRoute(
+                path: 'items/add',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: ItemAddView(),
                 ),
               ),
               GoRoute(

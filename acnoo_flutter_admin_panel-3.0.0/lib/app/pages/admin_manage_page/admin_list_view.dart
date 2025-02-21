@@ -47,8 +47,7 @@ class _AdminsListViewState extends State<AdminsListView> {
   //ADMIN 리스트 조회
   Future<List<Admin>> getAdminList() async {
     try {
-      AdminSearchParam adminSearchParam = getAdminSearchParam();
-      return await adminManageService.getAdminList(adminSearchParam);
+      return await adminManageService.getAdminList(getAdminSearchParam());
     } catch (e) {
       ErrorHandler.handleError(e, context);
       rethrow;
@@ -58,8 +57,7 @@ class _AdminsListViewState extends State<AdminsListView> {
   //ADMIN 리스트 갯수 조회
   Future<int> getTotalCount() async {
     try {
-      AdminSearchParam adminSearchParam = getAdminSearchParam();
-      int count = await adminManageService.getAdminListCount(adminSearchParam);
+      int count = await adminManageService.getAdminListCount(getAdminSearchParam());
       int totalPage = (count / rowsPerPage).ceil();
       return totalPage;
     } catch (e) {
@@ -77,17 +75,23 @@ class _AdminsListViewState extends State<AdminsListView> {
     );
   }
 
+  void loadAllData() {
+    setState(() {
+      adminList = getAdminList();
+      totalPage = getTotalCount();
+    });
+  }
+
   @override
   void initState() {
     super.initState();
-    adminList = getAdminList();
-    totalPage = getTotalCount();
+    loadAllData();
   }
 
   @override
   void dispose() {
-    super.dispose();
     scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -127,11 +131,8 @@ class _AdminsListViewState extends State<AdminsListView> {
                                 textTheme: textTheme,
                                 lang: lang,
                                 onPressed: (searchValue) {
-                                  setState(() {
-                                    this.searchValue = searchValue;
-                                    adminList = getAdminList();
-                                    totalPage = getTotalCount();
-                                  });
+                                  this.searchValue = searchValue;
+                                  loadAllData();
                                 }),
                           ),
                           Spacer(flex: 2),
@@ -211,10 +212,7 @@ class _AdminsListViewState extends State<AdminsListView> {
     );
 
     if (success) {
-      setState(() {
-        adminList = getAdminList();
-        totalPage = getTotalCount();
-      });
+      loadAllData();
     }
   }
 
@@ -233,10 +231,7 @@ class _AdminsListViewState extends State<AdminsListView> {
     );
 
     if (success) {
-      setState(() {
-        adminList = getAdminList();
-        totalPage = getTotalCount();
-      });
+      loadAllData();
     }
   }
 

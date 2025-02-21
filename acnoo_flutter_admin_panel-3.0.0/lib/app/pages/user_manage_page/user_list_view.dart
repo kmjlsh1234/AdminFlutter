@@ -12,6 +12,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../generated/l10n.dart' as l;
 import '../../constants/user/user_search_date_type.dart';
 import '../../constants/user/user_search_type.dart';
+import '../../constants/user/user_status.dart';
 import '../../core/helpers/field_styles/_dropdown_styles.dart';
 import '../../core/service/user/user_manage_service.dart';
 import '../../core/theme/_app_colors.dart';
@@ -319,9 +320,8 @@ class _UserListViewState extends State<UserListView> {
           DataColumn(label: Text(lang.userName)),
           DataColumn(label: Text(lang.email)),
           DataColumn(label: Text(lang.phone)),
-          DataColumn(label: Text(lang.position)),
+          DataColumn(label: Text(lang.type)),
           DataColumn(label: Text(lang.status)),
-          DataColumn(label: Text(lang.createdAt)),
           DataColumn(label: Text(lang.actions)),
         ],
         rows: userList.map(
@@ -333,13 +333,13 @@ class _UserListViewState extends State<UserListView> {
                 DataCell(Text(data.nickname)),
                 DataCell(Text(data.email)),
                 DataCell(Text(data.mobile)),
-                DataCell(Text(data.userType.toString())),
+                DataCell(Text(data.loginType)),
                 DataCell(
                   Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                     decoration: BoxDecoration(
-                      color: data.status == 'Active'
+                      color: data.status == UserStatus.normal.value
                           ? AcnooAppColors.kSuccess.withOpacity(0.2)
                           : AcnooAppColors.kError.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(16.0),
@@ -347,13 +347,12 @@ class _UserListViewState extends State<UserListView> {
                     child: Text(
                       data.status,
                       style: textTheme.bodySmall?.copyWith(
-                          color: data.status == 'Active'
+                          color: data.status == UserStatus.normal.value
                               ? AcnooAppColors.kSuccess
                               : AcnooAppColors.kError),
                     ),
                   ),
                 ),
-                DataCell(Text(data.createdAt)),
                 DataCell(
                   PopupMenuButton<String>(
                     iconColor: theme.colorScheme.onTertiary,

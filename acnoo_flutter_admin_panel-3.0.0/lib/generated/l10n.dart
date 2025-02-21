@@ -7918,6 +7918,17 @@ class S {
       args: [],
     );
   }
+
+  /// `Init At`
+  String get initAt {
+    return Intl.message(
+      'InitAt',
+      name: 'initAt',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Login At`
   String get loginAt {
     return Intl.message(

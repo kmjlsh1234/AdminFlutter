@@ -1,5 +1,6 @@
 // 🐦 Flutter imports:
 import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
+import 'package:acnoo_flutter_admin_panel/app/core/utils/date_util.dart';
 import 'package:acnoo_flutter_admin_panel/app/models/user/user_detail.dart';
 import 'package:flutter/material.dart';
 
@@ -83,15 +84,17 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                         buildDivider(),
                         buildProfileDetailRow(lang.status, user.status),
                         buildDivider(),
-                        buildProfileDetailRow(lang.type, user.userType),
+                        buildProfileDetailRow(lang.type, user.loginType),
                         buildDivider(),
-                        buildProfileDetailRow(lang.loginAt, user.loginAt),
+                        buildProfileDetailRow(lang.initAt, DateUtil.convertDateTime(user.initAt)),
                         buildDivider(),
-                        buildProfileDetailRow(lang.logoutAt, user.logoutAt),
+                        buildProfileDetailRow(lang.loginAt, DateUtil.convertDateTime(user.loginAt)),
                         buildDivider(),
-                        buildProfileDetailRow(lang.createdAt, user.createdAt),
+                        buildProfileDetailRow(lang.logoutAt, DateUtil.convertDateTime(user.logoutAt)),
                         buildDivider(),
-                        buildProfileDetailRow(lang.updatedAt, user.updatedAt),
+                        buildProfileDetailRow(lang.createdAt, DateUtil.convertDateTime(user.createdAt)),
+                        buildDivider(),
+                        buildProfileDetailRow(lang.updatedAt, DateUtil.convertDateTime(user.updatedAt)),
                         buildDivider(),
                         buildProfileDetailCheckBoxRow(lang.agreeTerm, user.agreeTerm),
                         buildDivider(),
@@ -101,7 +104,7 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                         buildDivider(),
                         buildProfileDetailCheckBoxRow(lang.agreeMarketing, user.agreeMarketing),
                         buildDivider(),
-                        buildProfileDetailRow(lang.marketingModifiedAt, user.marketingModifiedAt),
+                        buildProfileDetailRow(lang.marketingModifiedAt, DateUtil.convertDateTime(user.marketingModifiedAt)),
                       ],
                     );
                   })

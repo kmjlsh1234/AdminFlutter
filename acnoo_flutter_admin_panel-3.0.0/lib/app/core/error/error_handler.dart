@@ -7,6 +7,7 @@ import 'error_code.dart';
 class ErrorHandler{
 
   static void handleError<E>(E e, BuildContext context){
+
     //api통신 오류일 경우
     if(e is DioException){
       if(e.response != null){
@@ -21,7 +22,6 @@ class ErrorHandler{
       }else{
         showError(context, e.message.toString());
       }
-
     }
 
     //개별 정의 오류일 경우

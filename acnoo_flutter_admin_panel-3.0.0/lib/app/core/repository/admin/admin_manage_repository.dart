@@ -16,21 +16,27 @@ abstract class AdminManageRepository {
 
   factory AdminManageRepository(Dio dio, {String baseUrl}) = _AdminManageRepository;
 
+  //ADMIN 리스트 조회
   @POST("/admin/v1/admins/list")
   Future<List<Admin>> getAdminList(@Body() AdminSearchParam adminSearchParam);
 
+  //ADMIN 리스트 갯수
   @POST("/admin/v1/admins/list/count")
   Future<CountVo> getAdminListCount(@Body() AdminSearchParam adminSearchParam);
 
+  //ADMIN 추가
   @POST("/admin/v1/admins")
   Future<Admin> addAdmin(@Body() AdminAddParam adminAddParam);
 
+  //ADMIN 정보 수정
   @PUT("/admin/v1/admins/{adminId}")
   Future<Admin> modAdmin(@Path() int adminId, @Body() AdminModParam adminModParam);
 
+  //ADMIN 상태 변경
   @PUT("/admin/v1/admins/{adminId}/status")
   Future<HttpResponse> modAdminStatus(@Path() int adminId, @Body() AdminModStatusParam adminModStatusParam);
 
+  //ADMIN 조회
   @GET("/admin/v1/admins/{adminId}")
   Future<Admin> getAdmin(@Path() int adminId);
 }

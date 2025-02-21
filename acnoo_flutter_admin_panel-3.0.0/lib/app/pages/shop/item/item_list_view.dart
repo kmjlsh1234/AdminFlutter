@@ -156,7 +156,7 @@ class _ItemListViewState extends State<ItemListView> {
                           CustomButton(
                               textTheme: textTheme,
                               label: lang.addNewItem,
-                              onPressed: () => showAddFormDialog())
+                              onPressed: () => GoRouter.of(context).go('/shops/items/add'))//showAddFormDialog())
                         ],
                       ),
                     ),
