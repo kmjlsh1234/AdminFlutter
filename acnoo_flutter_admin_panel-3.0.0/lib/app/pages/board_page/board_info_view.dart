@@ -1,24 +1,22 @@
-import 'dart:convert';
 import 'dart:developer';
-import 'dart:io';
-import 'package:acnoo_flutter_admin_panel/app/core/constants/board/board_status.dart';
+
 import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/service/board/board_service.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/service/file/file_service.dart';
-import 'package:acnoo_flutter_admin_panel/app/models/board/board_add_param.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_quill/quill_delta.dart';
 import 'package:flutter_quill_delta_from_html/flutter_quill_delta_from_html.dart';
 import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
-import 'package:iconly/iconly.dart';
-import 'package:responsive_grid/responsive_grid.dart';
 import 'package:responsive_framework/responsive_framework.dart' as rf;
-import '../../core/constants/board/board_type.dart';
+import 'package:responsive_grid/responsive_grid.dart';
+
+import '../../../generated/l10n.dart' as l;
+import '../../constants/board/board_status.dart';
+import '../../constants/board/board_type.dart';
 import '../../core/theme/_app_colors.dart';
 import '../../models/board/board.dart';
 import '../../widgets/shadow_container/_shadow_container.dart';
-import '../../../generated/l10n.dart' as l;
 
 class BoardInfoView extends StatefulWidget {
   const BoardInfoView({super.key, required this.boardId});
@@ -35,8 +33,8 @@ class _BoardInfoViewState extends State<BoardInfoView> {
   final FileService fileService = FileService();
 
   //SearchType
-  BoardType selectType = BoardType.NOTICE;
-  BoardStatus selectStatus = BoardStatus.PUBLISH;
+  BoardType selectType = BoardType.notice;
+  BoardStatus selectStatus = BoardStatus.publish;
 
   List<String> imageFiles = [];
   late Board board;
@@ -168,9 +166,9 @@ class _BoardInfoViewState extends State<BoardInfoView> {
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                buildStatusCheckbox(BoardStatus.PUBLISH),
+                                buildStatusCheckbox(BoardStatus.publish),
                                 const SizedBox(width: 10),
-                                buildStatusCheckbox(BoardStatus.NOT_PUBLISH),
+                                buildStatusCheckbox(BoardStatus.notPublish),
                               ],
                             ),
                           ),
@@ -179,9 +177,9 @@ class _BoardInfoViewState extends State<BoardInfoView> {
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                buildTypeCheckbox(BoardType.NOTICE),
+                                buildTypeCheckbox(BoardType.notice),
                                 const SizedBox(width: 10),
-                                buildTypeCheckbox(BoardType.EVENT),
+                                buildTypeCheckbox(BoardType.event),
                               ],
                             ),
                           ),
@@ -319,7 +317,7 @@ class _BoardInfoViewState extends State<BoardInfoView> {
           },
         ),
         const SizedBox(width: 4.0),
-        Text(boardStatus.status),
+        Text(boardStatus.value),
       ],
     );
   }
@@ -343,7 +341,7 @@ class _BoardInfoViewState extends State<BoardInfoView> {
           },
         ),
         const SizedBox(width: 4.0),
-        Text(boardType.type),
+        Text(boardType.value),
       ],
     );
   }

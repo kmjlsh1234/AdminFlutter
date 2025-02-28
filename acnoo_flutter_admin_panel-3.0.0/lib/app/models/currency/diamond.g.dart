@@ -7,8 +7,8 @@ part of 'diamond.dart';
 // **************************************************************************
 
 Diamond _$DiamondFromJson(Map<String, dynamic> json) => Diamond(
-      (json['userId'] as num).toInt(),
-      (json['amount'] as num).toInt(),
+      userId: (json['userId'] as num).toInt(),
+      amount: (json['amount'] as num).toInt(),
     );
 
 Map<String, dynamic> _$DiamondToJson(Diamond instance) => <String, dynamic>{

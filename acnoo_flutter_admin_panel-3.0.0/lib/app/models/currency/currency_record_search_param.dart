@@ -1,21 +1,22 @@
+import 'package:acnoo_flutter_admin_panel/app/models/common/paging_param.dart';
 import 'package:json_annotation/json_annotation.dart';
 part 'currency_record_search_param.g.dart';
-@JsonSerializable()
-class CurrencyRecordSearchParam{
+@JsonSerializable(includeIfNull: true)
+class CurrencyRecordSearchParam extends PagingParam{
   final int userId;
-
-  @JsonKey(includeIfNull: true)
   final String? changeType;
-
-  @JsonKey(includeIfNull: true)
   final String? startDate;
-  @JsonKey(includeIfNull: true)
   final String? endDate;
 
-  final int page;
-  final int limit;
+  CurrencyRecordSearchParam({
+    required this.userId,
+    required this.changeType,
+    required this.startDate,
+    required this.endDate,
+    required int page,
+    required int limit
+  }) : super(page, limit);
 
-  CurrencyRecordSearchParam(this.userId, this.changeType, this.startDate, this.endDate, this.page, this.limit);
   factory CurrencyRecordSearchParam.fromJson(Map<String, dynamic> json) => _$CurrencyRecordSearchParamFromJson(json);
   Map<String, dynamic> toJson() => _$CurrencyRecordSearchParamToJson(this);
 }

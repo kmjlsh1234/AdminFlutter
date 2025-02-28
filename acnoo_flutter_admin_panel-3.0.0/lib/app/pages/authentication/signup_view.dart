@@ -1,14 +1,11 @@
 // 🐦 Flutter imports:
 import 'package:acnoo_flutter_admin_panel/app/core/error/custom_exception.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/service/admin/admin_service.dart';
-import 'package:acnoo_flutter_admin_panel/app/core/utils/dio_factory.dart';
 import 'package:acnoo_flutter_admin_panel/app/models/admin/admin_join_param.dart';
-import 'package:dio/dio.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
-
 // 📦 Package imports:
 import 'package:feather_icons/feather_icons.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:responsive_framework/responsive_framework.dart' as rf;
 
@@ -18,7 +15,6 @@ import '../../core/error/error_code.dart';
 import '../../core/error/error_handler.dart';
 import '../../core/helpers/fuctions/helper_functions.dart';
 import '../../core/static/static.dart';
-import '../../core/error/error_dialog.dart';
 import '../../widgets/widgets.dart';
 
 class SignupView extends StatefulWidget {
@@ -31,20 +27,17 @@ class SignupView extends StatefulWidget {
 class _SignupViewState extends State<SignupView> {
   bool showPassword = false;
 
-  TextEditingController nameController = TextEditingController();
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-  TextEditingController passwordCheckController = TextEditingController();
-  TextEditingController mobileController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController passwordCheckController = TextEditingController();
+  final TextEditingController mobileController = TextEditingController();
 
   final AdminService adminService = AdminService();
 
+  //회원가입
   Future<void> join(BuildContext context) async {
     try{
-      if(passwordController.text != passwordCheckController.text){
-        throw CustomException(ErrorCode.MISMATCH_PASSWORD);
-      }
-
       AdminJoinParam adminJoinParam = AdminJoinParam(
           email: emailController.text,
           password: passwordController.text,
@@ -53,7 +46,9 @@ class _SignupViewState extends State<SignupView> {
       );
 
       bool isSuccess = await adminService.join(adminJoinParam);
-      showJoinSuccessDialog(context);
+      if(isSuccess){
+        showJoinSuccessDialog(context);
+      }
     } catch (e){
       ErrorHandler.handleError(e, context);
     }
@@ -61,6 +56,11 @@ class _SignupViewState extends State<SignupView> {
 
   @override
   void dispose(){
+    nameController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    passwordCheckController.dispose();
+    mobileController.dispose();
     super.dispose();
   }
 

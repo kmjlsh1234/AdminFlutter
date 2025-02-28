@@ -1,19 +1,29 @@
-import 'dart:developer';
-import 'dart:io';
 
-import 'package:acnoo_flutter_admin_panel/app/core/constants/file/file_category.dart';
+
+import 'package:acnoo_flutter_admin_panel/app/core/error/custom_exception.dart';
 import 'package:dio/dio.dart';
-import 'package:retrofit/dio.dart';
+import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 
-import '../../app_config/app_config.dart';
-import '../../constants/file/file_type.dart';
-import '../../repository/file/file_server_client.dart';
-import '../../utils/dio_factory.dart';
+import '../../../constants/file/file_category.dart';
+import '../../../constants/file/file_type.dart';
+import '../../error/error_code.dart';
+import '../../repository/file/file_server_repository.dart';
 
 class FileService{
-  late FileServerClient client = FileServerClient();
+  late FileServerRepository repository = FileServerRepository();
 
   Future<String> uploadFile(FileCategory fileCategory, FileType fileType, FormData formData) async{
-    return await client.uploadFile(fileCategory, fileType, formData);
+    return await repository.uploadFile(fileCategory, fileType, formData);
+  }
+
+  Future<String> uploadFileTest(XFile? file, FileCategory fileCategory, FileType fileType) async {
+    if(file == null) {
+      throw CustomException(ErrorCode.FAIL_TO_CONVERT_FILE);
+    }
+    Uint8List? bytes = await file.readAsBytes();
+    MultipartFile multipartFile = MultipartFile.fromBytes(bytes, filename: file.name);
+    FormData formData = FormData.fromMap({"file": multipartFile});
+    return await repository.uploadFile(fileCategory, fileType, formData);
   }
 }

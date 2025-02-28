@@ -19,11 +19,11 @@ BoardSearchParam _$BoardSearchParamFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$BoardSearchParamToJson(BoardSearchParam instance) =>
     <String, dynamic>{
+      'page': instance.page,
+      'limit': instance.limit,
       'boardType': instance.boardType,
       'boardStatus': instance.boardStatus,
       'searchDateType': instance.searchDateType,
       'startDate': instance.startDate,
       'endDate': instance.endDate,
-      'page': instance.page,
-      'limit': instance.limit,
     };

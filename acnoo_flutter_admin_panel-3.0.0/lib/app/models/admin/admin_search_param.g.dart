@@ -8,16 +8,16 @@ part of 'admin_search_param.dart';
 
 AdminSearchParam _$AdminSearchParamFromJson(Map<String, dynamic> json) =>
     AdminSearchParam(
-      json['searchType'] as String?,
-      json['searchValue'] as String?,
-      (json['page'] as num).toInt(),
-      (json['limit'] as num).toInt(),
+      searchType: json['searchType'] as String?,
+      searchValue: json['searchValue'] as String?,
+      page: (json['page'] as num).toInt(),
+      limit: (json['limit'] as num).toInt(),
     );
 
 Map<String, dynamic> _$AdminSearchParamToJson(AdminSearchParam instance) =>
     <String, dynamic>{
-      'searchType': instance.searchType,
-      'searchValue': instance.searchValue,
       'page': instance.page,
       'limit': instance.limit,
+      'searchType': instance.searchType,
+      'searchValue': instance.searchValue,
     };

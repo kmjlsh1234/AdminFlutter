@@ -1,17 +1,18 @@
+import 'package:acnoo_flutter_admin_panel/app/models/common/paging_param.dart';
 import 'package:json_annotation/json_annotation.dart';
 part 'admin_search_param.g.dart';
-@JsonSerializable()
-class AdminSearchParam {
-  // keyword search
-  @JsonKey(includeIfNull: true)
+
+@JsonSerializable(includeIfNull: true)
+class AdminSearchParam extends PagingParam{
   final String? searchType;
-  @JsonKey(includeIfNull: true)
   final String? searchValue;
 
-  final int page;
-  final int limit;
-
-  AdminSearchParam(this.searchType, this.searchValue, this.page, this.limit);
+  AdminSearchParam({
+    required this.searchType,
+    required this.searchValue,
+    required int page,
+    required int limit,
+  }) : super(page, limit);
 
   Map<String, dynamic> toJson() => _$AdminSearchParamToJson(this);
 }

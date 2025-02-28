@@ -116,7 +116,7 @@ class AdminProfileDialog extends StatelessWidget {
                                   const SizedBox(width: 4),
                                   Expanded(
                                     child: Text(
-                                      info.value ?? 'Unknown',
+                                      info.value.toString() ?? 'Unknown',
                                       style: _theme.textTheme.bodyLarge
                                           ?.copyWith(
                                         fontSize: _fontSize,

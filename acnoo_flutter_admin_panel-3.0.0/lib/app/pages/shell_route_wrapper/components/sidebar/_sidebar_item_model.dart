@@ -264,6 +264,13 @@ List<GroupedMenuModel> get _groupedMenus {
           ],
         ),
         SidebarItemModel(
+          // name: 'Admins',
+          name: l.S.current.admins,
+          iconPath: 'assets/images/sidebar_icons/users-group.svg',
+          navigationPath: '/admins',
+        ),
+        /*
+        SidebarItemModel(
           //name: 'Admins',
           name: l.S.current.admins,
           iconPath: 'assets/images/sidebar_icons/users-group.svg',
@@ -275,18 +282,9 @@ List<GroupedMenuModel> get _groupedMenus {
               name: l.S.current.adminsList,
               navigationPath: "admin-list",
             ),
-            SidebarSubmenuModel(
-              //name: "Users Grid",
-              name: l.S.current.usersGrid,
-              navigationPath: "user-grid",
-            ),
-            SidebarSubmenuModel(
-              //name: "User Profile",
-              name: l.S.current.userProfile,
-              navigationPath: "user-profile",
-            ),
           ],
         ),
+        */
         SidebarItemModel(
           //name: 'Users',
           name: l.S.current.users,
@@ -333,12 +331,12 @@ List<GroupedMenuModel> get _groupedMenus {
             SidebarSubmenuModel(
               //name: "bundle",
               name: l.S.current.bundle,
-              navigationPath: "bundle-list",
+              navigationPath: "bundles/bundle-list",
             ),
             SidebarSubmenuModel(
               //name: "product",
               name: l.S.current.product,
-              navigationPath: "product-list",
+              navigationPath: "products/products-list",
             ),
             SidebarSubmenuModel(
               //name: "item",
@@ -348,12 +346,38 @@ List<GroupedMenuModel> get _groupedMenus {
             SidebarSubmenuModel(
               //name: "itemUnit",
               name: l.S.current.itemUnit,
-              navigationPath: "item-Unit-list",
+              navigationPath: "item-unit-list",
             ),
             SidebarSubmenuModel(
               //name: "category",
               name: l.S.current.category,
               navigationPath: "category-list",
+            ),
+          ],
+        ),
+        SidebarItemModel(
+          //name: 'Menus',
+          name: l.S.current.menu,
+          iconPath: 'assets/images/sidebar_icons/users-group.svg',
+          sidebarItemType: SidebarItemType.submenu,
+          navigationPath: '/menus',
+          submenus: [
+            SidebarSubmenuModel(
+              name: l.S.current.menu,
+              navigationPath: "menus/menu-list",
+            ),
+            SidebarSubmenuModel(
+              name: l.S.current.role,
+              navigationPath: "menus/role-list",
+            ),
+            SidebarSubmenuModel(
+              name: l.S.current.privilege,
+              navigationPath: "privilege-list",
+            ),
+            SidebarSubmenuModel(
+              //name: "itemUnit",
+              name: l.S.current.rolePrivilege,
+              navigationPath: "role-privilege-list",
             ),
           ],
         ),

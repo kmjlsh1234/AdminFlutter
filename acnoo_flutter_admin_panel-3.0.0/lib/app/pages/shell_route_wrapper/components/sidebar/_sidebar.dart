@@ -57,7 +57,7 @@ class SideBarWidget extends StatelessWidget {
                   showBottomBorder: true,
                   onTap: () {
                     rootScaffoldKey.currentState?.closeDrawer();
-                    context.go('/dashboard/ecommerce-admin');
+                    context.go('/admins/admin-list');
                   },
                 ),
               ),

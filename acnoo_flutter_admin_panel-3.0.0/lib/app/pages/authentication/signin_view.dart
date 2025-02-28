@@ -33,11 +33,11 @@ class _SigninViewState extends State<SigninView> {
   final TextEditingController passwordController = TextEditingController();
 
   //로그인
-  Future<void> login(BuildContext context) async {
+  Future<void> login() async {
     try{
       LoginViewModel loginViewModel = LoginViewModel(email: emailController.text, password: passwordController.text);
-      Admin result = await adminService.login(loginViewModel);
-      GoRouter.of(context).go('/dashboard');
+      Admin admin = await adminService.login(loginViewModel);
+      GoRouter.of(context).go('/admins');
     } catch (e){
       ErrorHandler.handleError(e, context);
     }
@@ -45,6 +45,8 @@ class _SigninViewState extends State<SigninView> {
 
   @override
   void dispose(){
+    emailController.dispose();
+    passwordController.dispose();
     super.dispose();
   }
 
@@ -327,7 +329,7 @@ class _SigninViewState extends State<SigninView> {
                                     width: double.maxFinite,
                                     child: ElevatedButton(
                                       onPressed: () {
-                                        login(context);
+                                        login();
                                       },
                                       // child: const Text('Sign In'),
                                       child: Text(lang.signIn),

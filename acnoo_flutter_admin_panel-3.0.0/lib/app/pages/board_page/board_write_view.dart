@@ -1,8 +1,7 @@
-import 'package:acnoo_flutter_admin_panel/app/core/constants/board/board_status.dart';
-import 'package:acnoo_flutter_admin_panel/app/core/constants/file/file_category.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/service/board/board_service.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/service/file/file_service.dart';
+import 'package:acnoo_flutter_admin_panel/app/models/app_version/app_version.dart';
 import 'package:acnoo_flutter_admin_panel/app/models/board/board_add_param.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -15,8 +14,10 @@ import 'package:responsive_grid/responsive_grid.dart';
 import 'package:vsc_quill_delta_to_html/vsc_quill_delta_to_html.dart';
 
 import '../../../generated/l10n.dart' as l;
-import '../../core/constants/board/board_type.dart';
-import '../../core/constants/file/file_type.dart';
+import '../../constants/board/board_status.dart';
+import '../../constants/board/board_type.dart';
+import '../../constants/file/file_category.dart';
+import '../../constants/file/file_type.dart';
 import '../../core/theme/_app_colors.dart';
 import '../../core/utils/file_util.dart';
 import '../../models/board/board.dart';
@@ -24,7 +25,6 @@ import '../../widgets/shadow_container/_shadow_container.dart';
 
 class BoardWriteView extends StatefulWidget {
   const BoardWriteView({super.key});
-
   @override
   State<BoardWriteView> createState() => _BoardWriteViewState();
 }
@@ -36,8 +36,8 @@ class _BoardWriteViewState extends State<BoardWriteView> {
   final BoardService boardService = BoardService();
   final FileService fileService = FileService();
 
-  BoardType selectType = BoardType.NOTICE;
-  BoardStatus selectStatus = BoardStatus.PUBLISH;
+  BoardType selectType = BoardType.notice;
+  BoardStatus selectStatus = BoardStatus.publish;
 
   List<String> imageUrls = [];
 
@@ -59,7 +59,7 @@ class _BoardWriteViewState extends State<BoardWriteView> {
           MultipartFile multipartFile = MultipartFile.fromBytes(imageBytes, filename: filename);
           FormData formData = FormData.fromMap({"file": multipartFile});
 
-          String savePath = await fileService.uploadFile(FileCategory.PROFILE, FileType.IMAGE, formData);
+          String savePath = await fileService.uploadFile(FileCategory.profile, FileType.image, formData);
           uploadedImageURLs.add(savePath);
         }
 
@@ -72,17 +72,19 @@ class _BoardWriteViewState extends State<BoardWriteView> {
       }
 
       // TODO: ADMIN서버에 게시판 저장
-      BoardAddParam boardAddParam = BoardAddParam(titleController.text, html, selectType.type, selectStatus.status, null);
+      BoardAddParam boardAddParam = BoardAddParam(
+          title: titleController.text,
+          content: html,
+          boardType: selectType.value,
+          status: selectStatus.value,
+          image: null
+      );
       Board board = await boardService.addBoard(boardAddParam);
       showAddBoardSuccessDialog(context);
     } catch (e){
       ErrorHandler.handleError(e, context);
     }
   }
-
-
-
-
 
   Future<void> selectImage(String image) async{
     imageUrls.add(image);
@@ -185,9 +187,9 @@ class _BoardWriteViewState extends State<BoardWriteView> {
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                buildStatusCheckbox(BoardStatus.PUBLISH),
+                                buildStatusCheckbox(BoardStatus.publish),
                                 const SizedBox(width: 10),
-                                buildStatusCheckbox(BoardStatus.NOT_PUBLISH),
+                                buildStatusCheckbox(BoardStatus.notPublish),
                               ],
                             ),
                           ),
@@ -196,9 +198,9 @@ class _BoardWriteViewState extends State<BoardWriteView> {
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                buildTypeCheckbox(BoardType.NOTICE),
+                                buildTypeCheckbox(BoardType.notice),
                                 const SizedBox(width: 10),
-                                buildTypeCheckbox(BoardType.EVENT),
+                                buildTypeCheckbox(BoardType.event),
                               ],
                             ),
                           ),
@@ -357,7 +359,7 @@ class _BoardWriteViewState extends State<BoardWriteView> {
           },
         ),
         const SizedBox(width: 4.0),
-        Text(boardStatus.status),
+        Text(boardStatus.value),
       ],
     );
   }
@@ -375,13 +377,13 @@ class _BoardWriteViewState extends State<BoardWriteView> {
               });
             } else if (selectType == boardType) {
               setState(() {
-                selectType = boardType; // Deselect if it's the current selected one
+                selectType = boardType;
               });
             }
           },
         ),
         const SizedBox(width: 4.0),
-        Text(boardType.type),
+        Text(boardType.value),
       ],
     );
   }

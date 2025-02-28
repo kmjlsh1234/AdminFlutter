@@ -7,8 +7,8 @@ part of 'coin.dart';
 // **************************************************************************
 
 Coin _$CoinFromJson(Map<String, dynamic> json) => Coin(
-      (json['userId'] as num).toInt(),
-      (json['amount'] as num).toInt(),
+      userId: (json['userId'] as num).toInt(),
+      amount: (json['amount'] as num).toInt(),
     );
 
 Map<String, dynamic> _$CoinToJson(Coin instance) => <String, dynamic>{
