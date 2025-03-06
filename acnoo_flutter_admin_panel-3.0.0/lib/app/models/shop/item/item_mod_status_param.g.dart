@@ -8,10 +8,17 @@ part of 'item_mod_status_param.dart';
 
 ItemModStatusParam _$ItemModStatusParamFromJson(Map<String, dynamic> json) =>
     ItemModStatusParam(
-      status: json['status'] as String,
+      status: $enumDecode(_$ItemStatusEnumMap, json['status']),
     );
 
 Map<String, dynamic> _$ItemModStatusParamToJson(ItemModStatusParam instance) =>
     <String, dynamic>{
-      'status': instance.status,
+      'status': _$ItemStatusEnumMap[instance.status]!,
     };
+
+const _$ItemStatusEnumMap = {
+  ItemStatus.READY: 'READY',
+  ItemStatus.ON_SALE: 'ON_SALE',
+  ItemStatus.STOP_SELLING: 'STOP_SELLING',
+  ItemStatus.REMOVED: 'REMOVED',
+};

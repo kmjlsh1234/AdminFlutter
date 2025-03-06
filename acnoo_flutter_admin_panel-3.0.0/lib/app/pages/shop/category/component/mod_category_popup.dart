@@ -1,7 +1,9 @@
 // 🐦 Flutter imports:
 import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/utils/alert_util.dart';
+import 'package:acnoo_flutter_admin_panel/app/core/utils/compare_util.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 // 🌎 Project imports:
 import '../../../../../generated/l10n.dart' as l;
@@ -10,6 +12,7 @@ import '../../../../core/theme/_app_colors.dart';
 import '../../../../core/utils/size_config.dart';
 import '../../../../models/shop/category/category.dart';
 import '../../../../models/shop/category/category_mod_param.dart';
+import '../../../../widgets/textfield_wrapper/_textfield_wrapper.dart';
 
 class ModCategoryDialog extends StatefulWidget {
   const ModCategoryDialog({super.key, required this.category});
@@ -21,19 +24,33 @@ class ModCategoryDialog extends StatefulWidget {
 
 class _ModCategoryDialogState extends State<ModCategoryDialog> {
 
-  final CategoryService categoryService = CategoryService();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController descController = TextEditingController();
+  final CategoryService categoryService = CategoryService();
+
+  //Provider
+  late l.S lang;
+  late ThemeData theme;
+  late TextTheme textTheme;
 
   //카테고리 변경
   Future<void> modCategory(BuildContext context) async {
     try {
       CategoryModParam categoryModParam = CategoryModParam(
-        name: nameController.text,
-        description: descController.text
+        name: CompareUtil.compareStringValue(widget.category.name, nameController.text),
+        description: CompareUtil.compareStringValue(widget.category.description, descController.text)
       );
+
       Category category = await categoryService.modCategory(widget.category.id, categoryModParam);
-      AlertUtil.popupSuccessDialog(context, '카테고리 변경 성공');
+      AlertUtil.successDialog(
+          context: context,
+          message: lang.successModCategory,
+          buttonText: lang.confirm,
+          onPressed: (){
+            GoRouter.of(context).pop();
+            GoRouter.of(context).pop(true);
+          }
+      );
     } catch (e) {
       ErrorHandler.handleError(e, context);
     }
@@ -55,10 +72,10 @@ class _ModCategoryDialogState extends State<ModCategoryDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final lang = l.S.of(context);
     final _sizeInfo = SizeConfig.getSizeInfo(context);
-    TextTheme textTheme = Theme.of(context).textTheme;
-    final theme = Theme.of(context);
+    lang = l.S.of(context);
+    theme = Theme.of(context);
+    textTheme = Theme.of(context).textTheme;
 
     return AlertDialog(
       contentPadding: EdgeInsets.zero,
@@ -77,10 +94,9 @@ class _ModCategoryDialogState extends State<ModCategoryDialog> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // const Text('Form Dialog'),
-                  Text(lang.formDialog),
+                  Text(lang.modCategory),
                   IconButton(
-                    onPressed: () => Navigator.of(context).pop(false),
+                    onPressed: () => GoRouter.of(context).pop(false),
                     icon: const Icon(
                       Icons.close,
                       color: AcnooAppColors.kError,
@@ -104,28 +120,37 @@ class _ModCategoryDialogState extends State<ModCategoryDialog> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ///---------------- Text Field section
-                    Text(lang.fullName, style: textTheme.bodySmall),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: nameController,
-                      decoration: InputDecoration(
-                          hintText: lang.enterYourFullName,
-                          hintStyle: textTheme.bodySmall),
-                      validator: (value) => value?.isEmpty ?? true
-                          ? lang.pleaseEnterYourFullName
-                          : null,
+
+                    // NAME
+                    TextFieldLabelWrapper(
+                      labelText: lang.name,
+                      inputField: TextFormField(
+                        controller: nameController,
+                        decoration: InputDecoration(
+                            hintText: lang.hintName,
+                            hintStyle: textTheme.bodySmall
+                        ),
+                        validator: (value) => value?.isEmpty ?? true ? lang.invalidName : null,
+                        autovalidateMode: AutovalidateMode.onUnfocus,
+                      ),
                     ),
+
                     const SizedBox(height: 20),
-                    Text(lang.description, style: textTheme.bodySmall),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: descController,
-                      decoration: InputDecoration(
-                        //hintText: 'Write Something',
-                          hintText: lang.writeSomething,
-                          hintStyle: textTheme.bodySmall),
-                      maxLines: 3,
+
+                    // DESCRIPTION
+                    TextFieldLabelWrapper(
+                      labelText: lang.description,
+                      inputField: TextFormField(
+                        controller: descController,
+                        decoration: InputDecoration(
+                            hintText: lang.hintDescription,
+                            hintStyle: textTheme.bodySmall),
+                        maxLines: 3,
+                        validator: (value) => value?.isEmpty ?? true ? lang.invalidDescription : null,
+                        autovalidateMode: AutovalidateMode.onUnfocus,
+                      ),
                     ),
+
                     const SizedBox(height: 24),
 
                     ///---------------- Submit Button section
@@ -145,7 +170,7 @@ class _ModCategoryDialogState extends State<ModCategoryDialog> {
                                     ?.copyWith(color: AcnooAppColors.kError),
                                 side: const BorderSide(
                                     color: AcnooAppColors.kError)),
-                            onPressed: () => Navigator.of(context).pop(false),
+                            onPressed: () => GoRouter.of(context).pop(false),
                             label: Text(
                               lang.cancel,
                               //'Cancel',

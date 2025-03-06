@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 
 // 🌎 Project imports:
 import '../../../../generated/l10n.dart' as l;
+import '../../../constants/common/action_menu.dart';
 import '../../../core/service/shop/category/category_service.dart';
 import '../../../core/utils/size_config.dart';
 import '../../../models/common/paging_param.dart';
@@ -17,6 +18,7 @@ import '../../../widgets/pagination_widgets/_pagination_widget.dart';
 import '../../../widgets/shadow_container/_shadow_container.dart';
 import '../../common_widget/custom_button.dart';
 import 'component/add_category_popup.dart';
+import 'component/mapping_item_popup.dart';
 import 'component/mod_category_popup.dart';
 
 class CategoryListView extends StatefulWidget {
@@ -43,7 +45,7 @@ class _CategoryListViewState extends State<CategoryListView> {
       return await categoryService.getCategoryList(pagingParam);
     } catch (e) {
       ErrorHandler.handleError(e, context);
-      rethrow;
+      return [];
     }
   }
 
@@ -55,7 +57,7 @@ class _CategoryListViewState extends State<CategoryListView> {
       return totalPage;
     } catch (e) {
       ErrorHandler.handleError(e, context);
-      rethrow;
+      return 0;
     }
   }
 
@@ -91,12 +93,10 @@ class _CategoryListViewState extends State<CategoryListView> {
 
   @override
   Widget build(BuildContext context) {
-    final _sizeInfo = SizeConfig.getSizeInfo(context);
-    final TextTheme textTheme = Theme
-        .of(context)
-        .textTheme;
-    final theme = Theme.of(context);
     final lang = l.S.of(context);
+    final theme = Theme.of(context);
+    final TextTheme textTheme = Theme.of(context).textTheme;
+    final _sizeInfo = SizeConfig.getSizeInfo(context);
 
     return Scaffold(
       body: Padding(
@@ -108,53 +108,53 @@ class _CategoryListViewState extends State<CategoryListView> {
             physics: const AlwaysScrollableScrollPhysics(),
             child: LayoutBuilder(
               builder: (BuildContext context, BoxConstraints constraints) {
-                return FutureBuilderFactory.createFutureBuilder(
-                    future: categoryList,
-                    onSuccess: (context, categoryList) {
-                      return Column(
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    //______________________________________________________________________Header__________________
+                    Padding(
+                      padding: _sizeInfo.padding,
+                      child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          //______________________________________________________________________Header__________________
-                          Padding(
-                            padding: _sizeInfo.padding,
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Spacer(flex: 2),
-                                CustomButton(
-                                    textTheme: textTheme,
-                                    label: lang.addNewCategory,
-                                    onPressed: () =>
-                                        showAddFormDialog(context)),
-                              ],
-                            ),
-                          ),
-
-                          //______________________________________________________________________Data_table__________________
-                          SingleChildScrollView(
-                            controller: scrollController,
-                            scrollDirection: Axis.horizontal,
-                            child: ConstrainedBox(
-                                constraints: BoxConstraints(
-                                  minWidth: constraints.maxWidth,
-                                ),
-                                child: dataTable(categoryList, theme, textTheme, lang)
-                            ),
-                          ),
-
-                          //______________________________________________________________________footer__________________
-                          Padding(
-                              padding: _sizeInfo.padding,
-                              child: FutureBuilderFactory.createFutureBuilder(
-                                  future: totalPage,
-                                  onSuccess: (context, totalPage) {
-                                    return paginatedSection(totalPage, categoryList);
-                                  }
-                              ),
-                          ),
+                          Spacer(flex: 2),
+                          CustomButton(
+                              textTheme: textTheme,
+                              label: lang.addNewCategory,
+                              onPressed: () =>
+                                  showAddFormDialog(context)),
                         ],
-                      );
-                    });
+                      ),
+                    ),
+
+                    //______________________________________________________________________Data_table__________________
+                    SingleChildScrollView(
+                      controller: scrollController,
+                      scrollDirection: Axis.horizontal,
+                      child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minWidth: constraints.maxWidth,
+                          ),
+                          child: FutureBuilderFactory.createFutureBuilder(
+                              future: categoryList,
+                              onSuccess: (context, categoryList){
+                                return dataTable(categoryList, theme, textTheme, lang);
+                              }),
+                      ),
+                    ),
+
+                    //______________________________________________________________________footer__________________
+                    Padding(
+                      padding: _sizeInfo.padding,
+                      child: FutureBuilderFactory.createFutureBuilder(
+                          future: totalPage,
+                          onSuccess: (context, totalPage) {
+                            return paginatedSection(totalPage);
+                          }
+                      ),
+                    ),
+                  ],
+                );
               },
             ),
           ),
@@ -163,8 +163,7 @@ class _CategoryListViewState extends State<CategoryListView> {
     );
   }
 
-  Theme dataTable(List<Category> categoryList, ThemeData theme,
-      TextTheme textTheme, l.S lang) {
+  Theme dataTable(List<Category> categoryList, ThemeData theme, TextTheme textTheme, l.S lang) {
     return Theme(
       data: ThemeData(
           dividerColor: theme.colorScheme.outline,
@@ -178,7 +177,7 @@ class _CategoryListViewState extends State<CategoryListView> {
         headingRowColor: WidgetStateProperty.all(theme.colorScheme.surface),
         showBottomBorder: true,
         columns: [
-          DataColumn(label: Text(lang.serial)),
+          DataColumn(label: Text(lang.categoryId)),
           DataColumn(label: Text(lang.name)),
           DataColumn(label: Text(lang.description)),
           DataColumn(label: Text(lang.createdAt)),
@@ -195,34 +194,36 @@ class _CategoryListViewState extends State<CategoryListView> {
                 DataCell(
                     Text(DateUtil.convertDateTimeToString(data.createdAt))),
                 DataCell(
-                  PopupMenuButton<String>(
+                  PopupMenuButton<ActionMenu>(
                     iconColor: theme.colorScheme.onTertiary,
                     color: theme.colorScheme.primaryContainer,
                     onSelected: (action) {
                       switch (action) {
-                        case 'Edit':
-                          showModFormDialog(context, data);
+                        case ActionMenu.MAPPING_ITEM:
+                          showMappingItemFormDialog(data.id);
+                        case ActionMenu.EDIT:
+                          showModFormDialog(data);
                           break;
-                        case 'Delete':
+                        case ActionMenu.DELETE:
                           delCategory(data.id);
+                          break;
+                        default:
                           break;
                       }
                     },
                     itemBuilder: (context) {
                       return [
-                        PopupMenuItem<String>(
-                          value: 'Edit',
-                          child: Text(
-                            lang.edit,
-                            //'Edit',
-                            style: textTheme.bodyMedium,
-                          ),
+                        PopupMenuItem<ActionMenu>(
+                          value: ActionMenu.MAPPING_ITEM,
+                          child: Text(lang.showMappingItem),
                         ),
-                        PopupMenuItem<String>(
-                          value: 'Delete',
-                          child: Text(lang.delete,
-                              // 'Delete',
-                              style: textTheme.bodyMedium),
+                        PopupMenuItem<ActionMenu>(
+                          value: ActionMenu.EDIT,
+                          child: Text(lang.edit),
+                        ),
+                        PopupMenuItem<ActionMenu>(
+                          value: ActionMenu.DELETE,
+                          child: Text(lang.delete),
                         ),
                       ];
                     },
@@ -236,17 +237,10 @@ class _CategoryListViewState extends State<CategoryListView> {
     );
   }
 
-  Row paginatedSection(int totalPage, List<Category> categoryList) {
+  Row paginatedSection(int totalPage) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        Expanded(
-          child: Text(
-            '${l.S.of(context).showing} ${(currentPage - 1) * rowsPerPage + 1} ${l.S.of(context).to} ${(currentPage - 1) * rowsPerPage + categoryList.length} ${l.S.of(context).OF} ${categoryList.length} ${l.S.of(context).entries}',
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-
         DataTablePaginator(
           currentPage: currentPage,
           totalPages: totalPage,
@@ -254,7 +248,7 @@ class _CategoryListViewState extends State<CategoryListView> {
             if (currentPage > 1) {
               setState(() {
                 currentPage--;
-                this.categoryList = getCategoryList();
+                categoryList = getCategoryList();
               });
             }
           },
@@ -262,7 +256,7 @@ class _CategoryListViewState extends State<CategoryListView> {
             if (currentPage < totalPage) {
               setState(() {
                 currentPage++;
-                this.categoryList = getCategoryList();
+                categoryList = getCategoryList();
               });
             }
           },
@@ -289,7 +283,7 @@ class _CategoryListViewState extends State<CategoryListView> {
     }
   }
 
-  void showModFormDialog(BuildContext context, Category category) async {
+  void showModFormDialog(Category category) async {
     bool? isSuccess = await showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -305,5 +299,19 @@ class _CategoryListViewState extends State<CategoryListView> {
     if (isSuccess != null && isSuccess) {
       loadAllData();
     }
+  }
+
+  void showMappingItemFormDialog(int categoryId) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return BackdropFilter(
+            filter: ImageFilter.blur(
+              sigmaX: 5,
+              sigmaY: 5,
+            ),
+            child: MappingItemDialog(categoryId: categoryId));
+      },
+    );
   }
 }

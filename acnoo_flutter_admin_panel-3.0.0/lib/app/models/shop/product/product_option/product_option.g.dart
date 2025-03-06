@@ -11,7 +11,7 @@ ProductOption _$ProductOptionFromJson(Map<String, dynamic> json) =>
       id: (json['id'] as num).toInt(),
       productId: (json['productId'] as num).toInt(),
       name: json['name'] as String,
-      type: json['type'] as String,
+      type: $enumDecode(_$ProductOptionTypeEnumMap, json['type']),
       quantity: (json['quantity'] as num).toInt(),
       createdAt: DateTime.parse(json['createdAt'] as String),
     );
@@ -21,7 +21,13 @@ Map<String, dynamic> _$ProductOptionToJson(ProductOption instance) =>
       'id': instance.id,
       'productId': instance.productId,
       'name': instance.name,
-      'type': instance.type,
+      'type': _$ProductOptionTypeEnumMap[instance.type]!,
       'quantity': instance.quantity,
       'createdAt': instance.createdAt.toIso8601String(),
     };
+
+const _$ProductOptionTypeEnumMap = {
+  ProductOptionType.DIAMOND: 'DIAMOND',
+  ProductOptionType.COIN: 'COIN',
+  ProductOptionType.ITEM: 'ITEM',
+};

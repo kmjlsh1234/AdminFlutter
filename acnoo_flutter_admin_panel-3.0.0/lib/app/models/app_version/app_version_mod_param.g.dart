@@ -8,12 +8,18 @@ part of 'app_version_mod_param.dart';
 
 AppVersionModParam _$AppVersionModParamFromJson(Map<String, dynamic> json) =>
     AppVersionModParam(
-      json['publishAt'] as String?,
-      json['publishStatus'] as String?,
+      publishAt: json['publishAt'] as String?,
+      publishStatus:
+          $enumDecodeNullable(_$PublishStatusEnumMap, json['publishStatus']),
     );
 
 Map<String, dynamic> _$AppVersionModParamToJson(AppVersionModParam instance) =>
     <String, dynamic>{
       'publishAt': instance.publishAt,
-      'publishStatus': instance.publishStatus,
+      'publishStatus': _$PublishStatusEnumMap[instance.publishStatus],
     };
+
+const _$PublishStatusEnumMap = {
+  PublishStatus.PUBLISH: 'PUBLISH',
+  PublishStatus.NOT_PUBLISH: 'NOT_PUBLISH',
+};

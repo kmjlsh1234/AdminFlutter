@@ -2,15 +2,14 @@
 // 📦 Package imports:
 import 'package:acnoo_flutter_admin_panel/app/constants/shop/item/item_period_type.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/error/custom_exception.dart';
-import 'package:acnoo_flutter_admin_panel/app/core/service/shop/category/category_service.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/service/shop/item/item_service.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/utils/alert_util.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/utils/date_util.dart';
-import 'package:acnoo_flutter_admin_panel/app/core/utils/future_builder_factory.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/shop/item/component/search_category_popup.dart';
 import 'package:acnoo_flutter_admin_panel/app/pages/shop/item/component/search_item_unit_popup.dart';
-import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:iconly/iconly.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -24,7 +23,6 @@ import '../../../constants/shop/item/currency_type.dart';
 import '../../../constants/shop/item/image_select_type.dart';
 import '../../../core/error/error_code.dart';
 import '../../../core/error/error_handler.dart';
-import '../../../core/helpers/field_styles/_dropdown_styles.dart';
 import '../../../core/service/file/file_service.dart';
 import '../../../core/static/_static_values.dart';
 import '../../../core/utils/size_config.dart';
@@ -50,6 +48,7 @@ class _ItemAddViewState extends State<ItemAddView> {
   final TextEditingController skuController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController unitSkuController = TextEditingController();
+  final TextEditingController categoryController = TextEditingController();
   final TextEditingController numController = TextEditingController();
   final TextEditingController stockQuantityController = TextEditingController();
   final TextEditingController descController = TextEditingController();
@@ -59,7 +58,6 @@ class _ItemAddViewState extends State<ItemAddView> {
   final TextEditingController periodController = TextEditingController();
 
   //Service
-  final CategoryService categoryService = CategoryService();
   final ItemService itemService = ItemService();
   final FileService fileService = FileService();
 
@@ -67,9 +65,8 @@ class _ItemAddViewState extends State<ItemAddView> {
   late Future<List<Category>> categoryList;
 
   //DropDown
-  CurrencyType currencyType = CurrencyType.diamond;
-  ItemPeriodType periodType = ItemPeriodType.none;
-  late int categoryId;
+  CurrencyType currencyType = CurrencyType.DIAMOND;
+  ItemPeriodType periodType = ItemPeriodType.NONE;
 
   //File
   final ImagePicker picker = ImagePicker();
@@ -78,15 +75,10 @@ class _ItemAddViewState extends State<ItemAddView> {
   XFile? imageFile;
   XFile? thumbnailFile;
 
-  //카테고리 목록 전부 조회
-  Future<List<Category>> getAllCategoryList() async {
-    try {
-      return await categoryService.getAllCategoryList();
-    } catch (e) {
-      ErrorHandler.handleError(e, context);
-      rethrow;
-    }
-  }
+  //Provider
+  late l.S lang;
+  late ThemeData theme;
+  late TextTheme textTheme;
 
   //아이템 추가
   Future<void> addItem() async {
@@ -95,12 +87,20 @@ class _ItemAddViewState extends State<ItemAddView> {
       checkAddParameter();
 
       //TODO: 파일 서버에 파일 전송 후 경로 받기
-      String thumbnailPath = await fileService.uploadFileTest(thumbnailFile, FileCategory.profile, FileType.image);
-      String imagePath = await fileService.uploadFileTest(imageFile, FileCategory.profile, FileType.image);
+      String thumbnailPath = await fileService.uploadFileTest(thumbnailFile, FileCategory.PROFILE, FileType.IMAGE);
+      String imagePath = await fileService.uploadFileTest(imageFile, FileCategory.PROFILE, FileType.IMAGE);
 
       //TODO: ADMIN서버에 아이템 추가
       Item item = await itemService.addItem(getItemAddParam(thumbnailPath, imagePath));
-      AlertUtil.popupSuccessDialog(context, '아이템 추가 성공');
+      AlertUtil.successDialog(
+          context: context,
+          message: lang.successAddItem,
+          buttonText: lang.confirm,
+          onPressed: () {
+            GoRouter.of(context).pop();
+            GoRouter.of(context).go('/shops/items/item-list');
+          }
+      );
     } catch (e) {
       ErrorHandler.handleError(e, context);
     }
@@ -113,11 +113,11 @@ class _ItemAddViewState extends State<ItemAddView> {
       if (pickFile != null) {
         setState(() {
           switch (type) {
-            case ImageSelectType.thumbnail:
+            case ImageSelectType.THUMBNAIL:
               thumbnailFile = pickFile;
               thumbnailPath = pickFile.path;
               break;
-            case ImageSelectType.image:
+            case ImageSelectType.IMAGE:
               imageFile = pickFile;
               imagePath = pickFile.path;
               break;
@@ -130,15 +130,18 @@ class _ItemAddViewState extends State<ItemAddView> {
   }
 
   ItemAddParam getItemAddParam(String thumbnailPath, String imagePath) {
-    int? num = numController.text.isNotEmpty ? int.parse(numController.text) : null;
+    int? categoryId = categoryController.text.isNotEmpty ? int.parse(categoryController.text) : null;
+    String? unitSku = unitSkuController.text.isNotEmpty ? unitSkuController.text : null;
+    String? expiration = expirationController.text.isNotEmpty ? DateUtil.convertToLocalDateTime(expirationController.text) : null;
+    int? num = numController.text.isNotEmpty ? int.parse(numController.text) : 1;
     int? stockQuantity = stockQuantityController.text.isNotEmpty ? int.parse(stockQuantityController.text) : null;
+    int? amount = amountController.text.isNotEmpty ? int.parse(amountController.text) : 0;
     int? period = periodController.text.isNotEmpty ? int.parse(periodController.text) : null;
-    String? expiration = expirationController.text.isNotEmpty ? expirationController.text : null;
 
     return ItemAddParam(
-        categoryId: categoryId,
+        categoryId: categoryId!,
         sku: skuController.text,
-        unitSku: unitSkuController.text,
+        unitSku: unitSku,
         name: nameController.text,
         description: descController.text,
         num: num,
@@ -146,11 +149,11 @@ class _ItemAddViewState extends State<ItemAddView> {
         thumbnail: thumbnailPath,
         image: imagePath,
         info: infoController.text,
-        periodType: periodType.value,
+        periodType: periodType,
         period: period,
         expiration: expiration,
-        currencyType: currencyType.value,
-        amount: int.parse(amountController.text)
+        currencyType: currencyType,
+        amount: amount
     );
   }
 
@@ -164,6 +167,10 @@ class _ItemAddViewState extends State<ItemAddView> {
       throw CustomException(ErrorCode.ITEM_NAME_EMPTY);
     }
 
+    if (categoryController.text.isEmpty) {
+      throw CustomException(ErrorCode.ITEM_CATEGORY_EMPTY);
+    }
+
     if (descController.text.isEmpty) {
       throw CustomException(ErrorCode.ITEM_DESC_EMPTY);
     }
@@ -172,27 +179,19 @@ class _ItemAddViewState extends State<ItemAddView> {
       throw CustomException(ErrorCode.ITEM_INFO_EMPTY);
     }
 
-    if (periodType != ItemPeriodType.none && (periodController.text.isEmpty)) {
-      throw CustomException(ErrorCode.INVALID_PERIOD_PARAMETER);
-    }
-
-    if (periodType == ItemPeriodType.none) {
-      periodController.text = '';
-    }
-
-    if (expirationController.text.isNotEmpty) {
-      DateTime selectDate = DateUtil.convertStringToDateTime(expirationController.text);
-      if (selectDate.isBefore(DateTime.now())) {
-        throw CustomException(ErrorCode.INVALID_EXPIRATION_PARAMETER);
+    if (periodType == ItemPeriodType.DAY || periodType == ItemPeriodType.MONTH) {
+      if(periodController.text.isEmpty){
+        throw CustomException(ErrorCode.INVALID_PERIOD_PARAMETER);
       }
     }
 
-    if (amountController.text.isEmpty) {
-      throw CustomException(ErrorCode.ITEM_AMOUNT_EMPTY);
+    if(periodType == ItemPeriodType.EXPIRATION && expirationController.text.isEmpty){
+      throw CustomException(ErrorCode.INVALID_PERIOD_PARAMETER);
     }
 
-    if (categoryId.isNaN) {
-      throw CustomException(ErrorCode.ITEM_CATEGORY_EMPTY);
+    if (periodType == ItemPeriodType.NONE) {
+      periodController.clear();
+      expirationController.clear();
     }
 
     if (thumbnailPath == null) {
@@ -207,7 +206,6 @@ class _ItemAddViewState extends State<ItemAddView> {
   @override
   void initState() {
     super.initState();
-    categoryList = getAllCategoryList();
   }
 
   @override
@@ -215,6 +213,7 @@ class _ItemAddViewState extends State<ItemAddView> {
     skuController.dispose();
     nameController.dispose();
     unitSkuController.dispose();
+    categoryController.dispose();
     numController.dispose();
     stockQuantityController.dispose();
     descController.dispose();
@@ -230,264 +229,90 @@ class _ItemAddViewState extends State<ItemAddView> {
     const _lg = 4;
     const _md = 6;
 
-    final AcnooDropdownStyle _dropdownStyle = AcnooDropdownStyle(context);
-    final ThemeData _theme = Theme.of(context);
-    final _textTheme = Theme.of(context).textTheme;
-    final _sizeInfo = SizeConfig.getSizeInfo(context);
-    final l.S lang = l.S.of(context);
+    lang = l.S.of(context);
+    theme = Theme.of(context);
+    textTheme = theme.textTheme;
+    SizeInfo sizeInfo = SizeConfig.getSizeInfo(context);
 
     return Scaffold(
       body: ListView(
-        padding: _sizeInfo.padding,
+        padding: sizeInfo.padding,
         children: [
           // Input Example
           ShadowContainer(
-            // headerText: 'Input Example',
             headerText: lang.item,
             child: ResponsiveGridRow(
               children: [
                 //SKU
-                ResponsiveGridCol(
-                  lg: _lg,
-                  md: _md,
-                  child: Padding(
-                    padding:
-                    EdgeInsetsDirectional.all(_sizeInfo.innerSpacing / 2),
-                    child: TextFieldLabelWrapper(
-                      labelText: lang.sku,
-                      inputField: TextFormField(
-                        controller: skuController,
-                        decoration: InputDecoration(hintText: lang.sku),
-                      ),
-                    ),
-                  ),
+                buildTextField(
+                    sizeInfo: sizeInfo,
+                    labelText: lang.sku,
+                    invalidText: lang.invalidSku,
+                    hintText: lang.hintSku,
+                    controller: skuController
                 ),
 
                 //NAME
-                ResponsiveGridCol(
-                  lg: _lg,
-                  md: _md,
-                  child: Padding(
-                    padding:
-                    EdgeInsetsDirectional.all(_sizeInfo.innerSpacing / 2),
-                    child: TextFieldLabelWrapper(
-                      labelText: lang.name,
-                      inputField: TextFormField(
-                        controller: nameController,
-                        decoration: InputDecoration(hintText: lang.name),
-                      ),
-                    ),
-                  ),
+                buildTextField(
+                    sizeInfo: sizeInfo,
+                    labelText: lang.name,
+                    invalidText: lang.invalidName,
+                    hintText: lang.hintName,
+                    controller: nameController
                 ),
 
                 //UNIT SKU
-                ResponsiveGridCol(
-                  lg: _lg,
-                  md: _md,
-                  child: Padding(
-                    padding:
-                    EdgeInsetsDirectional.all(_sizeInfo.innerSpacing / 2),
-                    child: TextFieldLabelWrapper(
-                      labelText: lang.itemUnitSku,
-                      inputField: TextFormField(
-                        readOnly: true,
-                        controller: unitSkuController,
-                        decoration: InputDecoration(
-                          hintText: lang.itemUnitSku,
-                          filled: true,
-                          fillColor: _theme
-                              .colorScheme.tertiaryContainer,
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                                Icons.search,
-                                color: _theme.colorScheme.primary
-                            ),
-                            onPressed: () {
-                              showSearchDialog(context);
-                            },
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                buildSearchField(
+                    sizeInfo: sizeInfo,
+                    labelText: lang.itemUnitSku,
+                    controller: unitSkuController,
+                    callBack: () => showUnitSearchDialog(context)
                 ),
 
                 //CATEGORY
-                ResponsiveGridCol(
-                  lg: _lg,
-                  md: _md,
-                  child: Padding(
-                    padding:
-                        EdgeInsetsDirectional.all(_sizeInfo.innerSpacing / 2),
-                    child: FutureBuilderFactory.createFutureBuilder(
-                        future: categoryList,
-                        onSuccess: (context, categoryList) {
-                          return TextFieldLabelWrapper(
-                            labelText: lang.category,
-                            inputField: DropdownButtonFormField2(
-                              menuItemStyleData: _dropdownStyle.menuItemStyle,
-                              buttonStyleData: _dropdownStyle.buttonStyle,
-                              iconStyleData: _dropdownStyle.iconStyle,
-                              dropdownStyleData: _dropdownStyle.dropdownStyle,
-                              hint: Text(lang.select),
-                              items: List.generate(
-                                categoryList.length,
-                                (index) => DropdownMenuItem(
-                                  value: categoryList[index].id,
-                                  child: Text(categoryList[index].name),
-                                ),
-                              ),
-                              onChanged: (value) {
-                                categoryId = value!;
-                              },
-                            ),
-                          );
-                        }),
-                  ),
+                buildSearchField(
+                    sizeInfo: sizeInfo,
+                    labelText: lang.categoryId,
+                    controller: categoryController,
+                    callBack: () => showCategorySearchDialog(context)
                 ),
 
                 // NUM
-                ResponsiveGridCol(
-                  lg: _lg,
-                  md: _md,
-                  child: Padding(
-                    padding:
-                        EdgeInsetsDirectional.all(_sizeInfo.innerSpacing / 2),
-                    child: StatefulBuilder(
-                      builder: (context, setState) {
-                        return TextFieldLabelWrapper(
-                          labelText: lang.num,
-                          inputField: TextFormField(
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly
-                            ],
-                            controller: numController,
-                            decoration: InputDecoration(hintText: lang.num),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
+                buildDigitField(
+                    sizeInfo: sizeInfo,
+                    labelText: lang.num,
+                    hintText: lang.hintNum,
+                    controller: numController
                 ),
 
                 // STOCK QUANTITY
-                ResponsiveGridCol(
-                  lg: _lg,
-                  md: _md,
-                  child: Padding(
-                    padding:
-                        EdgeInsetsDirectional.all(_sizeInfo.innerSpacing / 2),
-                    child: StatefulBuilder(
-                      builder: (context, setState) {
-                        return TextFieldLabelWrapper(
-                          labelText: lang.stockQuantity,
-                          inputField: TextFormField(
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly
-                            ],
-                            controller: stockQuantityController,
-                            decoration:
-                                InputDecoration(hintText: lang.stockQuantity),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
+                buildDigitField(
+                    sizeInfo: sizeInfo,
+                    labelText: lang.stockQuantity,
+                    hintText: lang.hintStockQuantity,
+                    controller: stockQuantityController
                 ),
 
                 // DESCRIPTION
-                ResponsiveGridCol(
-                  lg: _lg,
-                  md: _md,
-                  child: Padding(
-                    padding:
-                        EdgeInsetsDirectional.all(_sizeInfo.innerSpacing / 2),
-                    child: TextFieldLabelWrapper(
-                      labelText: lang.description,
-                      inputField: TextFormField(
-                        maxLines: 2,
-                        controller: descController,
-                        decoration: InputDecoration(
-                          hintText: lang.description,
-                        ),
-                      ),
-                    ),
-                  ),
+                buildTextField(
+                    sizeInfo: sizeInfo,
+                    labelText: lang.description,
+                    hintText: lang.hintDescription,
+                    invalidText: lang.invalidDescription,
+                    controller: descController
                 ),
 
                 // INFO
-                ResponsiveGridCol(
-                  lg: _lg,
-                  md: _md,
-                  child: Padding(
-                    padding:
-                        EdgeInsetsDirectional.all(_sizeInfo.innerSpacing / 2),
-                    child: TextFieldLabelWrapper(
-                      labelText: lang.info,
-                      inputField: TextFormField(
-                        maxLines: 2,
-                        controller: infoController,
-                        decoration: InputDecoration(
-                          hintText: lang.info,
-                        ),
-                      ),
-                    ),
-                  ),
+                buildTextField(
+                    sizeInfo: sizeInfo,
+                    labelText: lang.info,
+                    hintText: lang.hintInfo,
+                    invalidText: lang.invalidInfo,
+                    controller: infoController
                 ),
 
-                //EXPIRATION
-                ResponsiveGridCol(
-                  lg: _lg,
-                  md: _md,
-                  child: Padding(
-                    padding:
-                        EdgeInsetsDirectional.all(_sizeInfo.innerSpacing / 2),
-                    child: TextFieldLabelWrapper(
-                      labelText: lang.expiration,
-                      inputField: TextFormField(
-                        controller: expirationController,
-                        keyboardType: TextInputType.visiblePassword,
-                        readOnly: true,
-                        selectionControls: EmptyTextSelectionControls(),
-                        decoration: InputDecoration(
-                          labelText: l.S.of(context).startDate,
-                          labelStyle: _textTheme.bodySmall?.copyWith(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w400,
-                          ),
-                          hintText: 'yyyy-MM-ddTHH:mm:ss',//'mm/dd/yyyy',
-                          suffixIcon:
-                          const Icon(IconlyLight.calendar, size: 20),
-                        ),
-                        onTap: () async {
-                          final _result = await showDatePicker(
-                            context: context,
-                            firstDate: AppDateConfig.appFirstDate,
-                            lastDate: AppDateConfig.appLastDate,
-                            initialDate: DateTime.now(),
-                            builder: (context, child) => Theme(
-                              data: _theme.copyWith(
-                                datePickerTheme: DatePickerThemeData(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                ),
-                              ),
-                              child: child!,
-                            ),
-                          );
-                          if (_result != null) {
-                            expirationController.text = DateFormat(
-                              AppDateConfig.localDateTimeFormat,
-                            ).format(_result);
-                          }
-                        },
-                      ),
-                    ),
-                  ),
-                ),
+                // EMPTY
+                buildEmptyField(sizeInfo: sizeInfo),
 
                 // CURRENCY TYPE
                 ResponsiveGridCol(
@@ -495,16 +320,16 @@ class _ItemAddViewState extends State<ItemAddView> {
                   md: _md,
                   child: Padding(
                     padding:
-                        EdgeInsetsDirectional.all(_sizeInfo.innerSpacing / 2),
+                        EdgeInsetsDirectional.all(sizeInfo.innerSpacing / 2),
                     child: TextFieldLabelWrapper(
                       labelText: lang.type,
                       inputField: DropdownButtonFormField<CurrencyType>(
-                        dropdownColor: _theme.colorScheme.primaryContainer,
+                        dropdownColor: theme.colorScheme.primaryContainer,
                         value: currencyType,
                         hint: Text(
                           lang.type,
                           //'Currency Type',
-                          style: _textTheme.bodySmall,
+                          style: textTheme.bodySmall,
                         ),
                         items: CurrencyType.values.map((type) {
                           return DropdownMenuItem<CurrencyType>(
@@ -525,39 +350,15 @@ class _ItemAddViewState extends State<ItemAddView> {
                 ),
 
                 // AMOUNT
-                ResponsiveGridCol(
-                  lg: _lg,
-                  md: _md,
-                  child: Padding(
-                    padding:
-                        EdgeInsetsDirectional.all(_sizeInfo.innerSpacing / 2),
-                    child: StatefulBuilder(
-                      builder: (context, setState) {
-                        return TextFieldLabelWrapper(
-                          labelText: lang.amount,
-                          inputField: TextFormField(
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly
-                            ],
-                            controller: amountController,
-                            decoration: InputDecoration(hintText: lang.amount),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
+                buildDigitField(
+                    sizeInfo: sizeInfo,
+                    labelText: lang.amount,
+                    hintText: lang.amount,
+                    controller: amountController
                 ),
 
                 // EMPTY
-                ResponsiveGridCol(
-                  lg: _lg,
-                  md: _md,
-                  child: Padding(
-                    padding:
-                        EdgeInsetsDirectional.all(_sizeInfo.innerSpacing / 2),
-                  ),
-                ),
+                buildEmptyField(sizeInfo: sizeInfo),
 
                 // PERIOD TYPE
                 ResponsiveGridCol(
@@ -565,16 +366,16 @@ class _ItemAddViewState extends State<ItemAddView> {
                   md: _md,
                   child: Padding(
                     padding:
-                        EdgeInsetsDirectional.all(_sizeInfo.innerSpacing / 2),
+                        EdgeInsetsDirectional.all(sizeInfo.innerSpacing / 2),
                     child: TextFieldLabelWrapper(
                       labelText: lang.periodType,
                       inputField: DropdownButtonFormField<ItemPeriodType>(
-                        dropdownColor: _theme.colorScheme.primaryContainer,
+                        dropdownColor: theme.colorScheme.primaryContainer,
                         value: periodType,
                         hint: Text(
                           lang.type,
                           //'Currency Type',
-                          style: _textTheme.bodySmall,
+                          style: textTheme.bodySmall,
                         ),
                         items: ItemPeriodType.values.map((type) {
                           return DropdownMenuItem<ItemPeriodType>(
@@ -594,121 +395,85 @@ class _ItemAddViewState extends State<ItemAddView> {
                   ),
                 ),
 
-                periodType != ItemPeriodType.none ?
-                    // PERIOD
-                    ResponsiveGridCol(
-                        lg: _lg,
-                        md: _md,
-                        child: Padding(
-                          padding: EdgeInsetsDirectional.all(
-                              _sizeInfo.innerSpacing / 2),
-                          child: StatefulBuilder(
-                            builder: (context, setState) {
-                              return TextFieldLabelWrapper(
-                                labelText: lang.period,
-                                inputField: TextFormField(
-                                  keyboardType: TextInputType.number,
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.digitsOnly
-                                  ],
-                                  controller: periodController,
-                                  decoration:
-                                      InputDecoration(hintText: lang.period),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      )
-                    : // EMPTY
-                    ResponsiveGridCol(
-                        lg: _lg,
-                        md: _md,
-                        child: Padding(
-                          padding: EdgeInsetsDirectional.all(
-                              _sizeInfo.innerSpacing / 2),
-                        ),
-                      ),
+                //PERIOD OR EXPIRATION
+                selectPeriodField(sizeInfo),
 
-                //EMPTY
-                ResponsiveGridCol(
-                  lg: _lg,
-                  md: _md,
-                  child: Padding(
-                    padding:
-                        EdgeInsetsDirectional.all(_sizeInfo.innerSpacing / 2),
-                  ),
-                ),
+                // EMPTY
+                buildEmptyField(sizeInfo: sizeInfo),
 
                 ResponsiveGridCol(
                   lg: _lg,
                   md: _md,
                   child: Padding(
                       padding:
-                          EdgeInsetsDirectional.all(_sizeInfo.innerSpacing / 2),
+                          EdgeInsetsDirectional.all(sizeInfo.innerSpacing / 2),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          TextFieldLabelWrapper(
-                            labelText: lang.thumbnail,
-                            inputField: DottedBorderContainer(
-                              child: GestureDetector(
-                                onTap: () => pickImage(ImageSelectType.thumbnail),
-                                child: thumbnailPath == null
-                                    ? Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.camera_alt_outlined,
-                                      color: _theme.colorScheme.onTertiary,
-                                    ),
-                                    Text(lang.uploadImage),
-                                  ],
-                                )
-                                    : ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: Image.network(
-                                      thumbnailPath!,
-                                      width: 120,
-                                      height: 120,
-                                      fit: BoxFit.cover,
-                                    )),
+                          Expanded(
+                              child: TextFieldLabelWrapper(
+                                labelText: lang.thumbnail,
+                                inputField: DottedBorderContainer(
+                                  child: GestureDetector(
+                                    onTap: () => pickImage(ImageSelectType.THUMBNAIL),
+                                    child: thumbnailPath == null
+                                        ? Column(
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.camera_alt_outlined,
+                                          color: theme.colorScheme.onTertiary,
+                                        ),
+                                        Text(lang.uploadImage),
+                                      ],
+                                    )
+                                        : ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: Image.network(
+                                          thumbnailPath!,
+                                          width: 120,
+                                          height: 120,
+                                          fit: BoxFit.cover,
+                                        )),
+                                  ),
+                                ),
                               ),
-                            ),
                           ),
 
                           const SizedBox(width: 100),
 
-                          TextFieldLabelWrapper(
-                            labelText: lang.image,
-                            inputField: DottedBorderContainer(
-                              child: GestureDetector(
-                                onTap: () => pickImage(ImageSelectType.image),
-                                child: imagePath == null
-                                    ? Column(
-                                  crossAxisAlignment:
-                                  CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.camera_alt_outlined,
-                                      color: _theme.colorScheme.onTertiary,
-                                    ),
-                                    Text(lang.uploadImage),
-                                  ],
-                                )
-                                    : ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: Image.network(
-                                      imagePath!,
-                                      width: 120,
-                                      height: 120,
-                                      fit: BoxFit.cover,
-                                    )),
+                          Expanded(
+                              child: TextFieldLabelWrapper(
+                                labelText: lang.image,
+                                inputField: DottedBorderContainer(
+                                  child: GestureDetector(
+                                    onTap: () => pickImage(ImageSelectType.IMAGE),
+                                    child: imagePath == null
+                                        ? Column(
+                                      crossAxisAlignment:
+                                      CrossAxisAlignment.center,
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.camera_alt_outlined,
+                                          color: theme.colorScheme.onTertiary,
+                                        ),
+                                        Text(lang.uploadImage),
+                                      ],
+                                    )
+                                        : ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: Image.network(
+                                          imagePath!,
+                                          width: 120,
+                                          height: 120,
+                                          fit: BoxFit.cover,
+                                        )),
+                                  ),
+                                ),
                               ),
-                            ),
                           ),
                         ],
                       )),
@@ -716,15 +481,17 @@ class _ItemAddViewState extends State<ItemAddView> {
               ],
             ),
           ),
-          SizedBox(height: _sizeInfo.innerSpacing), // 간격 추가
+
+          SizedBox(height: sizeInfo.innerSpacing),
+
           Padding(
-            padding: EdgeInsets.all(_sizeInfo.innerSpacing),
+            padding: EdgeInsets.all(sizeInfo.innerSpacing),
             child: Align(
-              alignment: Alignment.centerLeft, // 버튼을 가운데 정렬
+              alignment: Alignment.centerLeft,
               child: SizedBox(
-                width: 200, // 버튼 너비를 200px로 제한 (원하는 크기로 조정 가능)
+                width: 200,
                 child: CustomButton(
-                  textTheme: _textTheme,
+                  textTheme: textTheme,
                   label: lang.addNewItem,
                   onPressed: () => addItem(),
                 ),
@@ -736,7 +503,168 @@ class _ItemAddViewState extends State<ItemAddView> {
     );
   }
 
-  void showSearchDialog(BuildContext context) async {
+  ResponsiveGridCol selectPeriodField(SizeInfo sizeInfo) {
+    switch(periodType){
+      case ItemPeriodType.NONE:
+        return buildEmptyField(sizeInfo: sizeInfo);
+      case ItemPeriodType.DAY || ItemPeriodType.MONTH:
+        return buildDigitField(
+            sizeInfo: sizeInfo,
+            labelText: lang.period,
+            hintText: lang.hintPeriod,
+            controller: periodController
+        );
+      case ItemPeriodType.EXPIRATION:
+        return buildDateField(
+            sizeInfo: sizeInfo,
+            labelText: lang.expiration,
+            controller: expirationController
+        );
+    }
+  }
+
+  ResponsiveGridCol buildSearchField({required SizeInfo sizeInfo, required String labelText, required TextEditingController controller, required VoidCallback callBack}){
+    return ResponsiveGridCol(
+      lg: 4,
+      md: 6,
+      child: Padding(
+        padding: EdgeInsetsDirectional.all(sizeInfo.innerSpacing / 2),
+        child: TextFieldLabelWrapper(
+          labelText: labelText,
+          inputField: TextFormField(
+            readOnly: true,
+            controller: controller,
+            decoration: InputDecoration(
+              hintText: lang.search,
+              filled: true,
+              fillColor: theme.colorScheme.tertiaryContainer,
+              suffixIcon: IconButton(
+                icon: Icon(
+                    Icons.search,
+                    color: theme.colorScheme.primary
+                ),
+                onPressed: () {
+                  callBack();
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  ResponsiveGridCol buildTextField({required SizeInfo sizeInfo, required String labelText, required String invalidText, required String hintText,  required TextEditingController controller}){
+    return ResponsiveGridCol(
+      lg: 4,
+      md: 6,
+      child: Padding(
+        padding: EdgeInsetsDirectional.all(sizeInfo.innerSpacing / 2),
+        child: TextFieldLabelWrapper(
+          labelText: labelText,
+          inputField: TextFormField(
+            controller: controller,
+            decoration: InputDecoration(hintText: hintText),
+            validator: (value) => value?.isEmpty ?? true ? invalidText : null,
+            autovalidateMode: AutovalidateMode.onUnfocus,
+          ),
+        ),
+      ),
+    );
+  }
+
+  ResponsiveGridCol buildDigitField({required SizeInfo sizeInfo, required String labelText, required String hintText,  required TextEditingController controller}){
+    return ResponsiveGridCol(
+      lg: 4,
+      md: 6,
+      child: Padding(
+        padding:
+        EdgeInsetsDirectional.all(sizeInfo.innerSpacing / 2),
+        child: StatefulBuilder(
+          builder: (context, setState) {
+            return TextFieldLabelWrapper(
+              labelText: labelText,
+              inputField: TextFormField(
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                controller: controller,
+                decoration: InputDecoration(hintText: hintText),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  ResponsiveGridCol buildDateField({required SizeInfo sizeInfo, required String labelText, required TextEditingController controller}){
+    return ResponsiveGridCol(
+      lg: 4,
+      md: 6,
+      child: Padding(
+        padding: EdgeInsetsDirectional.all(sizeInfo.innerSpacing / 2),
+        child: TextFieldLabelWrapper(
+          labelText: labelText,
+          inputField: Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  controller: controller,
+                  readOnly: true,
+                  selectionControls: EmptyTextSelectionControls(),
+                  decoration: InputDecoration(
+                    hintText: lang.search,
+                    suffixIcon: const Icon(IconlyLight.calendar, size: 20),
+                  ),
+                  onTap: () async {
+                    final result = await showDatePicker(
+                      context: context,
+                      firstDate: AppDateConfig.appFirstDate,
+                      lastDate: AppDateConfig.appLastDate,
+                      initialDate: DateTime.now(),
+                      builder: (context, child) => Theme(
+                        data: theme.copyWith(
+                          datePickerTheme: DatePickerThemeData(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                        ),
+                        child: child!,
+                      ),
+                    );
+                    if (result != null) {
+                      controller.text = DateFormat(DateUtil.dateTimeFormat).format(result);
+                    }
+                  },
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.refresh, size: 20),
+                onPressed: () {
+                  expirationController.clear();
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  ResponsiveGridCol buildEmptyField({required SizeInfo sizeInfo}){
+    return ResponsiveGridCol(
+      lg: 4,
+      md: 6,
+      child: Padding(
+        padding:
+        EdgeInsetsDirectional.all(sizeInfo.innerSpacing / 2),
+      ),
+    );
+  }
+
+
+  void showUnitSearchDialog(BuildContext context) async {
     ItemUnit? itemUnit = await showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -747,6 +675,21 @@ class _ItemAddViewState extends State<ItemAddView> {
     if (itemUnit != null) {
       setState(() {
         unitSkuController.text = itemUnit.sku;
+      });
+    }
+  }
+
+  void showCategorySearchDialog(BuildContext context) async {
+    Category? category = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return const SearchCategoryDialog();
+      },
+    );
+
+    if (category != null) {
+      setState(() {
+        categoryController.text = category.id.toString();
       });
     }
   }

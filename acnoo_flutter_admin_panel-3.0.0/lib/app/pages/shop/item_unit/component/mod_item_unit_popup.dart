@@ -3,6 +3,7 @@ import 'package:acnoo_flutter_admin_panel/app/core/error/custom_exception.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
 import 'package:acnoo_flutter_admin_panel/app/models/shop/item_unit/item_unit_mod_param.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
 // 🌎 Project imports:
@@ -18,6 +19,7 @@ import '../../../../core/utils/alert_util.dart';
 import '../../../../core/utils/compare_util.dart';
 import '../../../../core/utils/size_config.dart';
 import '../../../../models/shop/item_unit/item_unit.dart';
+import '../../../../widgets/textfield_wrapper/_textfield_wrapper.dart';
 import '../../../common_widget/dotted_borderer_container.dart';
 
 class ModItemUnitDialog extends StatefulWidget {
@@ -41,12 +43,17 @@ class _ModItemUnitDialogState extends State<ModItemUnitDialog> {
   final FileService fileService = FileService();
 
   //DropDown
-  ItemUnitType unitType = ItemUnitType.consumable;
+  ItemUnitType unitType = ItemUnitType.CONSUMABLE;
 
   //File
   final ImagePicker picker = ImagePicker();
   XFile? selectFile;
   String? imagePath;
+
+  //Provider
+  late l.S lang;
+  late ThemeData theme;
+  late TextTheme textTheme;
 
   //아이템 유닛 변경
   Future<void> modItemUnit() async {
@@ -57,11 +64,19 @@ class _ModItemUnitDialogState extends State<ModItemUnitDialog> {
       
       String? remoteImagePath;
       if(imagePath != widget.itemUnit.image){
-        remoteImagePath = await fileService.uploadFileTest(selectFile, FileCategory.profile, FileType.image);
+        remoteImagePath = await fileService.uploadFileTest(selectFile, FileCategory.PROFILE, FileType.IMAGE);
       }
 
       ItemUnit itemUnit = await itemUnitService.modItemUnit(widget.itemUnit.id, getItemUnitModParam(remoteImagePath));
-      AlertUtil.popupSuccessDialog(context, '아이템 유닛 정보 변경 성공');
+      AlertUtil.successDialog(
+          context: context,
+          message: lang.successModItemUnit,
+          buttonText: lang.confirm,
+          onPressed: (){
+            GoRouter.of(context).pop();
+            GoRouter.of(context).pop(true);
+          }
+      );
     } catch(e){
       ErrorHandler.handleError(e, context);
     }
@@ -75,7 +90,7 @@ class _ModItemUnitDialogState extends State<ModItemUnitDialog> {
         image: CompareUtil.compareStringValue(widget.itemUnit.image, image),
         description: CompareUtil.compareStringValue(widget.itemUnit.description, descController.text),
         attributes: CompareUtil.compareStringValue(widget.itemUnit.attributes, attributeController.text),
-        type: CompareUtil.compareStringValue(widget.itemUnit.type, unitType.value)
+        type: (widget.itemUnit.type == unitType) ? null : unitType
     );
   }
 
@@ -105,7 +120,7 @@ class _ModItemUnitDialogState extends State<ModItemUnitDialog> {
     descController.text = widget.itemUnit.description;
     attributeController.text = widget.itemUnit.attributes;
     imagePath = widget.itemUnit.image;
-    unitType = ItemUnitType.fromValue(widget.itemUnit.type);
+    unitType = widget.itemUnit.type;
   }
 
   @override
@@ -119,10 +134,10 @@ class _ModItemUnitDialogState extends State<ModItemUnitDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final lang = l.S.of(context);
     final _sizeInfo = SizeConfig.getSizeInfo(context);
-    TextTheme textTheme = Theme.of(context).textTheme;
-    final theme = Theme.of(context);
+    lang = l.S.of(context);
+    theme = Theme.of(context);
+    textTheme = Theme.of(context).textTheme;
 
     return AlertDialog(
       contentPadding: EdgeInsets.zero,
@@ -141,10 +156,9 @@ class _ModItemUnitDialogState extends State<ModItemUnitDialog> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // const Text('Form Dialog'),
-                  Text(lang.formDialog),
+                  Text(lang.modItemUnit),
                   IconButton(
-                    onPressed: () => Navigator.of(context).pop(false),
+                    onPressed: () => GoRouter.of(context).pop(false),
                     icon: const Icon(
                       Icons.close,
                       color: AcnooAppColors.kError,
@@ -198,75 +212,102 @@ class _ModItemUnitDialogState extends State<ModItemUnitDialog> {
                     const SizedBox(height: 16),
 
                     ///---------------- Text Field section
-                    Text(lang.sku, style: textTheme.bodySmall),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: skuController,
-                      decoration: InputDecoration(
-                          hintText: lang.enterYourFullName,
-                          hintStyle: textTheme.bodySmall),
-                      validator: (value) => value?.isEmpty ?? true
-                          ? lang.pleaseEnterYourFullName
-                          : null,
-                    ),
-                    const SizedBox(height: 20),
-                    Text(lang.fullName, style: textTheme.bodySmall),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: nameController,
-                      decoration: InputDecoration(
-                          hintText: lang.enterYourFullName,
-                          hintStyle: textTheme.bodySmall),
-                      validator: (value) => value?.isEmpty ?? true
-                          ? lang.pleaseEnterYourFullName
-                          : null,
-                    ),
-                    const SizedBox(height: 20),
-                    Text(lang.description, style: textTheme.bodySmall),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: descController,
-                      decoration: InputDecoration(
-                        //hintText: 'Write Something',
-                          hintText: lang.writeSomething,
-                          hintStyle: textTheme.bodySmall),
-                      maxLines: 3,
-                    ),
-                    const SizedBox(height: 20),
-                    Text(lang.attributes, style: textTheme.bodySmall),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: attributeController,
-                      decoration: InputDecoration(
-                        //hintText: 'Write Something',
-                          hintText: lang.writeSomething,
-                          hintStyle: textTheme.bodySmall),
-                      maxLines: 3,
-                    ),
-                    const SizedBox(height: 20),
-                    Text(lang.type, style: textTheme.bodySmall),
-                    const SizedBox(height: 8),
-                    DropdownButtonFormField<ItemUnitType>(
-                      dropdownColor: theme.colorScheme.primaryContainer,
-                      value: unitType,
-                      hint: Text(
-                        lang.type,
-                        //'Select Type',
-                        style: textTheme.bodySmall,
+                    //UNIT SKU
+                    TextFieldLabelWrapper(
+                      labelText: lang.itemUnitSku,
+                      inputField: TextFormField(
+                        controller: skuController,
+                        decoration: InputDecoration(
+                            hintText: lang.hintSku,
+                            hintStyle: textTheme.bodySmall),
+                        validator: (value) => value?.isEmpty ?? true
+                            ? lang.invalidSku
+                            : null,
+                        autovalidateMode: AutovalidateMode.onUnfocus,
                       ),
-                      items: ItemUnitType.values.map((type) {
-                        return DropdownMenuItem<ItemUnitType>(
-                          value: type,
-                          child: Text(type.value),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          unitType = value??ItemUnitType.consumable;
-                        });
-                      },
-                      validator: (value) =>
-                          value == null ? lang.pleaseSelectAPosition : null,
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    //UNIT SKU
+                    TextFieldLabelWrapper(
+                      labelText: lang.name,
+                      inputField: TextFormField(
+                        controller: nameController,
+                        decoration: InputDecoration(
+                            hintText: lang.hintName,
+                            hintStyle: textTheme.bodySmall),
+                        validator: (value) => value?.isEmpty ?? true
+                            ? lang.invalidName
+                            : null,
+                        autovalidateMode: AutovalidateMode.onUnfocus,
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    //DESCRIPTION
+                    TextFieldLabelWrapper(
+                      labelText: lang.description,
+                      inputField: TextFormField(
+                        controller: descController,
+                        decoration: InputDecoration(
+                            hintText: lang.hintDescription,
+                            hintStyle: textTheme.bodySmall),
+                        maxLines: 3,
+                        validator: (value) => value?.isEmpty ?? true
+                            ? lang.invalidDescription
+                            : null,
+                        autovalidateMode: AutovalidateMode.onUnfocus,
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    //ATTRIBUTE
+                    TextFieldLabelWrapper(
+                      labelText: lang.attributes,
+                      inputField: TextFormField(
+                        controller: attributeController,
+                        decoration: InputDecoration(
+                            hintText: lang.hintAttribute,
+                            hintStyle: textTheme.bodySmall),
+                        maxLines: 3,
+                        validator: (value) => value?.isEmpty ?? true
+                            ? lang.invalidAttribute
+                            : null,
+                        autovalidateMode: AutovalidateMode.onUnfocus,
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    //Type
+                    TextFieldLabelWrapper(
+                      labelText: lang.type,
+                      inputField: DropdownButtonFormField<ItemUnitType>(
+                        dropdownColor: theme.colorScheme.primaryContainer,
+                        value: unitType,
+                        hint: Text(
+                          lang.select,
+                          //'Select Type',
+                          style: textTheme.bodySmall,
+                        ),
+                        items: ItemUnitType.values.map((type) {
+                          return DropdownMenuItem<ItemUnitType>(
+                            value: type,
+                            child: Text(type.value),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            unitType = value!;
+                          });
+                        },
+                        validator: (value) =>
+                        value == null ? lang.select : null,
+                        autovalidateMode: AutovalidateMode.onUnfocus,
+                      ),
                     ),
 
                     const SizedBox(height: 24),
@@ -288,7 +329,7 @@ class _ModItemUnitDialogState extends State<ModItemUnitDialog> {
                                     ?.copyWith(color: AcnooAppColors.kError),
                                 side: const BorderSide(
                                     color: AcnooAppColors.kError)),
-                            onPressed: () => Navigator.of(context).pop(false),
+                            onPressed: () => GoRouter.of(context).pop(false),
                             label: Text(
                               lang.cancel,
                               //'Cancel',

@@ -1,22 +1,16 @@
 import 'dart:ui';
 
-import 'package:acnoo_flutter_admin_panel/app/core/service/admin/admin_service.dart';
 import 'package:flutter/material.dart';
-import 'package:responsive_grid/responsive_grid.dart';
 
 // 🌎 Project imports:
 import '../../../../../generated/l10n.dart' as l;
 import '../../../../core/utils/date_util.dart';
-import '../../../../models/admin/admin.dart';
 import '../../../../models/shop/item_unit/item_unit.dart';
 import '../../../../widgets/dialog_header/_dialog_header.dart';
 import '../../../common_widget/dotted_borderer_container.dart';
 
 class ItemUnitInfoDialog extends StatelessWidget {
-  const ItemUnitInfoDialog({
-    super.key,
-    required this.itemUnit,
-  });
+  const ItemUnitInfoDialog({super.key, required this.itemUnit});
   final ItemUnit itemUnit;
 
   @override
@@ -24,13 +18,6 @@ class ItemUnitInfoDialog extends StatelessWidget {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
     final lang = l.S.of(context);
-    final _fontSize = responsiveValue<double>(
-      context,
-      xs: 12,
-      sm: 12,
-      md: 14,
-      lg: 16,
-    );
 
     return BackdropFilter(
       filter: ImageFilter.blur(
@@ -88,7 +75,7 @@ class ItemUnitInfoDialog extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            buildProfileDetailRow(lang.sku, itemUnit.sku, textTheme),
+                            buildProfileDetailRow(lang.itemUnitSku, itemUnit.sku, textTheme),
                             _buildDivider(theme),
                             buildProfileDetailRow(lang.name, itemUnit.name, textTheme),
                             _buildDivider(theme),
@@ -96,7 +83,7 @@ class ItemUnitInfoDialog extends StatelessWidget {
                             _buildDivider(theme),
                             buildProfileDetailRow(lang.attributes, itemUnit.attributes, textTheme),
                             _buildDivider(theme),
-                            buildProfileDetailRow(lang.type, itemUnit.type, textTheme),
+                            buildProfileDetailRow(lang.type, itemUnit.type.value, textTheme),
                             _buildDivider(theme),
                             buildProfileDetailRow(lang.createdAt, DateUtil.convertDateTimeToString(itemUnit.createdAt), textTheme),
                             _buildDivider(theme),

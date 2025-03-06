@@ -1,59 +1,82 @@
 // 🐦 Flutter imports:
-import 'dart:ui';
-
+import 'package:acnoo_flutter_admin_panel/app/core/error/custom_exception.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/service/currency/currency_service.dart';
-import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/component/popup/user_currency_mod_popup.dart';
+import 'package:acnoo_flutter_admin_panel/app/core/utils/future_builder_factory.dart';
+import 'package:acnoo_flutter_admin_panel/app/models/currency/base_currency_model.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/component/popup/user_common_currency_mod_popup.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/user_manage_page/component/popup/user_diamond_mod_popup.dart';
 import 'package:flutter/material.dart';
 
-// 🌎 Project imports:
-import '../../../../../generated/l10n.dart' as l;
 import '../../../../constants/shop/item/currency_type.dart';
-import '../../../../core/theme/_app_colors.dart';
+import '../../../../core/error/error_code.dart';
+import '../../../../models/currency/chips.dart';
+import '../../../../models/currency/coins.dart';
+import '../../../../models/currency/diamonds.dart';
 
 class UserCurrencyWidget extends StatefulWidget {
-  const UserCurrencyWidget(
-      {super.key,
-      required this.padding,
-      required this.theme,
-      required this.textTheme,
-      required this.userId,
-      required this.lang});
-
+  const UserCurrencyWidget({super.key, required this.userId, required this.padding, required this.theme, required this.textTheme});
   final int userId;
   final double padding;
   final ThemeData theme;
   final TextTheme textTheme;
-  final l.S lang;
 
   @override
   State<UserCurrencyWidget> createState() => _UserCurrencyWidgetState();
 }
 
 class _UserCurrencyWidgetState extends State<UserCurrencyWidget> {
-
   //Service
   final CurrencyService currencyService = CurrencyService();
 
   //Future Model
-  late Future<int> chip;
-  late Future<int> coin;
-  late Future<int> diamond;
+  late Future<Chips> chip;
+  late Future<Coins> coin;
+  late Future<Diamonds> diamond;
 
-  //재화 정보 가져오기
-  Future<int> getCurrency(CurrencyType currencyType) async {
+  //칩 조회
+  Future<Chips> getChip() async {
     try {
-      switch (currencyType) {
-        case CurrencyType.diamond:
-          return await currencyService.getDiamond(widget.userId);
-        case CurrencyType.coin:
-          return await currencyService.getCoin(widget.userId);
-        case CurrencyType.chip:
-          return await currencyService.getChip(widget.userId);
-        default:
-          return await currencyService.getChip(widget.userId);
-      }
+      return await currencyService.getChip(widget.userId);
     } catch (e) {
+      ErrorHandler.handleError(e, context);
+      rethrow;
+    }
+  }
+
+  //코인 조회
+  Future<Coins> getCoin() async {
+    try {
+      return await currencyService.getCoin(widget.userId);
+    } catch (e) {
+      ErrorHandler.handleError(e, context);
+      rethrow;
+    }
+  }
+
+  //다이아 조회
+  Future<Diamonds> getDiamond() async {
+    try {
+      return await currencyService.getDiamond(widget.userId);
+    } catch (e) {
+      ErrorHandler.handleError(e, context);
+      rethrow;
+    }
+  }
+
+  Future<T> getCurrency<T extends BaseCurrencyModel>(CurrencyType type) async {
+    try{
+      switch(type){
+        case CurrencyType.CHIP:
+          return await currencyService.getChip(widget.userId) as T;
+        case CurrencyType.COIN:
+          return await currencyService.getCoin(widget.userId) as T;
+        case CurrencyType.DIAMOND:
+          return await currencyService.getDiamond(widget.userId) as T;
+        default:
+          throw CustomException(ErrorCode.UNKNOWN_ERROR);
+      }
+    } catch(e){
       ErrorHandler.handleError(e, context);
       rethrow;
     }
@@ -62,9 +85,9 @@ class _UserCurrencyWidgetState extends State<UserCurrencyWidget> {
   @override
   void initState() {
     super.initState();
-    chip = getCurrency(CurrencyType.chip);
-    coin = getCurrency(CurrencyType.coin);
-    diamond = getCurrency(CurrencyType.diamond);
+    chip = getCurrency(CurrencyType.CHIP);
+    coin = getCurrency(CurrencyType.COIN);
+    diamond = getCurrency(CurrencyType.DIAMOND);
   }
 
   @override
@@ -74,6 +97,7 @@ class _UserCurrencyWidgetState extends State<UserCurrencyWidget> {
 
   @override
   Widget build(BuildContext context) {
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -90,102 +114,53 @@ class _UserCurrencyWidgetState extends State<UserCurrencyWidget> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  buildFutureCurrencyRow(CurrencyType.chip, chip),
+                  buildCurrencyRow(CurrencyType.CHIP, chip),
                   buildDivider(),
-                  buildFutureCurrencyRow(CurrencyType.coin, coin),
+                  buildCurrencyRow(CurrencyType.COIN, coin),
                   buildDivider(),
-                  buildFutureCurrencyRow(CurrencyType.diamond, diamond),
+                  buildCurrencyRow(CurrencyType.DIAMOND, diamond),
                 ],
-              ),
+              )
           ),
-        ),
+        )
       ],
     );
   }
 
-  ElevatedButton modAdminButton(TextTheme textTheme, CurrencyType currencyType, int count) {
-    final lang = l.S.of(context);
-    return ElevatedButton.icon(
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.fromLTRB(14, 8, 14, 8),
-      ),
-      onPressed: () {
-        showFormDialog(context, currencyType, count);
-      },
-      label: Text(
-        lang.edit,
-        style: textTheme.bodySmall?.copyWith(
-          color: AcnooAppColors.kWhiteColor,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-
-  Widget buildFutureCurrencyRow(CurrencyType currencyType, Future<int> future) {
-    return
-      FutureBuilder<int>(
-      future: future,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
+  Widget buildCurrencyRow<T extends BaseCurrencyModel>(CurrencyType type, Future<T> model) {
+    return FutureBuilderFactory.createFutureBuilder(
+        future: model,
+        onSuccess: (context, model) {
           return Padding(
             padding: EdgeInsets.all(widget.padding),
-            child: const Center(child: CircularProgressIndicator()),
-          );
-        }
-        if (snapshot.hasError) {
-          return Padding(
-            padding: EdgeInsets.all(widget.padding),
-            child: Text('Error: ${snapshot.error}', style: widget.textTheme.bodyLarge),
-          );
-        }
-
-        final count = snapshot.data ?? 0;
-        return buildProfileDetailRow(currencyType, count);
-      },
-    );
-  }
-
-  Widget buildProfileDetailRow(CurrencyType currencyType, int count) {
-    return Padding(
-      padding: EdgeInsets.all(widget.padding),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 1,
-            child: Text(
-              currencyType.value,
-              style: widget.textTheme.bodyLarge,
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
-            ),
-          ),
-          Expanded(
-            flex: 5,
             child: Row(
               children: [
-                Text(
-                  ':',
-                  style: widget.textTheme.bodyMedium,
+                Expanded(
+                  flex: 1,
+                  child: Text(type.value),
                 ),
-                const SizedBox(width: 8.0),
-                Flexible(
-                  child: Text(
-                    count.toString() ?? "EMPTY",
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                    style: widget.textTheme.bodyLarge,
+                Expanded(
+                  flex: 4,
+                  child: Row(
+                    children: [
+                      Text(':'),
+                      const SizedBox(width: 8.0),
+                      Flexible(
+                        child: Text(model.amount.toString()),
+                      ),
+                    ],
                   ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.edit),
+                  onPressed: () {
+                    showModCurrencyDialog(type, model);
+                  },
                 ),
               ],
             ),
-          ),
-          Expanded(
-            flex: 1,
-            child: modAdminButton(widget.textTheme, currencyType, count),
-          ),
-        ],
-      ),
+          );
+        }
     );
   }
 
@@ -196,33 +171,28 @@ class _UserCurrencyWidgetState extends State<UserCurrencyWidget> {
     );
   }
 
-  void showFormDialog(BuildContext context, CurrencyType currencyType, int count) async {
+  void showModCurrencyDialog<T extends BaseCurrencyModel>(CurrencyType type, T model) async {
     bool? isSuccess = await showDialog(
       context: context,
       builder: (BuildContext context) {
-        return BackdropFilter(
-            filter: ImageFilter.blur(
-              sigmaX: 5,
-              sigmaY: 5,
-            ),
-            child: UserCurrencyModDialog(
-                userId: widget.userId,
-                currencyType: currencyType.value,
-                count: count));
+        if(type == CurrencyType.DIAMOND){
+          return UserDiamondModDialog(userId: widget.userId, diamond: model as Diamonds);
+        }
+        return UserCommonCurrencyModDialog(userId: widget.userId, type: type, amount: model.amount);
       },
     );
 
     if (isSuccess != null && isSuccess) {
       setState(() {
-        switch(currencyType){
-          case CurrencyType.chip:
-            chip = getCurrency(CurrencyType.chip);
+        switch(type){
+          case CurrencyType.CHIP:
+            chip = getCurrency(type);
             break;
-          case CurrencyType.diamond:
-            diamond = getCurrency(CurrencyType.diamond);
+          case CurrencyType.COIN:
+            coin = getCurrency(type);
             break;
-          case CurrencyType.coin:
-            coin = getCurrency(CurrencyType.coin);
+          case CurrencyType.DIAMOND:
+            diamond = getCurrency(type);
             break;
           default:
             break;

@@ -160,12 +160,12 @@ class _AdminManageRepository implements AdminManageRepository {
   }
 
   @override
-  Future<Admin> getAdmin(int adminId) async {
+  Future<AdminDetail> getAdmin(int adminId) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<Admin>(
+    final _options = _setStreamType<AdminDetail>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
@@ -176,9 +176,9 @@ class _AdminManageRepository implements AdminManageRepository {
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Admin _value;
+    late AdminDetail _value;
     try {
-      _value = Admin.fromJson(_result.data!);
+      _value = AdminDetail.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;

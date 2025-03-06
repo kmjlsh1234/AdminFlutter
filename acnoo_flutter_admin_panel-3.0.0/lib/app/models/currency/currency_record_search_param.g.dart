@@ -10,7 +10,7 @@ CurrencyRecordSearchParam _$CurrencyRecordSearchParamFromJson(
         Map<String, dynamic> json) =>
     CurrencyRecordSearchParam(
       userId: (json['userId'] as num).toInt(),
-      changeType: json['changeType'] as String?,
+      changeType: $enumDecodeNullable(_$ChangeTypeEnumMap, json['changeType']),
       startDate: json['startDate'] as String?,
       endDate: json['endDate'] as String?,
       page: (json['page'] as num).toInt(),
@@ -23,7 +23,13 @@ Map<String, dynamic> _$CurrencyRecordSearchParamToJson(
       'page': instance.page,
       'limit': instance.limit,
       'userId': instance.userId,
-      'changeType': instance.changeType,
+      'changeType': _$ChangeTypeEnumMap[instance.changeType],
       'startDate': instance.startDate,
       'endDate': instance.endDate,
     };
+
+const _$ChangeTypeEnumMap = {
+  ChangeType.NONE: 'NONE',
+  ChangeType.ADD: 'ADD',
+  ChangeType.USE: 'USE',
+};

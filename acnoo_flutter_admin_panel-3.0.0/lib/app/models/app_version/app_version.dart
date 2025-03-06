@@ -1,3 +1,5 @@
+import 'package:acnoo_flutter_admin_panel/app/constants/app_version/app_version_type.dart';
+import 'package:acnoo_flutter_admin_panel/app/constants/app_version/publish_status.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'app_version.g.dart';
@@ -6,9 +8,9 @@ part 'app_version.g.dart';
 class AppVersion {
   final int id;
   final String version;
-  final String versionType;
+  final AppVersionType versionType;
   final DateTime? publishAt;
-  final String publishStatus;
+  final PublishStatus publishStatus;
   final DateTime createdAt;
   final DateTime updatedAt;
 

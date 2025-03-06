@@ -1,19 +1,13 @@
-import 'package:acnoo_flutter_admin_panel/app/models/shop/bundle/bundle/bundle.dart';
+import 'package:acnoo_flutter_admin_panel/app/constants/search_type_enum.dart';
 
-enum BundleStatus {
-  none('NONE'),
-  ready('READY'),
-  onSale('ON_SALE'),
-  stopSelling('STOP_SELLING'),
-  removed('REMOVED'),
+enum BundleStatus implements SearchTypeEnum{
+  READY('준비 중'),
+  ON_SALE('판매 중'),
+  STOP_SELLING('판매 중지'),
+  REMOVED('제거 됨'),
   ;
+
+  @override
   final String value;
-
   const BundleStatus(this.value);
-
-  static BundleStatus fromValue(String value) {
-    return BundleStatus.values.firstWhere((type) => type.value == value,
-      orElse: () => throw ArgumentError("Invalid BundleStatus: $value"),
-    );
-  }
 }

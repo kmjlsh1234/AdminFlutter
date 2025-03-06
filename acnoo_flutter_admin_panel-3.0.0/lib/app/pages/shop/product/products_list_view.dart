@@ -4,14 +4,12 @@ import 'dart:ui';
 import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/utils/date_util.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/utils/future_builder_factory.dart';
-import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 // 🌎 Project imports:
 import '../../../../generated/l10n.dart' as l;
 import '../../../constants/shop/product/product_status.dart';
-import '../../../core/helpers/field_styles/_dropdown_styles.dart';
 import '../../../core/service/shop/product/product_service.dart';
 import '../../../core/theme/_app_colors.dart';
 import '../../../core/utils/size_config.dart';
@@ -20,6 +18,7 @@ import '../../../models/shop/product/product/product_search_param.dart';
 import '../../../widgets/pagination_widgets/_pagination_widget.dart';
 import '../../../widgets/shadow_container/_shadow_container.dart';
 import '../../common_widget/custom_button.dart';
+import '../../common_widget/generic_drop_down.dart';
 import '../../common_widget/search_form_field.dart';
 import 'component/mod_product_status_popup.dart';
 
@@ -31,7 +30,6 @@ class ProductsListView extends StatefulWidget {
 }
 
 class _ProductsListViewState extends State<ProductsListView> {
-  final ScrollController scrollController = ScrollController();
   final ProductService productService = ProductService();
 
   late Future<List<Product>> productList;
@@ -42,8 +40,13 @@ class _ProductsListViewState extends State<ProductsListView> {
   late Future<int> totalPage;
 
   //Search
-  ProductStatus productStatus = ProductStatus.none;
-  String searchValue = "";
+  ProductStatus productStatus = ProductStatus.NONE;
+  String? searchValue;
+
+  //Provider
+  late l.S lang;
+  late ThemeData theme;
+  late TextTheme textTheme;
 
   //상품 리스트 조회
   Future<List<Product>> getProductList() async {
@@ -51,7 +54,7 @@ class _ProductsListViewState extends State<ProductsListView> {
       return await productService.getProductList(getProductSearchParam());
     } catch (e) {
       ErrorHandler.handleError(e, context);
-      rethrow;
+      return [];
     }
   }
 
@@ -59,11 +62,10 @@ class _ProductsListViewState extends State<ProductsListView> {
   Future<int> getTotalCount() async {
     try {
       int count = await productService.getProductListCount(getProductSearchParam());
-      int totalPage = (count / rowsPerPage).ceil();
-      return totalPage;
+      return (count / rowsPerPage).ceil();
     } catch (e) {
       ErrorHandler.handleError(e, context);
-      rethrow;
+      return 0;
     }
   }
 
@@ -86,7 +88,7 @@ class _ProductsListViewState extends State<ProductsListView> {
 
   ProductSearchParam getProductSearchParam() {
     return ProductSearchParam(
-        searchStatus: productStatus == ProductStatus.none ? null : productStatus.value,
+        searchStatus: productStatus == ProductStatus.NONE ? null : productStatus,
         searchValue: searchValue,
         page:  currentPage,
         limit: rowsPerPage
@@ -101,16 +103,15 @@ class _ProductsListViewState extends State<ProductsListView> {
 
   @override
   void dispose() {
-    scrollController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    lang = l.S.of(context);
+    theme = Theme.of(context);
+    TextTheme textTheme = Theme.of(context).textTheme;
     final _sizeInfo = SizeConfig.getSizeInfo(context);
-    final TextTheme textTheme = Theme.of(context).textTheme;
-    final theme = Theme.of(context);
-    final lang = l.S.of(context);
 
     return Scaffold(
       body: Padding(
@@ -136,11 +137,18 @@ class _ProductsListViewState extends State<ProductsListView> {
                               children: [
                                 Expanded(
                                   flex: 1,
-                                  child: searchTypeDropDown(textTheme),
+                                  child: GenericDropDown<ProductStatus>(
+                                      labelText: lang.status,
+                                      searchType: productStatus,
+                                      searchList: ProductStatus.values,
+                                      callBack: (ProductStatus value) {
+                                        productStatus = value;
+                                      }
+                                  ),
                                 ),
                                 const SizedBox(width: 16.0),
                                 Expanded(
-                                  flex: 3,
+                                  flex: 2,
                                   child: SearchFormField(
                                       textTheme: textTheme,
                                       lang: lang,
@@ -149,7 +157,7 @@ class _ProductsListViewState extends State<ProductsListView> {
                                         loadAllData();
                                       }),
                                 ),
-                                Spacer(flex: 2),
+                                Spacer(flex: 4),
                                 CustomButton(
                                     textTheme: textTheme,
                                     label: lang.addNewProduct,
@@ -161,7 +169,6 @@ class _ProductsListViewState extends State<ProductsListView> {
 
                           //______________________________________________________________________Data_table__________________
                           SingleChildScrollView(
-                            controller: scrollController,
                             scrollDirection: Axis.horizontal,
                             child: ConstrainedBox(
                               constraints: BoxConstraints(
@@ -211,36 +218,6 @@ class _ProductsListViewState extends State<ProductsListView> {
     }
   }
 
-  ///_______________________________________________________________DropDownList___________________________________
-  Container searchTypeDropDown(TextTheme textTheme) {
-    final dropdownStyle = AcnooDropdownStyle(context);
-    return Container(
-      constraints: const BoxConstraints(maxWidth: 100, minWidth: 100),
-      child: DropdownButtonFormField2<ProductStatus>(
-        hint: Text('검색 조건'),
-        style: dropdownStyle.textStyle,
-        iconStyleData: dropdownStyle.iconStyle,
-        buttonStyleData: dropdownStyle.buttonStyle,
-        dropdownStyleData: dropdownStyle.dropdownStyle,
-        menuItemStyleData: dropdownStyle.menuItemStyle,
-        isExpanded: true,
-        value: productStatus,
-        items: ProductStatus.values.map((ProductStatus status) {
-          return DropdownMenuItem<ProductStatus>(
-            value: status,
-            child: Text(
-              status.value,
-              style: textTheme.bodySmall,
-            ),
-          );
-        }).toList(),
-        onChanged: (value) {
-          productStatus = value!;
-        },
-      ),
-    );
-  }
-
   Theme dataTable(List<Product> productList, ThemeData theme, TextTheme textTheme, l.S lang) {
     return Theme(
       data: ThemeData(
@@ -255,7 +232,7 @@ class _ProductsListViewState extends State<ProductsListView> {
         headingRowColor: WidgetStateProperty.all(theme.colorScheme.surface),
         showBottomBorder: true,
         columns: [
-          DataColumn(label: Text(lang.serial)),
+          DataColumn(label: Text(lang.productId)),
           DataColumn(label: Text(lang.name)),
           DataColumn(label: Text(lang.status)),
           DataColumn(label: Text(lang.createdAt)),
@@ -274,15 +251,15 @@ class _ProductsListViewState extends State<ProductsListView> {
                     padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                     decoration: BoxDecoration(
-                      color: data.status == ProductStatus.onSale.value
-                          ? AcnooAppColors.kSuccess.withOpacity(0.2)
-                          : AcnooAppColors.kError.withOpacity(0.2),
+                      color: data.status == ProductStatus.ON_SALE
+                          ? AcnooAppColors.kSuccess.withValues(alpha: 0.2)
+                          : AcnooAppColors.kError.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(16.0),
                     ),
                     child: Text(
-                      data.status,
+                      data.status.value,
                       style: textTheme.bodySmall?.copyWith(
-                          color: data.status == ProductStatus.onSale.value
+                          color: data.status == ProductStatus.ON_SALE
                               ? AcnooAppColors.kSuccess
                               : AcnooAppColors.kError),
                     ),

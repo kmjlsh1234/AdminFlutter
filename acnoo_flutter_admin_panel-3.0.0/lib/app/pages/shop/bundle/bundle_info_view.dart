@@ -9,6 +9,7 @@ import 'package:acnoo_flutter_admin_panel/app/pages/shop/bundle/component/bundle
 import 'package:acnoo_flutter_admin_panel/app/pages/shop/bundle/component/bundle_item_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:iconly/iconly.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -22,11 +23,11 @@ import '../../../constants/shop/item/currency_type.dart';
 import '../../../constants/shop/item/image_select_type.dart';
 import '../../../core/error/error_code.dart';
 import '../../../core/error/error_handler.dart';
-import '../../../core/helpers/field_styles/_dropdown_styles.dart';
 import '../../../core/helpers/field_styles/_input_field_styles.dart';
 import '../../../core/service/file/file_service.dart';
 import '../../../core/service/shop/bundle/bundle_service.dart';
 import '../../../core/static/_static_values.dart';
+import '../../../core/theme/_app_colors.dart';
 import '../../../core/utils/size_config.dart';
 import '../../../models/shop/bundle/bundle/bundle.dart';
 import '../../../models/shop/bundle/bundle/bundle_mod_param.dart';
@@ -78,6 +79,10 @@ class _BundleInfoViewState extends State<BundleInfoView> {
   XFile? imageFile;
   XFile? thumbnailFile;
 
+  //Provider
+  late l.S lang;
+  late ThemeData theme;
+  late TextTheme textTheme;
 
   //번들 단일 조회
   Future<Bundle> getBundle() async {
@@ -102,20 +107,27 @@ class _BundleInfoViewState extends State<BundleInfoView> {
       String remoteImagePath = currentBundle.image;
 
       if (thumbnailPath != null && (thumbnailPath != currentBundle.thumbnail)) {
-        remoteThumbnailPath = await fileService.uploadFileTest(thumbnailFile, FileCategory.profile, FileType.image);
+        remoteThumbnailPath = await fileService.uploadFileTest(thumbnailFile, FileCategory.PROFILE, FileType.IMAGE);
       }
 
       if (imagePath != null && (imagePath != currentBundle.image)) {
-        remoteImagePath = await fileService.uploadFileTest(imageFile, FileCategory.profile, FileType.image);
+        remoteImagePath = await fileService.uploadFileTest(imageFile, FileCategory.PROFILE, FileType.IMAGE);
       }
 
       //TODO: ADMIN서버에 번들 변경
       BundleModParam bundleModParam = getBundleModParam(currentBundle, remoteThumbnailPath, remoteImagePath);
       Bundle bundle = await bundleService.modBundle(widget.bundleId, bundleModParam);
-      AlertUtil.viewSuccessDialog(context, '번들 변경 성공');
-      setState(() {
-        isModState = false;
-      });
+      AlertUtil.successDialog(
+          context: context,
+          message: lang.successModBundle,
+          buttonText: lang.confirm,
+          onPressed: () {
+            setState(() {
+              GoRouter.of(context).pop();
+              this.bundle = getBundle();
+              isModState = false;
+            });
+          });
     } catch (e) {
       ErrorHandler.handleError(e, context);
     }
@@ -128,11 +140,11 @@ class _BundleInfoViewState extends State<BundleInfoView> {
       setState(() {
         if (pickFile != null) {
           switch (type) {
-            case ImageSelectType.thumbnail:
+            case ImageSelectType.THUMBNAIL:
               thumbnailFile = pickFile;
               thumbnailPath = pickFile.path;
               break;
-            case ImageSelectType.image:
+            case ImageSelectType.IMAGE:
               imageFile = pickFile;
               imagePath = pickFile.path;
               break;
@@ -154,9 +166,9 @@ class _BundleInfoViewState extends State<BundleInfoView> {
         image: CompareUtil.compareStringValue(bundle.image, image),
         info: CompareUtil.compareStringValue(bundle.info, infoController.text),
         countPerPerson: CompareUtil.compareIntValue(bundle.countPerPerson, int.tryParse(countPerPersonController.text)),
-        saleStartDate: CompareUtil.compareStringValue(DateUtil.convertDateTimeToLocalDateTime(bundle.saleStartDate), saleStartDateController.text),
-        saleEndDate: CompareUtil.compareStringValue(DateUtil.convertDateTimeToLocalDateTime(bundle.saleEndDate), saleEndDateController.text),
-        currencyType: CompareUtil.compareStringValue(bundle.currencyType, currencyType.value),
+        saleStartDate: CompareUtil.compareStringValue(DateUtil.convertDateTimeToString(bundle.saleStartDate), saleStartDateController.text),
+        saleEndDate: CompareUtil.compareStringValue(DateUtil.convertDateTimeToString(bundle.saleEndDate), saleEndDateController.text),
+        currencyType: (bundle.currencyType == currencyType) ? null : currencyType,
         amount: CompareUtil.compareIntValue(bundle.amount, int.tryParse(amountController.text)),
         originAmount: CompareUtil.compareIntValue(bundle.originAmount, int.tryParse(originAmountController.text)),
         stockQuantity: CompareUtil.compareIntValue(bundle.stockQuantity, int.tryParse(stockQuantityController.text)),
@@ -204,12 +216,12 @@ class _BundleInfoViewState extends State<BundleInfoView> {
     descController.text = bundle.description;
     infoController.text = bundle.info;
     countPerPersonController.text = bundle.countPerPerson?.toString() ?? '';
-    saleStartDateController.text = DateUtil.convertDateTimeToLocalDateTime(bundle.saleStartDate) ?? '';
-    saleEndDateController.text = DateUtil.convertDateTimeToLocalDateTime(bundle.saleEndDate) ?? '';
+    saleStartDateController.text = DateUtil.convertDateTimeToString(bundle.saleStartDate);
+    saleEndDateController.text = DateUtil.convertDateTimeToString(bundle.saleEndDate);
     amountController.text = bundle.amount.toString();
     originAmountController.text = bundle.originAmount.toString();
     stockQuantityController.text = bundle.stockQuantity?.toString() ?? '';
-    currencyType = CurrencyType.fromValue(bundle.currencyType);
+    currencyType = bundle.currencyType;
     thumbnailPath = bundle.thumbnail;
     imagePath = bundle.image;
   }
@@ -240,12 +252,11 @@ class _BundleInfoViewState extends State<BundleInfoView> {
     const _lg = 4;
     const _md = 6;
 
-    final AcnooDropdownStyle _dropdownStyle = AcnooDropdownStyle(context);
     final AcnooInputFieldStyles _inputFieldStyle = AcnooInputFieldStyles(context);
-    final ThemeData _theme = Theme.of(context);
-    final _textTheme = Theme.of(context).textTheme;
+    theme = Theme.of(context);
+    textTheme = Theme.of(context).textTheme;
     final _sizeInfo = SizeConfig.getSizeInfo(context);
-    final l.S lang = l.S.of(context);
+    lang = l.S.of(context);
 
     return FutureBuilderFactory.createFutureBuilder(
         future: bundle,
@@ -270,8 +281,15 @@ class _BundleInfoViewState extends State<BundleInfoView> {
                           child: TextFieldLabelWrapper(
                             labelText: lang.name,
                             inputField: TextFormField(
+                              enabled: isModState,
                               controller: nameController,
-                              decoration: InputDecoration(hintText: lang.name),
+                              decoration: InputDecoration(
+                                  filled: !isModState,
+                                  fillColor: theme.colorScheme.tertiaryContainer,
+                                  hintText: lang.hintName
+                              ),
+                              validator: (value) => value?.isEmpty ?? true ? lang.invalidName : null,
+                              autovalidateMode: AutovalidateMode.onUnfocus,
                             ),
                           ),
                         ),
@@ -287,8 +305,15 @@ class _BundleInfoViewState extends State<BundleInfoView> {
                           child: TextFieldLabelWrapper(
                             labelText: lang.sku,
                             inputField: TextFormField(
+                              enabled: isModState,
                               controller: skuController,
-                              decoration: InputDecoration(hintText: lang.sku),
+                              decoration: InputDecoration(
+                                  filled: !isModState,
+                                  fillColor: theme.colorScheme.tertiaryContainer,
+                                  hintText: lang.hintSku
+                              ),
+                              validator: (value) => value?.isEmpty ?? true ? lang.invalidSku : null,
+                              autovalidateMode: AutovalidateMode.onUnfocus,
                             ),
                           ),
                         ),
@@ -304,11 +329,16 @@ class _BundleInfoViewState extends State<BundleInfoView> {
                           child: TextFieldLabelWrapper(
                             labelText: lang.description,
                             inputField: TextFormField(
+                              enabled: isModState,
                               maxLines: 2,
                               controller: descController,
                               decoration: InputDecoration(
-                                hintText: lang.description,
+                                  filled: !isModState,
+                                  fillColor: theme.colorScheme.tertiaryContainer,
+                                hintText: lang.hintDescription
                               ),
+                              validator: (value) => value?.isEmpty ?? true ? lang.invalidDescription : null,
+                              autovalidateMode: AutovalidateMode.onUnfocus,
                             ),
                           ),
                         ),
@@ -324,11 +354,16 @@ class _BundleInfoViewState extends State<BundleInfoView> {
                           child: TextFieldLabelWrapper(
                             labelText: lang.info,
                             inputField: TextFormField(
+                              enabled: isModState,
                               maxLines: 2,
                               controller: infoController,
                               decoration: InputDecoration(
-                                hintText: lang.info,
+                                filled: !isModState,
+                                fillColor: theme.colorScheme.tertiaryContainer,
+                                hintText: lang.hintInfo,
                               ),
+                              validator: (value) => value?.isEmpty ?? true ? lang.invalidInfo : null,
+                              autovalidateMode: AutovalidateMode.onUnfocus,
                             ),
                           ),
                         ),
@@ -346,13 +381,18 @@ class _BundleInfoViewState extends State<BundleInfoView> {
                               return TextFieldLabelWrapper(
                                 labelText: lang.countPerPerson,
                                 inputField: TextFormField(
+                                  enabled: isModState,
                                   keyboardType: TextInputType.number,
                                   inputFormatters: [
                                     FilteringTextInputFormatter.digitsOnly
                                   ],
                                   controller: countPerPersonController,
                                   decoration:
-                                  InputDecoration(hintText: lang.countPerPerson),
+                                  InputDecoration(
+                                      filled: !isModState,
+                                      fillColor: theme.colorScheme.tertiaryContainer,
+                                      hintText: lang.hintCountPerPerson
+                                  ),
                                 ),
                               );
                             },
@@ -380,11 +420,14 @@ class _BundleInfoViewState extends State<BundleInfoView> {
                           child: TextFieldLabelWrapper(
                             labelText: lang.startDate,
                             inputField: TextFormField(
+                              enabled: isModState,
                               controller: saleStartDateController,
                               keyboardType: TextInputType.visiblePassword,
                               readOnly: true,
                               selectionControls: EmptyTextSelectionControls(),
                               decoration: InputDecoration(
+                                filled: !isModState,
+                                fillColor: theme.colorScheme.tertiaryContainer,
                                 hintText: 'mm/dd/yyyy',
                                 suffixIcon:
                                 const Icon(IconlyLight.calendar, size: 20),
@@ -398,7 +441,7 @@ class _BundleInfoViewState extends State<BundleInfoView> {
                                   lastDate: AppDateConfig.appLastDate,
                                   initialDate: DateTime.now(),
                                   builder: (context, child) => Theme(
-                                    data: _theme.copyWith(
+                                    data: theme.copyWith(
                                       datePickerTheme: DatePickerThemeData(
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(4),
@@ -411,7 +454,7 @@ class _BundleInfoViewState extends State<BundleInfoView> {
 
                                 if (_result != null) {
                                   saleStartDateController.text = DateFormat(
-                                      AppDateConfig.localDateTimeFormat)
+                                      DateUtil.localDateTimeFormat)
                                       .format(_result);
                                 }
                               },
@@ -430,11 +473,14 @@ class _BundleInfoViewState extends State<BundleInfoView> {
                           child: TextFieldLabelWrapper(
                             labelText: lang.endDate,
                             inputField: TextFormField(
+                              enabled: isModState,
                               controller: saleEndDateController,
                               keyboardType: TextInputType.visiblePassword,
                               readOnly: true,
                               selectionControls: EmptyTextSelectionControls(),
                               decoration: InputDecoration(
+                                filled: !isModState,
+                                fillColor: theme.colorScheme.tertiaryContainer,
                                 hintText: 'mm/dd/yyyy',
                                 suffixIcon:
                                 const Icon(IconlyLight.calendar, size: 20),
@@ -448,7 +494,7 @@ class _BundleInfoViewState extends State<BundleInfoView> {
                                   lastDate: AppDateConfig.appLastDate,
                                   initialDate: DateTime.now(),
                                   builder: (context, child) => Theme(
-                                    data: _theme.copyWith(
+                                    data: theme.copyWith(
                                       datePickerTheme: DatePickerThemeData(
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(4),
@@ -461,7 +507,7 @@ class _BundleInfoViewState extends State<BundleInfoView> {
 
                                 if (_result != null) {
                                   saleEndDateController.text = DateFormat(
-                                      AppDateConfig.localDateTimeFormat)
+                                      DateUtil.localDateTimeFormat)
                                       .format(_result);
                                 }
                               },
@@ -480,14 +526,20 @@ class _BundleInfoViewState extends State<BundleInfoView> {
                           child: TextFieldLabelWrapper(
                             labelText: lang.type,
                             inputField: DropdownButtonFormField<CurrencyType>(
-                              dropdownColor: _theme.colorScheme.primaryContainer,
+                              dropdownColor: theme.colorScheme.primaryContainer,
                               value: currencyType,
+                              decoration: InputDecoration(
+                                filled: !isModState,
+                                fillColor: theme.colorScheme.tertiaryContainer,
+                              ),
                               hint: Text(
                                 lang.type,
-                                style: _textTheme.bodySmall,
+                                style: textTheme.bodySmall,
+
                               ),
                               items: CurrencyType.values.map((type) {
                                 return DropdownMenuItem<CurrencyType>(
+                                  enabled: isModState,
                                   value: type,
                                   child: Text(type.value),
                                 );
@@ -516,13 +568,18 @@ class _BundleInfoViewState extends State<BundleInfoView> {
                               return TextFieldLabelWrapper(
                                 labelText: lang.amount,
                                 inputField: TextFormField(
+                                  enabled: isModState,
                                   keyboardType: TextInputType.number,
                                   inputFormatters: [
                                     FilteringTextInputFormatter.digitsOnly
                                   ],
                                   controller: amountController,
                                   decoration:
-                                  InputDecoration(hintText: lang.amount),
+                                  InputDecoration(
+                                      filled: !isModState,
+                                      fillColor: theme.colorScheme.tertiaryContainer,
+                                      hintText: lang.hintAmount
+                                  ),
                                 ),
                               );
                             },
@@ -542,13 +599,18 @@ class _BundleInfoViewState extends State<BundleInfoView> {
                               return TextFieldLabelWrapper(
                                 labelText: lang.originAmount,
                                 inputField: TextFormField(
+                                  enabled: isModState,
                                   keyboardType: TextInputType.number,
                                   inputFormatters: [
                                     FilteringTextInputFormatter.digitsOnly
                                   ],
                                   controller: originAmountController,
                                   decoration:
-                                  InputDecoration(hintText: lang.originAmount),
+                                  InputDecoration(
+                                      filled: !isModState,
+                                      fillColor: theme.colorScheme.tertiaryContainer,
+                                      hintText: lang.hintOriginAmount
+                                  ),
                                 ),
                               );
                             },
@@ -568,13 +630,18 @@ class _BundleInfoViewState extends State<BundleInfoView> {
                               return TextFieldLabelWrapper(
                                 labelText: lang.stockQuantity,
                                 inputField: TextFormField(
+                                  enabled: isModState,
                                   keyboardType: TextInputType.number,
                                   inputFormatters: [
                                     FilteringTextInputFormatter.digitsOnly
                                   ],
                                   controller: stockQuantityController,
                                   decoration:
-                                  InputDecoration(hintText: lang.stockQuantity),
+                                  InputDecoration(
+                                      filled: !isModState,
+                                      fillColor: theme.colorScheme.tertiaryContainer,
+                                      hintText: lang.hintStockQuantity
+                                  ),
                                 ),
                               );
                             },
@@ -596,7 +663,11 @@ class _BundleInfoViewState extends State<BundleInfoView> {
                                   labelText: lang.thumbnail,
                                   inputField: DottedBorderContainer(
                                     child: GestureDetector(
-                                      onTap: () => pickImage(ImageSelectType.thumbnail),
+                                      onTap: () {
+                                        if(isModState){
+                                          pickImage(ImageSelectType.IMAGE);
+                                        }
+                                      },
                                       child: thumbnailPath == null
                                           ? Column(
                                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -604,7 +675,7 @@ class _BundleInfoViewState extends State<BundleInfoView> {
                                         children: [
                                           Icon(
                                             Icons.camera_alt_outlined,
-                                            color: _theme.colorScheme.onTertiary,
+                                            color: theme.colorScheme.onTertiary,
                                           ),
                                           Text(lang.uploadImage),
                                         ],
@@ -627,7 +698,11 @@ class _BundleInfoViewState extends State<BundleInfoView> {
                                   labelText: lang.image,
                                   inputField: DottedBorderContainer(
                                     child: GestureDetector(
-                                      onTap: () => pickImage(ImageSelectType.image),
+                                      onTap: () {
+                                        if(isModState){
+                                          pickImage(ImageSelectType.IMAGE);
+                                        }
+                                      },
                                       child: imagePath == null
                                           ? Column(
                                         crossAxisAlignment:
@@ -636,7 +711,7 @@ class _BundleInfoViewState extends State<BundleInfoView> {
                                         children: [
                                           Icon(
                                             Icons.camera_alt_outlined,
-                                            color: _theme.colorScheme.onTertiary,
+                                            color: theme.colorScheme.onTertiary,
                                           ),
                                           Text(lang.uploadImage),
                                         ],
@@ -666,21 +741,51 @@ class _BundleInfoViewState extends State<BundleInfoView> {
                   child: Align(
                     alignment: Alignment.centerLeft, // 버튼을 가운데 정렬
                     child: SizedBox(
-                      width: 200, // 버튼 너비를 200px로 제한 (원하는 크기로 조정 가능)
-                      child: CustomButton(
-                        textTheme: _textTheme,
-                        label: lang.modProduct,
-                        onPressed: () {
-                          if (isModState) {
-                            modBundle(bundle);
-                          } else {
-                            setState(() {
-                              isModState = true;
-                            });
-                          }
-                        },
-                      ),
-                    ),
+                        width: 1000,
+                        child: Row(
+                          children: [
+                            CustomButton(
+                                textTheme: textTheme,
+                                label: lang.modBundle,
+                                onPressed: () => {
+                                  if (isModState)
+                                    {
+                                      modBundle(bundle),
+                                    }
+                                  else
+                                    {
+                                      setState(() {
+                                        isModState = true;
+                                      }),
+                                    }
+                                }),
+                            const SizedBox(width: 50),
+                            Visibility(
+                                visible: isModState,
+                                child: OutlinedButton.icon(
+                                  style: ElevatedButton.styleFrom(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: _sizeInfo.innerSpacing),
+                                      backgroundColor:
+                                      theme.colorScheme.primaryContainer,
+                                      textStyle: textTheme.bodySmall?.copyWith(
+                                          color: AcnooAppColors.kError),
+                                      side: const BorderSide(
+                                          color: AcnooAppColors.kError)),
+                                  onPressed: () {
+                                    setState(() {
+                                      isModState = false;
+                                      setData(bundle);
+                                    });
+                                  },
+                                  label: Text(
+                                    lang.cancel,
+                                    style: textTheme.bodySmall?.copyWith(
+                                        color: AcnooAppColors.kError),
+                                  ),
+                                ))
+                          ],
+                        )),
                   ),
                 ),
 
@@ -699,7 +804,7 @@ class _BundleInfoViewState extends State<BundleInfoView> {
   }
 
   void buildBundleCurrencyField(List<BundleCurrencyModel> bundleCurrencyList) {
-    CurrencyType currencyType = CurrencyType.diamond;
+    CurrencyType currencyType = CurrencyType.DIAMOND;
     TextEditingController countController = TextEditingController();
     bundleCurrencyList.add(
         BundleCurrencyModel(

@@ -1,7 +1,6 @@
 import 'dart:ui';
 
 import 'package:acnoo_flutter_admin_panel/app/constants/shop/item/item_period_type.dart';
-import 'package:acnoo_flutter_admin_panel/app/core/service/admin/admin_service.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_grid/responsive_grid.dart';
 
@@ -131,12 +130,12 @@ class BundleItemInfoDialog extends StatelessWidget {
                             _buildDivider(theme),
                             buildProfileDetailRow(lang.stockQuantity, item.stockQuantity?.toString() ?? '', textTheme),
                             _buildDivider(theme),
-                            buildProfileDetailRow(lang.status, item.status, textTheme),
+                            buildProfileDetailRow(lang.status, item.status.value, textTheme),
                             _buildDivider(theme),
-                            buildProfileDetailRow(lang.periodType, item.periodType, textTheme),
+                            buildProfileDetailRow(lang.periodType, item.periodType.value, textTheme),
                             _buildDivider(theme),
                             Visibility(
-                              visible: item.periodType != ItemPeriodType.none.value,
+                              visible: item.periodType != ItemPeriodType.NONE,
                                 child: Column(
                                   children: [
                                     buildProfileDetailRow(lang.period, item.period?.toString()??'', textTheme),

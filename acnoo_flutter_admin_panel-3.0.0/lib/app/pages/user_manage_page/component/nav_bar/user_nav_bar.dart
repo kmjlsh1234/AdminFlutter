@@ -15,25 +15,20 @@ class UserNavBar extends StatefulWidget {
 }
 
 class _UserNavBarState extends State<UserNavBar> {
-  List<String> get menues => UserMenu.values.map((e) => e.value).toList();
 
-  void selectMenu(String value){
-    UserMenu menu = UserMenu.values.firstWhere(
-          (menu) => menu.value == value,
-      orElse: () => UserMenu.profile,
-    );
+  void selectMenu(UserMenu menu){
 
     switch(menu){
-      case UserMenu.profile:
+      case UserMenu.PROFILE:
         GoRouter.of(context).go('/users/profile/${widget.userId}');
         break;
-      case UserMenu.currency:
+      case UserMenu.CURRENCY:
         GoRouter.of(context).go('/users/currency/${widget.userId}');
         break;
-      case UserMenu.currencyRecord:
+      case UserMenu.CURRENCY_RECORD:
         GoRouter.of(context).go('/users/currency/record/${widget.userId}');
         break;
-      case UserMenu.log:
+      case UserMenu.LOG:
         GoRouter.of(context).go('/users/log/${widget.userId}');
         break;
     }
@@ -64,13 +59,13 @@ class _UserNavBarState extends State<UserNavBar> {
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
-        children: menues.map((menu) {
-          bool isSelected = menu == widget.userMenu.value;
+        children: UserMenu.values.map((menu) {
+          bool isSelected = menu.value == widget.userMenu.value;
 
           return Padding(
             padding: EdgeInsets.symmetric(horizontal: padding / 2),
             child: SizedBox(
-              width: 150, // 버튼 크기 일정하게 유지
+              width: 150,
               child: TextButton(
                 style: TextButton.styleFrom(
                   backgroundColor: isSelected
@@ -88,7 +83,7 @@ class _UserNavBarState extends State<UserNavBar> {
                   selectMenu(menu);
                 },
                 child: Text(
-                  menu,
+                  menu.value,
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,

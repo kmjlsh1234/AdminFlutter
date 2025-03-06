@@ -98,7 +98,7 @@ class _SigninViewState extends State<SigninView> {
                   child: Column(
                     children: [
                       // Header With Logo
-                      const CompanyHeaderWidget(),
+                      //const CompanyHeaderWidget(),
 
                       // Sign in form
                       Flexible(
@@ -134,9 +134,7 @@ class _SigninViewState extends State<SigninView> {
                                           ),
                                           recognizer: TapGestureRecognizer()
                                             ..onTap = () {
-                                              context.push(
-                                                '/authentication/signup',
-                                              );
+                                              context.push('/authentication/signup',);
                                             },
                                         ),
                                       ],
@@ -213,13 +211,11 @@ class _SigninViewState extends State<SigninView> {
 
                                   // Email Field
                                   TextFieldLabelWrapper(
-                                    //labelText: 'Email',
                                     labelText: lang.email,
                                     inputField: TextFormField(
                                       controller: emailController,
                                       decoration: InputDecoration(
-                                        //hintText: 'Enter your email address',
-                                        hintText: lang.enterYourEmailAddress,
+                                        hintText: lang.hintEmail,
                                       ),
                                     ),
                                   ),
@@ -233,8 +229,7 @@ class _SigninViewState extends State<SigninView> {
                                       obscureText: !showPassword,
                                       controller: passwordController,
                                       decoration: InputDecoration(
-                                        //hintText: 'Enter your password',
-                                        hintText: lang.enterYourPassword,
+                                        hintText: lang.hintPassword,
                                         suffixIcon: IconButton(
                                           onPressed: () => setState(
                                             () => showPassword = !showPassword,

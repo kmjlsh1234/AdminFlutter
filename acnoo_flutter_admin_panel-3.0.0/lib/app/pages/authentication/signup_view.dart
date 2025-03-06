@@ -1,5 +1,4 @@
 // 🐦 Flutter imports:
-import 'package:acnoo_flutter_admin_panel/app/core/error/custom_exception.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/service/admin/admin_service.dart';
 import 'package:acnoo_flutter_admin_panel/app/models/admin/admin_join_param.dart';
 // 📦 Package imports:
@@ -11,7 +10,6 @@ import 'package:responsive_framework/responsive_framework.dart' as rf;
 
 // 🌎 Project imports:
 import '../../../generated/l10n.dart' as l;
-import '../../core/error/error_code.dart';
 import '../../core/error/error_handler.dart';
 import '../../core/helpers/fuctions/helper_functions.dart';
 import '../../core/static/static.dart';
@@ -36,7 +34,7 @@ class _SignupViewState extends State<SignupView> {
   final AdminService adminService = AdminService();
 
   //회원가입
-  Future<void> join(BuildContext context) async {
+  Future<void> join() async {
     try{
       AdminJoinParam adminJoinParam = AdminJoinParam(
           email: emailController.text,
@@ -55,6 +53,11 @@ class _SignupViewState extends State<SignupView> {
   }
 
   @override
+  void initState(){
+    super.initState();
+  }
+
+  @override
   void dispose(){
     nameController.dispose();
     emailController.dispose();
@@ -62,11 +65,6 @@ class _SignupViewState extends State<SignupView> {
     passwordCheckController.dispose();
     mobileController.dispose();
     super.dispose();
-  }
-
-  @override
-  void initState(){
-    super.initState();
   }
 
   @override
@@ -111,7 +109,7 @@ class _SignupViewState extends State<SignupView> {
                   child: Column(
                     children: [
                       // Header With Logo
-                      const CompanyHeaderWidget(),
+                      //const CompanyHeaderWidget(),
 
                       // Sign up form
                       Flexible(
@@ -318,7 +316,7 @@ class _SignupViewState extends State<SignupView> {
                                     width: double.maxFinite,
                                     child: ElevatedButton(
                                       onPressed: () {
-                                        join(context);
+                                        join();
                                       },
                                       //child: const Text('Sign Up'),
                                       child: Text(lang.signUp),

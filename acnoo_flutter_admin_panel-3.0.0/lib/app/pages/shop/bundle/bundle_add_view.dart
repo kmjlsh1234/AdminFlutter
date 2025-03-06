@@ -5,6 +5,7 @@ import 'package:acnoo_flutter_admin_panel/app/core/service/shop/bundle/bundle_se
 import 'package:acnoo_flutter_admin_panel/app/core/utils/date_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:iconly/iconly.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -18,10 +19,9 @@ import '../../../constants/shop/item/currency_type.dart';
 import '../../../constants/shop/item/image_select_type.dart';
 import '../../../core/error/error_code.dart';
 import '../../../core/error/error_handler.dart';
-import '../../../core/helpers/field_styles/_dropdown_styles.dart';
-import '../../../core/helpers/field_styles/_input_field_styles.dart';
 import '../../../core/service/file/file_service.dart';
 import '../../../core/static/_static_values.dart';
+import '../../../core/utils/alert_util.dart';
 import '../../../core/utils/size_config.dart';
 import '../../../models/shop/bundle/bundle/bundle.dart';
 import '../../../models/shop/bundle/bundle/bundle_add_param.dart';
@@ -52,7 +52,7 @@ class _BundleAddViewState extends State<BundleAddView> {
   final TextEditingController stockQuantityController = TextEditingController();
 
   //DropDown Menu
-  CurrencyType currencyType = CurrencyType.diamond;
+  CurrencyType currencyType = CurrencyType.DIAMOND;
 
   //Service
   final BundleService bundleService = BundleService();
@@ -65,6 +65,11 @@ class _BundleAddViewState extends State<BundleAddView> {
   XFile? imageFile;
   XFile? thumbnailFile;
 
+  //Provider
+  late l.S lang;
+  late ThemeData theme;
+  late TextTheme textTheme;
+
   //번들 추가
   Future<void> addBundle() async {
     try {
@@ -72,12 +77,20 @@ class _BundleAddViewState extends State<BundleAddView> {
       checkAddParameter();
 
       //TODO: 파일 서버에 파일 전송 후 경로 받기
-      String thumbnailPath = await fileService.uploadFileTest(thumbnailFile, FileCategory.profile, FileType.image);
-      String imagePath = await fileService.uploadFileTest(imageFile, FileCategory.profile, FileType.image);
+      String thumbnailPath = await fileService.uploadFileTest(thumbnailFile, FileCategory.PROFILE, FileType.IMAGE);
+      String imagePath = await fileService.uploadFileTest(imageFile, FileCategory.PROFILE, FileType.IMAGE);
 
       //TODO: ADMIN서버에 번들 추가
       Bundle bundle = await bundleService.addBundle(getBundleAddParam(thumbnailPath, imagePath));
-      showSuccessDialog(context);
+      AlertUtil.successDialog(
+          context: context,
+          message: lang.successAddBundle,
+          buttonText: lang.confirm,
+          onPressed: () {
+            GoRouter.of(context).pop();
+            GoRouter.of(context).go('/shops/bundles/bundle-list');
+          }
+      );
     } catch (e) {
       ErrorHandler.handleError(e, context);
     }
@@ -90,11 +103,11 @@ class _BundleAddViewState extends State<BundleAddView> {
       if (pickFile != null) {
         setState(() {
           switch (type) {
-            case ImageSelectType.thumbnail:
+            case ImageSelectType.THUMBNAIL:
               thumbnailFile = pickFile;
               thumbnailPath = pickFile.path;
               break;
-            case ImageSelectType.image:
+            case ImageSelectType.IMAGE:
               imageFile = pickFile;
               imagePath = pickFile.path;
               break;
@@ -107,6 +120,9 @@ class _BundleAddViewState extends State<BundleAddView> {
   }
 
   BundleAddParam getBundleAddParam(String thumbnail, String image) {
+    String? startDate = saleStartDateController.text.isNotEmpty ? DateUtil.convertToLocalDateTime(saleStartDateController.text) : null;
+    String? endDate = saleEndDateController.text.isNotEmpty ? DateUtil.convertToLocalDateTime(saleEndDateController.text) : null;
+
     return BundleAddParam(
         name: nameController.text,
         sku: skuController.text,
@@ -115,11 +131,11 @@ class _BundleAddViewState extends State<BundleAddView> {
         image: image,
         info: infoController.text,
         countPerPerson: int.tryParse(countPerPersonController.text),
-        saleStartDate: DateUtil.convertStringToLocalDateTime(saleStartDateController.text),
-        saleEndDate: DateUtil.convertStringToLocalDateTime(saleEndDateController.text),
-        currencyType: currencyType.value,
-        amount: int.parse(amountController.text),
-        originAmount: int.parse(originAmountController.text),
+        saleStartDate: startDate,
+        saleEndDate: endDate,
+        currencyType: currencyType,
+        amount: int.tryParse(amountController.text) ?? 0,
+        originAmount: int.tryParse(originAmountController.text) ?? 0,
         stockQuantity: int.tryParse(stockQuantityController.text)
     );
   }
@@ -139,14 +155,6 @@ class _BundleAddViewState extends State<BundleAddView> {
     }
 
     if (infoController.text.isEmpty) {
-      throw CustomException(ErrorCode.PRODUCT_INFO_EMPTY);
-    }
-
-    if(amountController.text.isEmpty){
-      throw CustomException(ErrorCode.PRODUCT_INFO_EMPTY);
-    }
-
-    if(originAmountController.text.isEmpty) {
       throw CustomException(ErrorCode.PRODUCT_INFO_EMPTY);
     }
 
@@ -183,14 +191,10 @@ class _BundleAddViewState extends State<BundleAddView> {
   Widget build(BuildContext context) {
     const _lg = 4;
     const _md = 6;
-
-    final AcnooDropdownStyle _dropdownStyle = AcnooDropdownStyle(context);
-    final AcnooInputFieldStyles _inputFieldStyle =
-        AcnooInputFieldStyles(context);
-    final ThemeData _theme = Theme.of(context);
-    final _textTheme = Theme.of(context).textTheme;
+    lang = l.S.of(context);
+    theme = Theme.of(context);
+    textTheme = Theme.of(context).textTheme;
     final _sizeInfo = SizeConfig.getSizeInfo(context);
-    final l.S lang = l.S.of(context);
 
     return Scaffold(
       body: ListView(
@@ -212,7 +216,9 @@ class _BundleAddViewState extends State<BundleAddView> {
                       labelText: lang.name,
                       inputField: TextFormField(
                         controller: nameController,
-                        decoration: InputDecoration(hintText: lang.name),
+                        decoration: InputDecoration(hintText: lang.hintName),
+                        validator: (value) => value?.isEmpty ?? true ? lang.invalidName : null,
+                        autovalidateMode: AutovalidateMode.onUnfocus,
                       ),
                     ),
                   ),
@@ -229,7 +235,9 @@ class _BundleAddViewState extends State<BundleAddView> {
                       labelText: lang.sku,
                       inputField: TextFormField(
                         controller: skuController,
-                        decoration: InputDecoration(hintText: lang.sku),
+                        decoration: InputDecoration(hintText: lang.hintSku),
+                        validator: (value) => value?.isEmpty ?? true ? lang.invalidSku : null,
+                        autovalidateMode: AutovalidateMode.onUnfocus,
                       ),
                     ),
                   ),
@@ -247,9 +255,9 @@ class _BundleAddViewState extends State<BundleAddView> {
                       inputField: TextFormField(
                         maxLines: 2,
                         controller: descController,
-                        decoration: InputDecoration(
-                          hintText: lang.description,
-                        ),
+                        decoration: InputDecoration(hintText: lang.hintDescription),
+                        validator: (value) => value?.isEmpty ?? true ? lang.invalidDescription : null,
+                        autovalidateMode: AutovalidateMode.onUnfocus,
                       ),
                     ),
                   ),
@@ -267,9 +275,9 @@ class _BundleAddViewState extends State<BundleAddView> {
                       inputField: TextFormField(
                         maxLines: 2,
                         controller: infoController,
-                        decoration: InputDecoration(
-                          hintText: lang.info,
-                        ),
+                        decoration: InputDecoration(hintText: lang.hintInfo),
+                        validator: (value) => value?.isEmpty ?? true ? lang.invalidInfo  : null,
+                        autovalidateMode: AutovalidateMode.onUnfocus,
                       ),
                     ),
                   ),
@@ -292,8 +300,7 @@ class _BundleAddViewState extends State<BundleAddView> {
                               FilteringTextInputFormatter.digitsOnly
                             ],
                             controller: countPerPersonController,
-                            decoration:
-                            InputDecoration(hintText: lang.countPerPerson),
+                            decoration: InputDecoration(hintText: lang.hintCountPerPerson),
                           ),
                         );
                       },
@@ -319,42 +326,48 @@ class _BundleAddViewState extends State<BundleAddView> {
                     padding:
                     EdgeInsetsDirectional.all(_sizeInfo.innerSpacing / 2),
                     child: TextFieldLabelWrapper(
-                      labelText: lang.startDate,
-                      inputField: TextFormField(
-                        controller: saleStartDateController,
-                        keyboardType: TextInputType.visiblePassword,
-                        readOnly: true,
-                        selectionControls: EmptyTextSelectionControls(),
-                        decoration: InputDecoration(
-                          hintText: 'mm/dd/yyyy',
-                          suffixIcon:
-                          const Icon(IconlyLight.calendar, size: 20),
-                          suffixIconConstraints:
-                          _inputFieldStyle.iconConstraints,
-                        ),
-                        onTap: () async {
-                          final _result = await showDatePicker(
-                            context: context,
-                            firstDate: AppDateConfig.appFirstDate,
-                            lastDate: AppDateConfig.appLastDate,
-                            initialDate: DateTime.now(),
-                            builder: (context, child) => Theme(
-                              data: _theme.copyWith(
-                                datePickerTheme: DatePickerThemeData(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                ),
+                      labelText: lang.saleStartDate,
+                      inputField: Row(
+                        children: [
+                          Expanded(
+                            child: TextFormField(
+                              controller: saleStartDateController,
+                              readOnly: true,
+                              selectionControls: EmptyTextSelectionControls(),
+                              decoration: InputDecoration(
+                                hintText: lang.search,
+                                suffixIcon: const Icon(IconlyLight.calendar, size: 20),
                               ),
-                              child: child!,
+                              onTap: () async {
+                                final result = await showDatePicker(
+                                  context: context,
+                                  firstDate: AppDateConfig.appFirstDate,
+                                  lastDate: AppDateConfig.appLastDate,
+                                  initialDate: DateTime.now(),
+                                  builder: (context, child) => Theme(
+                                    data: theme.copyWith(
+                                      datePickerTheme: DatePickerThemeData(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                      ),
+                                    ),
+                                    child: child!,
+                                  ),
+                                );
+                                if (result != null) {
+                                  saleStartDateController.text = DateFormat(DateUtil.dateTimeFormat).format(result);
+                                }
+                              },
                             ),
-                          );
-
-                          if (_result != null) {
-                            saleStartDateController.text = DateFormat(
-                                AppDateConfig.localDateTimeFormat).format(_result);
-                          }
-                        },
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.refresh, size: 20),
+                            onPressed: () {
+                              saleStartDateController.clear();
+                            },
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -368,42 +381,48 @@ class _BundleAddViewState extends State<BundleAddView> {
                     padding:
                     EdgeInsetsDirectional.all(_sizeInfo.innerSpacing / 2),
                     child: TextFieldLabelWrapper(
-                      labelText: lang.endDate,
-                      inputField: TextFormField(
-                        controller: saleEndDateController,
-                        keyboardType: TextInputType.visiblePassword,
-                        readOnly: true,
-                        selectionControls: EmptyTextSelectionControls(),
-                        decoration: InputDecoration(
-                          hintText: 'mm/dd/yyyy',
-                          suffixIcon:
-                          const Icon(IconlyLight.calendar, size: 20),
-                          suffixIconConstraints:
-                          _inputFieldStyle.iconConstraints,
-                        ),
-                        onTap: () async {
-                          final _result = await showDatePicker(
-                            context: context,
-                            firstDate: AppDateConfig.appFirstDate,
-                            lastDate: AppDateConfig.appLastDate,
-                            initialDate: DateTime.now(),
-                            builder: (context, child) => Theme(
-                              data: _theme.copyWith(
-                                datePickerTheme: DatePickerThemeData(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                ),
+                      labelText: lang.saleEndDate,
+                      inputField: Row(
+                        children: [
+                          Expanded(
+                            child: TextFormField(
+                              controller: saleEndDateController,
+                              readOnly: true,
+                              selectionControls: EmptyTextSelectionControls(),
+                              decoration: InputDecoration(
+                                hintText: lang.search,
+                                suffixIcon: const Icon(IconlyLight.calendar, size: 20),
                               ),
-                              child: child!,
+                              onTap: () async {
+                                final result = await showDatePicker(
+                                  context: context,
+                                  firstDate: AppDateConfig.appFirstDate,
+                                  lastDate: AppDateConfig.appLastDate,
+                                  initialDate: DateTime.now(),
+                                  builder: (context, child) => Theme(
+                                    data: theme.copyWith(
+                                      datePickerTheme: DatePickerThemeData(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                      ),
+                                    ),
+                                    child: child!,
+                                  ),
+                                );
+                                if (result != null) {
+                                  saleEndDateController.text = DateFormat(DateUtil.dateTimeFormat).format(result);
+                                }
+                              },
                             ),
-                          );
-
-                          if (_result != null) {
-                            saleEndDateController.text = DateFormat(
-                                AppDateConfig.localDateTimeFormat).format(_result);
-                          }
-                        },
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.refresh, size: 20),
+                            onPressed: () {
+                              saleEndDateController.clear();
+                            },
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -419,11 +438,11 @@ class _BundleAddViewState extends State<BundleAddView> {
                     child: TextFieldLabelWrapper(
                       labelText: lang.type,
                       inputField: DropdownButtonFormField<CurrencyType>(
-                        dropdownColor: _theme.colorScheme.primaryContainer,
+                        dropdownColor: theme.colorScheme.primaryContainer,
                         value: currencyType,
                         hint: Text(
                           lang.type,
-                          style: _textTheme.bodySmall,
+                          style: textTheme.bodySmall,
                         ),
                         items: CurrencyType.values.map((type) {
                           return DropdownMenuItem<CurrencyType>(
@@ -461,7 +480,7 @@ class _BundleAddViewState extends State<BundleAddView> {
                             ],
                             controller: amountController,
                             decoration:
-                            InputDecoration(hintText: lang.amount),
+                            InputDecoration(hintText: lang.hintAmount),
                           ),
                         );
                       },
@@ -487,7 +506,7 @@ class _BundleAddViewState extends State<BundleAddView> {
                             ],
                             controller: originAmountController,
                             decoration:
-                            InputDecoration(hintText: lang.originAmount),
+                            InputDecoration(hintText: lang.hintOriginAmount),
                           ),
                         );
                       },
@@ -513,7 +532,7 @@ class _BundleAddViewState extends State<BundleAddView> {
                             ],
                             controller: stockQuantityController,
                             decoration:
-                            InputDecoration(hintText: lang.stockQuantity),
+                            InputDecoration(hintText: lang.hintStockQuantity),
                           ),
                         );
                       },
@@ -535,7 +554,7 @@ class _BundleAddViewState extends State<BundleAddView> {
                             labelText: lang.thumbnail,
                             inputField: DottedBorderContainer(
                               child: GestureDetector(
-                                onTap: () => pickImage(ImageSelectType.thumbnail),
+                                onTap: () => pickImage(ImageSelectType.THUMBNAIL),
                                 child: thumbnailPath == null
                                     ? Column(
                                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -543,7 +562,7 @@ class _BundleAddViewState extends State<BundleAddView> {
                                   children: [
                                     Icon(
                                       Icons.camera_alt_outlined,
-                                      color: _theme.colorScheme.onTertiary,
+                                      color: theme.colorScheme.onTertiary,
                                     ),
                                     Text(lang.uploadImage),
                                   ],
@@ -566,7 +585,7 @@ class _BundleAddViewState extends State<BundleAddView> {
                             labelText: lang.image,
                             inputField: DottedBorderContainer(
                               child: GestureDetector(
-                                onTap: () => pickImage(ImageSelectType.image),
+                                onTap: () => pickImage(ImageSelectType.IMAGE),
                                 child: imagePath == null
                                     ? Column(
                                   crossAxisAlignment:
@@ -575,7 +594,7 @@ class _BundleAddViewState extends State<BundleAddView> {
                                   children: [
                                     Icon(
                                       Icons.camera_alt_outlined,
-                                      color: _theme.colorScheme.onTertiary,
+                                      color: theme.colorScheme.onTertiary,
                                     ),
                                     Text(lang.uploadImage),
                                   ],
@@ -605,8 +624,8 @@ class _BundleAddViewState extends State<BundleAddView> {
               child: SizedBox(
                 width: 200, // 버튼 너비를 200px로 제한 (원하는 크기로 조정 가능)
                 child: CustomButton(
-                  textTheme: _textTheme,
-                  label: lang.addNewItem,
+                  textTheme: textTheme,
+                  label: lang.addNewBundle,
                   onPressed: () => addBundle(),
                 ),
               ),
@@ -614,26 +633,6 @@ class _BundleAddViewState extends State<BundleAddView> {
           ),
         ],
       ),
-    );
-  }
-
-  void showSuccessDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(''),
-          content: Text('번들 추가 성공'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('확인'),
-            ),
-          ],
-        );
-      },
     );
   }
 }

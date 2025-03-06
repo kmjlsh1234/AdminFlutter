@@ -1,14 +1,9 @@
-enum AdminMenu{
-  profile('PROFILE'),
-  log('LOG'),
+enum AdminMenu {
+  PROFILE('관리자 프로필'),
+  LOG('관리자 로그'),
   ;
 
   final String value;
-  const AdminMenu(this.value);
 
-  static AdminMenu fromValue(String value) {
-    return AdminMenu.values.firstWhere((type) => type.value == value,
-      orElse: () => throw ArgumentError("Invalid AdminMenu: $value"),
-    );
-  }
+  const AdminMenu(this.value);
 }

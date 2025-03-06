@@ -1,3 +1,4 @@
+import 'package:acnoo_flutter_admin_panel/app/constants/shop/product/product_type.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'product_mod_param.g.dart';
@@ -9,7 +10,7 @@ class ProductModParam {
   final String? thumbnail;
   final String? image;
   final String? info;
-  final String? type;
+  final ProductType? type;
   final int? stockQuantity;
   final int? price;
   final int? originPrice;

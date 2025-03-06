@@ -1,5 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 
+import '../../../constants/shop/item_unit/item_unit_type.dart';
+
 part 'item_unit_mod_param.g.dart';
 
 @JsonSerializable(includeIfNull: true)
@@ -9,7 +11,7 @@ class ItemUnitModParam {
   final String? image;
   final String? description;
   final String? attributes;
-  final String? type;
+  final ItemUnitType? type;
 
   ItemUnitModParam({
     required this.sku,

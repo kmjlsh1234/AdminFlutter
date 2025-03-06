@@ -3,6 +3,7 @@ import 'package:retrofit/retrofit.dart';
 
 import '../../../models/admin/admin.dart';
 import '../../../models/admin/admin_add_param.dart';
+import '../../../models/admin/admin_detail.dart';
 import '../../../models/admin/admin_mod_param.dart';
 import '../../../models/admin/admin_mod_status_param.dart';
 import '../../../models/admin/admin_search_param.dart';
@@ -38,5 +39,5 @@ abstract class AdminManageRepository {
 
   //ADMIN 조회
   @GET("/admin/v1/admins/{adminId}")
-  Future<Admin> getAdmin(@Path() int adminId);
+  Future<AdminDetail> getAdmin(@Path() int adminId);
 }

@@ -1,6 +1,6 @@
 enum ImageSelectType{
-  thumbnail('THUMBNAIL'),
-  image('IMAGE'),
+  THUMBNAIL('THUMBNAIL'),
+  IMAGE('IMAGE'),
   ;
 
   final String value;

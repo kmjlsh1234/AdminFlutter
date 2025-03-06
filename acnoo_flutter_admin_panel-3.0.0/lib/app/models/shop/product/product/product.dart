@@ -1,4 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
+
+import '../../../../constants/shop/product/product_status.dart';
+import '../../../../constants/shop/product/product_type.dart';
 part 'product.g.dart';
 
 @JsonSerializable(includeIfNull: true)
@@ -6,11 +9,11 @@ class Product {
   final int id;
   final String name;
   final String description;
-  final String status;
+  final ProductStatus status;
   final String thumbnail;
   final String image;
   final String info;
-  final String type;
+  final ProductType type;
   final int? stockQuantity;
   final int price;
   final int originPrice;

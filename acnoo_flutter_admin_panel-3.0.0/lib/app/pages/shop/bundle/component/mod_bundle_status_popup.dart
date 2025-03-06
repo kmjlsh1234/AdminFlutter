@@ -1,11 +1,13 @@
 import 'package:acnoo_flutter_admin_panel/app/core/service/shop/bundle/bundle_service.dart';
 import 'package:acnoo_flutter_admin_panel/app/models/shop/bundle/bundle/bundle_mod_status_param.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../../../generated/l10n.dart' as l;
 import '../../../../constants/shop/bundle/bundle_status.dart';
 import '../../../../core/error/error_handler.dart';
 import '../../../../core/theme/_app_colors.dart';
+import '../../../../core/utils/alert_util.dart';
 import '../../../../core/utils/size_config.dart';
 import '../../../../models/shop/bundle/bundle/bundle.dart';
 
@@ -22,12 +24,25 @@ class _ModBundleStatusDialogState extends State<ModBundleStatusDialog> {
   final BundleService bundleService = BundleService();
   late BundleStatus bundleStatus;
 
+  //Provider
+  late l.S lang;
+  late ThemeData theme;
+  late TextTheme textTheme;
+
   //번들 상태 변경
   Future<void> modBundleStatus() async {
     try {
-      BundleModStatusParam bundleModStatusParam = BundleModStatusParam(status: bundleStatus.value);
+      BundleModStatusParam bundleModStatusParam = BundleModStatusParam(status: bundleStatus);
       await bundleService.modBundleStatus(widget.bundle.id, bundleModStatusParam);
-      showSuccessDialog(context);
+      AlertUtil.successDialog(
+          context: context,
+          message: lang.successModBundleStatus,
+          buttonText: lang.confirm,
+          onPressed: (){
+            GoRouter.of(context).pop();
+            GoRouter.of(context).pop(true);
+          }
+      );
     } catch (e) {
       ErrorHandler.handleError(e, context);
     }
@@ -36,15 +51,15 @@ class _ModBundleStatusDialogState extends State<ModBundleStatusDialog> {
   @override
   void initState() {
     super.initState();
-    bundleStatus = BundleStatus.fromValue(widget.bundle.status);
+    bundleStatus = widget.bundle.status;
   }
 
   @override
   Widget build(BuildContext context) {
-    final lang = l.S.of(context);
+    lang = l.S.of(context);
+    theme = Theme.of(context);
+    textTheme = Theme.of(context).textTheme;
     final _sizeInfo = SizeConfig.getSizeInfo(context);
-    TextTheme textTheme = Theme.of(context).textTheme;
-    final theme = Theme.of(context);
 
     return AlertDialog(
       contentPadding: EdgeInsets.zero,
@@ -63,9 +78,9 @@ class _ModBundleStatusDialogState extends State<ModBundleStatusDialog> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(lang.formDialog),
+                  Text(lang.modBundleStatus),
                   IconButton(
-                    onPressed: () => Navigator.of(context).pop(false),
+                    onPressed: () => GoRouter.of(context).pop(false),
                     icon: const Icon(
                       Icons.close,
                       color: AcnooAppColors.kError,
@@ -131,7 +146,7 @@ class _ModBundleStatusDialogState extends State<ModBundleStatusDialog> {
                                     ?.copyWith(color: AcnooAppColors.kError),
                                 side: const BorderSide(
                                     color: AcnooAppColors.kError)),
-                            onPressed: () => Navigator.of(context).pop(false),
+                            onPressed: () => GoRouter.of(context).pop(false),
                             label: Text(
                               lang.cancel,
                               //'Cancel',
@@ -159,27 +174,6 @@ class _ModBundleStatusDialogState extends State<ModBundleStatusDialog> {
           ],
         ),
       ),
-    );
-  }
-
-  void showSuccessDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(''),
-          content: Text('번들 상태 변경 성공'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pop(true);
-              },
-              child: Text('확인'),
-            ),
-          ],
-        );
-      },
     );
   }
 }

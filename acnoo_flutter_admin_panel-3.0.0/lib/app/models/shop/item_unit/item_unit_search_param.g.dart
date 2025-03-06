@@ -8,7 +8,8 @@ part of 'item_unit_search_param.dart';
 
 ItemUnitSearchParam _$ItemUnitSearchParamFromJson(Map<String, dynamic> json) =>
     ItemUnitSearchParam(
-      searchType: json['searchType'] as String?,
+      searchType:
+          $enumDecodeNullable(_$ItemUnitSearchTypeEnumMap, json['searchType']),
       searchValue: json['searchValue'] as String?,
       page: (json['page'] as num).toInt(),
       limit: (json['limit'] as num).toInt(),
@@ -19,6 +20,11 @@ Map<String, dynamic> _$ItemUnitSearchParamToJson(
     <String, dynamic>{
       'page': instance.page,
       'limit': instance.limit,
-      'searchType': instance.searchType,
+      'searchType': _$ItemUnitSearchTypeEnumMap[instance.searchType],
       'searchValue': instance.searchValue,
     };
+
+const _$ItemUnitSearchTypeEnumMap = {
+  ItemUnitSearchType.NAME: 'NAME',
+  ItemUnitSearchType.SKU: 'SKU',
+};

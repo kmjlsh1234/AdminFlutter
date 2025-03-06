@@ -1,9 +1,8 @@
-import 'package:acnoo_flutter_admin_panel/app/core/error/custom_exception.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../../../generated/l10n.dart' as l;
 import '../../../../constants/shop/item/item_status.dart';
-import '../../../../core/error/error_code.dart';
 import '../../../../core/error/error_handler.dart';
 import '../../../../core/service/shop/item/item_service.dart';
 import '../../../../core/theme/_app_colors.dart';
@@ -25,12 +24,25 @@ class _ModItemStatusDialogState extends State<ModItemStatusDialog> {
   final ItemService itemService = ItemService();
   late ItemStatus itemStatus;
 
+  //Provider
+  late l.S lang;
+  late ThemeData theme;
+  late TextTheme textTheme;
+
   //아이템 상태 변경
   Future<void> modItemStatus() async {
     try {
-      ItemModStatusParam itemModStatusParam = ItemModStatusParam(status: itemStatus.value);
+      ItemModStatusParam itemModStatusParam = ItemModStatusParam(status: itemStatus);
       await itemService.modItemStatus(widget.item.id, itemModStatusParam);
-      AlertUtil.popupSuccessDialog(context, '아이템 상태 변경 성공');
+      AlertUtil.successDialog(
+          context: context,
+          message: lang.successModItemStatus,
+          buttonText: lang.confirm,
+          onPressed: (){
+            GoRouter.of(context).pop();
+            GoRouter.of(context).pop(true);
+          }
+      );
     } catch (e) {
       ErrorHandler.handleError(e, context);
     }
@@ -39,15 +51,15 @@ class _ModItemStatusDialogState extends State<ModItemStatusDialog> {
   @override
   void initState() {
     super.initState();
-    itemStatus = ItemStatus.fromValue(widget.item.status);
+    itemStatus = widget.item.status;
   }
 
   @override
   Widget build(BuildContext context) {
-    final lang = l.S.of(context);
     final _sizeInfo = SizeConfig.getSizeInfo(context);
-    TextTheme textTheme = Theme.of(context).textTheme;
-    final theme = Theme.of(context);
+    lang = l.S.of(context);
+    theme = Theme.of(context);
+    textTheme = Theme.of(context).textTheme;
 
     return AlertDialog(
       contentPadding: EdgeInsets.zero,
@@ -66,10 +78,9 @@ class _ModItemStatusDialogState extends State<ModItemStatusDialog> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // const Text('Form Dialog'),
-                  Text(lang.formDialog),
+                  Text(lang.modItemStatus),
                   IconButton(
-                    onPressed: () => Navigator.of(context).pop(false),
+                    onPressed: () => GoRouter.of(context).pop(false),
                     icon: const Icon(
                       Icons.close,
                       color: AcnooAppColors.kError,
@@ -135,7 +146,7 @@ class _ModItemStatusDialogState extends State<ModItemStatusDialog> {
                                     ?.copyWith(color: AcnooAppColors.kError),
                                 side: const BorderSide(
                                     color: AcnooAppColors.kError)),
-                            onPressed: () => Navigator.of(context).pop(false),
+                            onPressed: () => GoRouter.of(context).pop(false),
                             label: Text(
                               lang.cancel,
                               //'Cancel',

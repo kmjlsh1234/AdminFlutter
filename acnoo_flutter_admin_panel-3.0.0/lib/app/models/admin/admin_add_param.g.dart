@@ -8,7 +8,7 @@ part of 'admin_add_param.dart';
 
 AdminAddParam _$AdminAddParamFromJson(Map<String, dynamic> json) =>
     AdminAddParam(
-      roleId: (json['roleId'] as num).toInt(),
+      roleId: (json['roleId'] as num?)?.toInt(),
       email: json['email'] as String,
       password: json['password'] as String,
       name: json['name'] as String,
@@ -17,7 +17,7 @@ AdminAddParam _$AdminAddParamFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$AdminAddParamToJson(AdminAddParam instance) =>
     <String, dynamic>{
-      'roleId': instance.roleId,
+      if (instance.roleId case final value?) 'roleId': value,
       'email': instance.email,
       'password': instance.password,
       'name': instance.name,

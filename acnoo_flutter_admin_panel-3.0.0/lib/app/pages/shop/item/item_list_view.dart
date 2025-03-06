@@ -7,8 +7,8 @@ import 'package:acnoo_flutter_admin_panel/app/core/utils/date_util.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/utils/future_builder_factory.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/utils/size_config.dart';
 import 'package:acnoo_flutter_admin_panel/app/pages/common_widget/custom_button.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/common_widget/generic_drop_down.dart';
 import 'package:acnoo_flutter_admin_panel/app/pages/shop/item/component/mod_item_status_popup.dart';
-import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -16,7 +16,6 @@ import 'package:go_router/go_router.dart';
 import '../../../../generated/l10n.dart' as l;
 import '../../../constants/shop/item/item_search_type.dart';
 import '../../../constants/shop/item/item_status.dart';
-import '../../../core/helpers/field_styles/_dropdown_styles.dart';
 import '../../../core/service/shop/item/item_service.dart';
 import '../../../core/theme/_app_colors.dart';
 import '../../../models/shop/item/item.dart';
@@ -43,8 +42,13 @@ class _ItemListViewState extends State<ItemListView> {
   late Future<int> totalPage;
 
   //Search
-  ItemSearchType searchType = ItemSearchType.none;
-  String searchValue = '';
+  ItemSearchType searchType = ItemSearchType.NAME;
+  String? searchValue;
+
+  //Provider
+  late l.S lang;
+  late ThemeData theme;
+  late TextTheme textTheme;
 
   //아이템 리스트 조회
   Future<List<Item>> getItemList() async {
@@ -87,7 +91,9 @@ class _ItemListViewState extends State<ItemListView> {
 
   ItemSearchParam getItemSearchParam() {
     return ItemSearchParam(
-        searchType: searchType == ItemSearchType.none ? null : searchType.value,
+        categoryId: null,
+        searchStatus: null,
+        searchType: searchType,
         searchValue: searchValue,
         page: currentPage,
         limit: rowsPerPage
@@ -108,10 +114,10 @@ class _ItemListViewState extends State<ItemListView> {
 
   @override
   Widget build(BuildContext context) {
+    lang = l.S.of(context);
+    theme = Theme.of(context);
+    textTheme = Theme.of(context).textTheme;
     final _sizeInfo = SizeConfig.getSizeInfo(context);
-    TextTheme textTheme = Theme.of(context).textTheme;
-    final theme = Theme.of(context);
-    final lang = l.S.of(context);
 
     return Scaffold(
       body: Padding(
@@ -137,11 +143,18 @@ class _ItemListViewState extends State<ItemListView> {
                               children: [
                                 Expanded(
                                   flex: 1,
-                                  child: searchTypeDropDown(textTheme: textTheme),
+                                  child: GenericDropDown<ItemSearchType>(
+                                      labelText: lang.type,
+                                      searchType: searchType,
+                                      searchList: ItemSearchType.values,
+                                      callBack: (ItemSearchType value) {
+                                        searchType = value;
+                                      }
+                                  )
                                 ),
                                 const SizedBox(width: 16.0),
                                 Expanded(
-                                  flex: 3,
+                                  flex: 2,
                                   child: SearchFormField(
                                     textTheme: textTheme,
                                     lang: lang,
@@ -151,7 +164,7 @@ class _ItemListViewState extends State<ItemListView> {
                                     },
                                   ),
                                 ),
-                                Spacer(flex: 2),
+                                Spacer(flex: 4),
                                 CustomButton(
                                     textTheme: textTheme,
                                     label: lang.addNewItem,
@@ -211,38 +224,6 @@ class _ItemListViewState extends State<ItemListView> {
     }
   }
 
-  ///_______________________________________________________________DropDownList___________________________________
-  Container searchTypeDropDown({required TextTheme textTheme}) {
-    final _dropdownStyle = AcnooDropdownStyle(context);
-    return Container(
-      constraints: const BoxConstraints(maxWidth: 100, minWidth: 100),
-      child: DropdownButtonFormField2<ItemSearchType>(
-        hint: Text('SearchType'),
-        style: _dropdownStyle.textStyle,
-        iconStyleData: _dropdownStyle.iconStyle,
-        buttonStyleData: _dropdownStyle.buttonStyle,
-        dropdownStyleData: _dropdownStyle.dropdownStyle,
-        menuItemStyleData: _dropdownStyle.menuItemStyle,
-        isExpanded: true,
-        value: searchType,
-        items: ItemSearchType.values.map((ItemSearchType searchType) {
-          return DropdownMenuItem<ItemSearchType>(
-            value: searchType,
-            child: Text(
-              searchType.value,
-              style: textTheme.bodySmall,
-            ),
-          );
-        }).toList(),
-        onChanged: (value) {
-          if (value != null) {
-            searchType = value;
-          }
-        },
-      ),
-    );
-  }
-
   Theme dataTable(List<Item> itemList, ThemeData theme, TextTheme textTheme, l.S lang) {
 
     return Theme(
@@ -257,7 +238,7 @@ class _ItemListViewState extends State<ItemListView> {
         headingRowColor: WidgetStateProperty.all(theme.colorScheme.surface),
         showBottomBorder: true,
         columns: [
-          DataColumn(label: Text(lang.serial)),
+          DataColumn(label: Text(lang.itemId)),
           DataColumn(label: Text(lang.sku)),
           DataColumn(label: Text(lang.name)),
           DataColumn(label: Text(lang.status)),
@@ -278,15 +259,15 @@ class _ItemListViewState extends State<ItemListView> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                     decoration: BoxDecoration(
-                      color: data.status == ItemStatus.onSale.value
-                          ? AcnooAppColors.kSuccess.withOpacity(0.2)
-                          : AcnooAppColors.kError.withOpacity(0.2),
+                      color: data.status == ItemStatus.ON_SALE
+                          ? AcnooAppColors.kSuccess.withValues(alpha: 0.2)
+                          : AcnooAppColors.kError.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(16.0),
                     ),
                     child: Text(
-                      data.status,
+                      data.status.value,
                       style: textTheme.bodySmall?.copyWith(
-                          color: data.status == ItemStatus.onSale.value
+                          color: data.status == ItemStatus.ON_SALE
                               ? AcnooAppColors.kSuccess
                               : AcnooAppColors.kError),
                     ),
@@ -306,8 +287,7 @@ class _ItemListViewState extends State<ItemListView> {
                           showModStatusFormDialog(data);
                           break;
                         case 'View':
-                          GoRouter.of(context)
-                              .go('/shops/item/info/${data.id}');
+                          GoRouter.of(context).go('/shops/items/info/${data.id}');
                           break;
                         case 'Delete':
                           delItem(data.id);

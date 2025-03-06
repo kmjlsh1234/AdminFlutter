@@ -3,20 +3,22 @@ import 'dart:ui';
 
 // 🐦 Flutter imports:
 import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
-import 'package:acnoo_flutter_admin_panel/app/core/utils/compare_util.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/utils/date_util.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/utils/future_builder_factory.dart';
-import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/common_widget/generic_drop_down.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:iconly/iconly.dart';
+import 'package:intl/intl.dart';
 
 // 🌎 Project imports:
 import '../../../../generated/l10n.dart' as l;
+import '../../constants/user/login_type.dart';
 import '../../constants/user/user_search_date_type.dart';
 import '../../constants/user/user_search_type.dart';
 import '../../constants/user/user_status.dart';
-import '../../core/helpers/field_styles/_dropdown_styles.dart';
 import '../../core/service/user/user_manage_service.dart';
+import '../../core/static/_static_values.dart';
 import '../../core/theme/_app_colors.dart';
 import '../../core/utils/size_config.dart';
 import '../../models/user/user_profile.dart';
@@ -48,13 +50,21 @@ class _UserListViewState extends State<UserListView> {
   late Future<int> totalPage;
 
   //Search
-  UserSearchType searchType = UserSearchType.none;
-  String searchValue = '';
+  UserStatus searchStatus = UserStatus.NORMAL;
+  LoginType loginType = LoginType.EMAIL;
+
+  UserSearchType searchType = UserSearchType.EMAIL;
+  String? searchValue;
 
   //Search_Date
-  UserSearchDateType searchDateType = UserSearchDateType.none;
+  UserSearchDateType searchDateType = UserSearchDateType.CREATED_AT;
   final TextEditingController startDateController = TextEditingController();
   final TextEditingController endDateController = TextEditingController();
+
+  //Provider
+  late l.S lang;
+  late ThemeData theme;
+  late TextTheme textTheme;
 
   //유저 리스트 조회
   Future<List<UserProfile>> getUserList() async {
@@ -62,33 +72,40 @@ class _UserListViewState extends State<UserListView> {
       return await userManageService.getUserList(getUserSearchParam());
     } catch (e) {
       ErrorHandler.handleError(e, context);
-      rethrow;
+      return [];
     }
   }
 
   //전체 페이지 갯수 조회
   Future<int> getTotalCount() async {
     try {
-      int count = await userManageService.getUserListCount(getUserSearchParam());
+      int count =
+          await userManageService.getUserListCount(getUserSearchParam());
       return (count / rowsPerPage).ceil();
     } catch (e) {
       ErrorHandler.handleError(e, context);
-      rethrow;
+      return 0;
     }
   }
 
   UserSearchParam getUserSearchParam() {
-    String? userSearchType = CompareUtil.compareStringValue(UserSearchType.none.value, searchType.value);
-    String? userSearchDateType = CompareUtil.compareStringValue(UserSearchDateType.none.value, searchDateType.value);
+    String? startDate = startDateController.text.isNotEmpty
+        ? DateUtil.convertToLocalDateTime(startDateController.text)
+        : null;
+    String? endDate = endDateController.text.isNotEmpty
+        ? DateUtil.convertToLocalDateTime(endDateController.text)
+        : null;
+
     return UserSearchParam(
-        searchType: userSearchType,
+        loginType: loginType,
+        searchStatus: searchStatus,
+        searchType: searchType,
         searchValue: searchValue,
-        searchDateType: userSearchDateType,
-        startDate: DateUtil.convertStringToLocalDateTime(startDateController.text),
-        endDate: DateUtil.convertStringToLocalDateTime(endDateController.text),
+        searchDateType: searchDateType,
+        startDate: startDate,
+        endDate: endDate,
         page: currentPage,
-        limit: rowsPerPage
-    );
+        limit: rowsPerPage);
   }
 
   void loadAllData() {
@@ -107,15 +124,17 @@ class _UserListViewState extends State<UserListView> {
   @override
   void dispose() {
     scrollController.dispose();
+    startDateController.dispose();
+    endDateController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    lang = l.S.of(context);
+    theme = Theme.of(context);
+    textTheme = Theme.of(context).textTheme;
     final _sizeInfo = SizeConfig.getSizeInfo(context);
-    final theme = Theme.of(context);
-    final TextTheme textTheme = Theme.of(context).textTheme;
-    final lang = l.S.of(context);
 
     return Scaffold(
       body: Padding(
@@ -127,62 +146,226 @@ class _UserListViewState extends State<UserListView> {
             physics: const AlwaysScrollableScrollPhysics(),
             child: LayoutBuilder(
               builder: (BuildContext context, BoxConstraints constraints) {
-                return FutureBuilderFactory.createFutureBuilder(
-                    future: userList,
-                    onSuccess: (context, userList) {
-                      return Column(
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    //______________________________________________________________________Header__________________
+                    Padding(
+                      padding: _sizeInfo.padding,
+                      child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          //______________________________________________________________________Header__________________
-                          Padding(
-                            padding: _sizeInfo.padding,
+                          Expanded(
+                            flex: 1,
+                            child: GenericDropDown<UserStatus>(
+                                labelText: lang.userStatus,
+                                searchType: searchStatus,
+                                searchList: UserStatus.values,
+                                callBack: (UserStatus value) {
+                                  searchStatus = value;
+                                }
+                            ),
+                          ),
+                          const SizedBox(width: 8.0),
+                          Expanded(
+                            flex: 1,
+                            child: GenericDropDown<LoginType>(
+                                labelText: lang.loginType,
+                                searchType: loginType,
+                                searchList: LoginType.values,
+                                callBack: (LoginType value) {
+                                  loginType = value;
+                                }
+                            ),
+                          ),
+                          const SizedBox(width: 8.0),
+                          Expanded(
+                            flex: 1,
+                            child: GenericDropDown<UserSearchType>(
+                                labelText: lang.userSearchType,
+                                searchType: searchType,
+                                searchList: UserSearchType.values,
+                                callBack: (UserSearchType value) {
+                                  searchType = value;
+                                }
+                            ),
+                          ),
+                          const SizedBox(width: 16.0),
+                          Expanded(
+                            flex: 3,
+                            child: SearchFormField(
+                                textTheme: textTheme,
+                                lang: lang,
+                                onPressed: (searchValue) {
+                                  this.searchValue = searchValue;
+                                  loadAllData();
+                                }),
+                          ),
+                          Spacer(flex: 3),
+
+                          // SEARCH DATE TYPE
+                          Expanded(
+                            flex: 1,
+                            child: GenericDropDown<UserSearchDateType>(
+                                labelText: lang.userDateSearchType,
+                                searchType: searchDateType,
+                                searchList: UserSearchDateType.values,
+                                callBack: (UserSearchDateType value) {
+                                  searchDateType = value;
+                                }
+                            ),
+                          ),
+
+                          const SizedBox(width: 8.0),
+
+                          // START DATE
+                          Expanded(
+                            flex: 1,
                             child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Expanded(
-                                  flex: 1,
-                                  child: searchTypeDropDown(textTheme),
+                                  child: TextFormField(
+                                    controller: startDateController,
+                                    readOnly: true,
+                                    selectionControls:
+                                        EmptyTextSelectionControls(),
+                                    decoration: InputDecoration(
+                                      labelText: lang.startDate,
+                                      labelStyle: textTheme.bodySmall?.copyWith(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w400,
+                                      ),
+                                      hintText: lang.search,
+                                      suffixIcon: const Icon(
+                                          IconlyLight.calendar,
+                                          size: 20), // 달력 아이콘
+                                    ),
+                                    onTap: () async {
+                                      final result = await showDatePicker(
+                                        context: context,
+                                        firstDate: AppDateConfig.appFirstDate,
+                                        lastDate: AppDateConfig.appLastDate,
+                                        initialDate: DateTime.now(),
+                                        builder: (context, child) => Theme(
+                                          data: theme.copyWith(
+                                            datePickerTheme:
+                                                DatePickerThemeData(
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(4),
+                                              ),
+                                            ),
+                                          ),
+                                          child: child!,
+                                        ),
+                                      );
+                                      if (result != null) {
+                                        startDateController.text =
+                                            DateFormat(DateUtil.dateTimeFormat)
+                                                .format(result);
+                                      }
+                                    },
+                                  ),
                                 ),
-                                const SizedBox(width: 16.0),
-                                Expanded(
-                                  flex: 3,
-                                  child: SearchFormField(
-                                      textTheme: textTheme,
-                                      lang: lang,
-                                      onPressed: (searchValue) {
-                                        this.searchValue = searchValue;
-                                        loadAllData();
-                                      }),
-                                ),
-                                Spacer(flex: 2),
                               ],
                             ),
                           ),
 
-                          //______________________________________________________________________Data_table__________________
-                          SingleChildScrollView(
-                            controller: scrollController,
-                            scrollDirection: Axis.horizontal,
-                            child: ConstrainedBox(
-                              constraints: BoxConstraints(
-                                minWidth: constraints.maxWidth,
-                              ),
-                              child: dataTable(userList, theme, textTheme, lang),
+                          const SizedBox(width: 8.0),
+
+                          //END DATE
+                          Expanded(
+                            flex: 1,
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: TextFormField(
+                                    controller: endDateController,
+                                    readOnly: true,
+                                    selectionControls:
+                                        EmptyTextSelectionControls(),
+                                    decoration: InputDecoration(
+                                      labelText: lang.endDate,
+                                      labelStyle: textTheme.bodySmall?.copyWith(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w400,
+                                      ),
+                                      hintText: lang.search,
+                                      suffixIcon: const Icon(
+                                          IconlyLight.calendar,
+                                          size: 20), // 달력 아이콘
+                                    ),
+                                    onTap: () async {
+                                      final result = await showDatePicker(
+                                        context: context,
+                                        firstDate: AppDateConfig.appFirstDate,
+                                        lastDate: AppDateConfig.appLastDate,
+                                        initialDate: DateTime.now(),
+                                        builder: (context, child) => Theme(
+                                          data: theme.copyWith(
+                                            datePickerTheme:
+                                                DatePickerThemeData(
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(4),
+                                              ),
+                                            ),
+                                          ),
+                                          child: child!,
+                                        ),
+                                      );
+                                      if (result != null) {
+                                        endDateController.text =
+                                            DateFormat(DateUtil.dateTimeFormat)
+                                                .format(result);
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
 
-                          //______________________________________________________________________footer__________________
-                          Padding(
-                            padding: _sizeInfo.padding,
-                            child: FutureBuilderFactory.createFutureBuilder(
-                                future: totalPage,
-                                onSuccess: (context, totalPage) {
-                                  return paginatedSection(totalPage, userList);
-                                }),
+                          const SizedBox(width: 16.0),
+
+                          IconButton(
+                            icon: const Icon(Icons.refresh, size: 20),
+                            onPressed: () {
+                              startDateController.clear();
+                              endDateController.clear();
+                            },
                           ),
                         ],
-                      );
-                    }
+                      ),
+                    ),
+
+                    //______________________________________________________________________Data_table__________________
+                    SingleChildScrollView(
+                      controller: scrollController,
+                      scrollDirection: Axis.horizontal,
+                      child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minWidth: constraints.maxWidth,
+                          ),
+                          child: FutureBuilderFactory.createFutureBuilder(
+                              future: userList,
+                              onSuccess: (context, userList) {
+                                return dataTable(
+                                    userList, theme, textTheme, lang);
+                              })
+                      ),
+                    ),
+
+                    //______________________________________________________________________footer__________________
+                    Padding(
+                      padding: _sizeInfo.padding,
+                      child: FutureBuilderFactory.createFutureBuilder(
+                          future: totalPage,
+                          onSuccess: (context, totalPage) {
+                            return paginatedSection(totalPage);
+                          }),
+                    ),
+                  ],
                 );
               },
             ),
@@ -210,38 +393,8 @@ class _UserListViewState extends State<UserListView> {
     }
   }
 
-  ///_______________________________________________________________DropDownList___________________________________
-  Container searchTypeDropDown(TextTheme textTheme) {
-    final dropdownStyle = AcnooDropdownStyle(context);
-    return Container(
-      constraints: const BoxConstraints(maxWidth: 100, minWidth: 100),
-      child: DropdownButtonFormField2<UserSearchType>(
-        hint: Text('검색 조건'),
-        style: dropdownStyle.textStyle,
-        iconStyleData: dropdownStyle.iconStyle,
-        buttonStyleData: dropdownStyle.buttonStyle,
-        dropdownStyleData: dropdownStyle.dropdownStyle,
-        menuItemStyleData: dropdownStyle.menuItemStyle,
-        isExpanded: true,
-        value: searchType,
-        items: UserSearchType.values.map((UserSearchType searchType) {
-          return DropdownMenuItem<UserSearchType>(
-            value: searchType,
-            child: Text(
-              searchType.value,
-              style: textTheme.bodySmall,
-            ),
-          );
-        }).toList(),
-        onChanged: (value) {
-          searchType = value ?? UserSearchType.none;
-        },
-      ),
-    );
-  }
-
-  Theme dataTable(List<UserProfile> userList, ThemeData theme, TextTheme textTheme, l.S lang) {
-
+  Theme dataTable(List<UserProfile> userList, ThemeData theme,
+      TextTheme textTheme, l.S lang) {
     return Theme(
       data: ThemeData(
           dividerColor: theme.colorScheme.outline,
@@ -255,11 +408,11 @@ class _UserListViewState extends State<UserListView> {
         headingRowColor: WidgetStateProperty.all(theme.colorScheme.surface),
         showBottomBorder: true,
         columns: [
-          DataColumn(label: Text(lang.serial)),
-          DataColumn(label: Text(lang.userName)),
+          DataColumn(label: Text(lang.userId)),
+          DataColumn(label: Text(lang.nickName)),
           DataColumn(label: Text(lang.email)),
-          DataColumn(label: Text(lang.type)),
-          DataColumn(label: Text(lang.status)),
+          DataColumn(label: Text(lang.loginType)),
+          DataColumn(label: Text(lang.userStatus)),
           DataColumn(label: Text(lang.actions)),
         ],
         rows: userList.map(
@@ -270,21 +423,21 @@ class _UserListViewState extends State<UserListView> {
                 DataCell(Text(data.userId.toString())),
                 DataCell(Text(data.nickname)),
                 DataCell(Text(data.email)),
-                DataCell(Text(data.loginType)),
+                DataCell(Text(data.loginType.value)),
                 DataCell(
                   Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                     decoration: BoxDecoration(
-                      color: data.status == UserStatus.normal.value
-                          ? AcnooAppColors.kSuccess.withOpacity(0.2)
-                          : AcnooAppColors.kError.withOpacity(0.2),
+                      color: data.status == UserStatus.NORMAL
+                          ? AcnooAppColors.kSuccess.withValues(alpha: 0.2)
+                          : AcnooAppColors.kError.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(16.0),
                     ),
                     child: Text(
-                      data.status,
+                      data.status.value,
                       style: textTheme.bodySmall?.copyWith(
-                          color: data.status == UserStatus.normal.value
+                          color: data.status == UserStatus.NORMAL
                               ? AcnooAppColors.kSuccess
                               : AcnooAppColors.kError),
                     ),
@@ -333,17 +486,10 @@ class _UserListViewState extends State<UserListView> {
     );
   }
 
-  Row paginatedSection(int totalPage, List<UserProfile> userList) {
-
+  Row paginatedSection(int totalPage) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        Expanded(
-          child: Text(
-            '${l.S.of(context).showing} ${(currentPage - 1) * rowsPerPage + 1} ${l.S.of(context).to} ${(currentPage - 1) * rowsPerPage + userList.length} ${l.S.of(context).OF} ${userList.length} ${l.S.of(context).entries}',
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
         DataTablePaginator(
           currentPage: currentPage,
           totalPages: totalPage,
@@ -351,7 +497,7 @@ class _UserListViewState extends State<UserListView> {
             if (currentPage > 1) {
               setState(() {
                 currentPage--;
-                this.userList = getUserList();
+                userList = getUserList();
               });
             }
           },
@@ -359,7 +505,7 @@ class _UserListViewState extends State<UserListView> {
             if (currentPage < totalPage) {
               setState(() {
                 currentPage++;
-                this.userList = getUserList();
+                userList = getUserList();
               });
             }
           },

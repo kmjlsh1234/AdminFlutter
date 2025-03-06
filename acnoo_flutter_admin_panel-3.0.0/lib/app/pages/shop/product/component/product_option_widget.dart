@@ -2,9 +2,12 @@
 // 📦 Package imports:
 import 'package:acnoo_flutter_admin_panel/app/core/error/custom_exception.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/service/shop/product/product_option_service.dart';
+import 'package:acnoo_flutter_admin_panel/app/core/utils/future_builder_factory.dart';
 import 'package:acnoo_flutter_admin_panel/app/models/shop/product/product_option/product_option_mod_param.dart';
 import 'package:acnoo_flutter_admin_panel/app/models/shop/product/product_option/product_option_simple.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:responsive_grid/responsive_grid.dart';
 
 import '../../../../../generated/l10n.dart' as l;
@@ -12,6 +15,7 @@ import '../../../../constants/shop/product/product_option_type.dart';
 import '../../../../core/error/error_code.dart';
 import '../../../../core/error/error_handler.dart';
 import '../../../../core/theme/_app_colors.dart';
+import '../../../../core/utils/alert_util.dart';
 import '../../../../core/utils/size_config.dart';
 import '../../../../models/shop/product/product_option/product_option_model.dart';
 import '../../../../widgets/shadow_container/_shadow_container.dart';
@@ -37,6 +41,11 @@ class _ProductOptionWidgetState extends State<ProductOptionWidget> {
   //Future Model
   late Future<List<ProductOptionModel>> optionList;
 
+  //Provider
+  late l.S lang;
+  late ThemeData theme;
+  late TextTheme textTheme;
+
   //상품 옵션 리스트 조회
   Future<List<ProductOptionModel>> getProductOptionList() async {
     try {
@@ -44,7 +53,7 @@ class _ProductOptionWidgetState extends State<ProductOptionWidget> {
       return list.map((option) => ProductOptionModel(
         nameController: TextEditingController(text: option.name),
         quantityController: TextEditingController(text: option.quantity.toString()),
-        type: ProductOptionType.fromValue(option.type),
+        type: option.type,
       )).toList();
     } catch (e) {
       ErrorHandler.handleError(e, context);
@@ -62,14 +71,25 @@ class _ProductOptionWidgetState extends State<ProductOptionWidget> {
         productOptions.add(
             ProductOptionSimple(
             name: model.nameController.text,
-            type: model.type.value,
+            type: model.type,
             quantity: int.parse(model.quantityController.text)
             )
         );
       }
       ProductOptionModParam productOptionModParam = ProductOptionModParam(productOptions);
       await productOptionService.modProductOptions(widget.productId, productOptionModParam);
-      showSuccessDialog(context);
+      AlertUtil.successDialog(
+          context: context,
+          message: lang.modProductOption,
+          buttonText: lang.confirm,
+          onPressed: () {
+            setState(() {
+              isModState = false;
+              GoRouter.of(context).pop();
+              optionList = getProductOptionList();
+            });
+          }
+      );
     } catch (e) {
       ErrorHandler.handleError(e, context);
     }
@@ -111,23 +131,16 @@ class _ProductOptionWidgetState extends State<ProductOptionWidget> {
     const _lg = 4;
     const _md = 6;
 
-    final ThemeData _theme = Theme.of(context);
-    final _textTheme = Theme.of(context).textTheme;
+    lang = l.S.of(context);
+    theme = Theme.of(context);
+    textTheme = Theme.of(context).textTheme;
     final _sizeInfo = SizeConfig.getSizeInfo(context);
-    final l.S lang = l.S.of(context);
 
     return Column(
       children: [
-        FutureBuilder(
+        FutureBuilderFactory.createFutureBuilder(
             future: optionList,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (snapshot.hasError) {
-                return Center(child: Text('Error: ${snapshot.error}'));
-              }
-              final optionList = snapshot.data!;
+            onSuccess: (context, optionList) {
               return ShadowContainer(
                   headerText: lang.productOption,
                   child: ResponsiveGridRow(children: [
@@ -144,38 +157,44 @@ class _ProductOptionWidgetState extends State<ProductOptionWidget> {
                                 decoration: BoxDecoration(
                                   //color: _theme.colorScheme.surface,
                                   borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: _theme.colorScheme.primary),
+                                  border: Border.all(color: theme.colorScheme.primary),
 
                                 ),
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
+                                    //NAME
                                     TextFieldLabelWrapper(
                                       labelText: lang.name,
                                       inputField: TextFormField(
                                         controller: option.nameController,
                                         enabled: isModState,
                                         decoration: InputDecoration(
-                                          hintText: lang.name,
+                                          hintText: lang.hintName,
                                           filled: !isModState,
-                                          fillColor: _theme.colorScheme.tertiaryContainer,
+                                          fillColor: theme.colorScheme.tertiaryContainer,
                                         ),
+                                        validator: (value) => value?.isEmpty ?? true ? lang.invalidName : null,
+                                        autovalidateMode: AutovalidateMode.onUnfocus,
                                       ),
                                     ),
+
                                     const SizedBox(height: 20),
+
+                                    //TYPE
                                     TextFieldLabelWrapper(
                                       labelText: lang.type,
                                       inputField: DropdownButtonFormField<ProductOptionType>(
-                                        dropdownColor: _theme.colorScheme.primaryContainer,
+                                        dropdownColor: theme.colorScheme.primaryContainer,
                                         value: option.type,
                                         hint: Text(
                                           lang.type,
-                                          style: _textTheme.bodySmall,
+                                          style: textTheme.bodySmall,
                                         ),
                                         decoration: InputDecoration(
                                           filled: !isModState,
                                           fillColor: isModState
-                                              ? _theme.colorScheme.tertiaryContainer
+                                              ? theme.colorScheme.tertiaryContainer
                                               : Colors.grey.shade300,
                                         ),
                                         items: ProductOptionType.values.map((type) {
@@ -196,38 +215,50 @@ class _ProductOptionWidgetState extends State<ProductOptionWidget> {
                                         value == null ? lang.pleaseSelectAPosition : null,
                                       ),
                                     ),
+
                                     const SizedBox(height: 20),
+
+                                    //QUANTITY
                                     TextFieldLabelWrapper(
                                       labelText: lang.quantity,
                                       inputField: TextFormField(
+                                        keyboardType: TextInputType.number,
+                                        inputFormatters: [
+                                          FilteringTextInputFormatter.digitsOnly
+                                        ],
                                         controller: option.quantityController,
                                         enabled: isModState,
                                         decoration: InputDecoration(
-                                          hintText: lang.quantity,
+                                          hintText: lang.hintQuantity,
                                           filled: !isModState,
-                                          fillColor: _theme.colorScheme.tertiaryContainer,
+                                          fillColor: theme.colorScheme.tertiaryContainer,
                                         ),
+                                        validator: (value) => value?.isEmpty ?? true ? lang.invalidQuantity : null,
+                                        autovalidateMode: AutovalidateMode.onUnfocus,
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
-                              Positioned(
-                                top: 8,
-                                right: 8,
-                                child: IconButton(
-                                  icon: Icon(Icons.close, color: Colors.red),
-                                  onPressed: () {
-                                    setState(() {
-                                      if(isModState){
-                                        option.nameController.dispose();
-                                        option.quantityController.dispose();
-                                        optionList.remove(option);
-                                      }
-                                    });
-                                  },
-                                ),
-                              ),
+                              Visibility(
+                                visible: isModState,
+                                  child: Positioned(
+                                    top: 8,
+                                    right: 8,
+                                    child: IconButton(
+                                      icon: Icon(Icons.close, color: Colors.red),
+                                      onPressed: () {
+                                        setState(() {
+                                          if(isModState){
+                                            option.nameController.dispose();
+                                            option.quantityController.dispose();
+                                            optionList.remove(option);
+                                          }
+                                        });
+                                      },
+                                    ),
+                                  ),
+                              )
                             ],
                           ),
                         ),
@@ -257,7 +288,7 @@ class _ProductOptionWidgetState extends State<ProductOptionWidget> {
                               label: Text(
                                 lang.addNewProductOption,
                                 maxLines: 1,
-                                style: _textTheme.bodySmall?.copyWith(
+                                style: textTheme.bodySmall?.copyWith(
                                   color: AcnooAppColors.kWhiteColor,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -272,7 +303,8 @@ class _ProductOptionWidgetState extends State<ProductOptionWidget> {
                           )),
                     )
                   ]));
-            }),
+            }
+        ),
 
         SizedBox(height: _sizeInfo.innerSpacing),
 
@@ -281,21 +313,52 @@ class _ProductOptionWidgetState extends State<ProductOptionWidget> {
           child: Align(
             alignment: Alignment.centerLeft, // 버튼을 가운데 정렬
             child: SizedBox(
-              width: 200, // 버튼 너비를 200px로 제한 (원하는 크기로 조정 가능)
-              child: CustomButton(
-                textTheme: _textTheme,
-                label: lang.modProduct,
-                onPressed: () {
-                  if (isModState) {
-                    modProductOption();
-                  } else {
-                    setState(() {
-                      isModState = true;
-                    });
-                  }
-                },
-              ),
-            ),
+                width: 1000,
+                child: Row(
+                  children: [
+                    CustomButton(
+                        textTheme: textTheme,
+                        label: lang.modProductOption,
+                        onPressed: () => {
+                          if (isModState)
+                            {
+                              modProductOption(),
+                            }
+                          else
+                            {
+                              setState(() {
+                                isModState = true;
+                              }),
+                            }
+                        }),
+                    const SizedBox(width: 50),
+                    Visibility(
+                        visible: isModState,
+                        child: OutlinedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: _sizeInfo.innerSpacing),
+                              backgroundColor:
+                              theme.colorScheme.primaryContainer,
+                              textStyle: textTheme.bodySmall?.copyWith(
+                                  color: AcnooAppColors.kError),
+                              side: const BorderSide(
+                                  color: AcnooAppColors.kError)),
+                          onPressed: () {
+                            setState(() {
+                              isModState = false;
+                              optionList = getProductOptionList();
+                            });
+
+                          },
+                          label: Text(
+                            lang.cancel,
+                            style: textTheme.bodySmall?.copyWith(
+                                color: AcnooAppColors.kError),
+                          ),
+                        ))
+                  ],
+                )),
           ),
         ),
       ],
@@ -305,34 +368,13 @@ class _ProductOptionWidgetState extends State<ProductOptionWidget> {
   void buildProductOptionField(List<ProductOptionModel> optionList) {
     TextEditingController optionNameController = TextEditingController();
     TextEditingController optionQuantityController = TextEditingController();
-    ProductOptionType type = ProductOptionType.diamond;
+    ProductOptionType type = ProductOptionType.DIAMOND;
     optionList.add(
         ProductOptionModel(
             nameController: optionNameController,
             quantityController: optionQuantityController,
             type: type
         )
-    );
-  }
-
-  void showSuccessDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(''),
-          content: Text('상품 변경 성공'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                isModState = false;
-              },
-              child: Text('확인'),
-            ),
-          ],
-        );
-      },
     );
   }
 }

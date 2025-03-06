@@ -1,6 +1,6 @@
 enum FileCategory{
-  profile('profile'),
-  resource('resource'),
+  PROFILE('profile'),
+  RESOURCE('resource'),
   ;
 
   final String value;

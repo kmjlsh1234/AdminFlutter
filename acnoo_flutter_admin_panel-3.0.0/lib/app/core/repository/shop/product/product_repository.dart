@@ -3,9 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
 import '../../../../models/common/count_vo.dart';
-
 import '../../../../models/shop/product/product/product_add_param.dart';
-import '../../../../models/shop/product/product/product_detail.dart';
 import '../../../../models/shop/product/product/product_mod_param.dart';
 import '../../../../models/shop/product/product/product_mod_status_param.dart';
 import '../../../../models/shop/product/product/product_search_param.dart';

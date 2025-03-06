@@ -75,13 +75,15 @@ class _BoardRepository implements BoardRepository {
   }
 
   @override
-  Future<List<Board>> getBoardList(BoardSearchParam boardSearchParam) async {
+  Future<List<BoardSimple>> getBoardList(
+    BoardSearchParam boardSearchParam,
+  ) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     _data.addAll(boardSearchParam.toJson());
-    final _options = _setStreamType<List<Board>>(
+    final _options = _setStreamType<List<BoardSimple>>(
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
@@ -92,10 +94,12 @@ class _BoardRepository implements BoardRepository {
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<List<dynamic>>(_options);
-    late List<Board> _value;
+    late List<BoardSimple> _value;
     try {
       _value = _result.data!
-          .map((dynamic i) => Board.fromJson(i as Map<String, dynamic>))
+          .map(
+            (dynamic i) => BoardSimple.fromJson(i as Map<String, dynamic>),
+          )
           .toList();
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);

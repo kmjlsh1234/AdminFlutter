@@ -1,7 +1,7 @@
 enum AppVersionType{
-  force("FORCE"),
-  induce("INDUCE"),
-  bundle("BUNDLE"),
+  FORCE("강제"),
+  INDUCE("권장"),
+  BUNDLE("번들"),
   ;
 
   final String value;

@@ -1,11 +1,12 @@
 import 'package:json_annotation/json_annotation.dart';
+import '../../constants/admin/admin_status.dart';
 part 'admin.g.dart';
 
 @JsonSerializable(includeIfNull: true)
 class Admin{
   final int adminId;
   final int? roleId;
-  final String status;
+  final AdminStatus status;
   final String email;
   final String name;
   final String mobile;
@@ -15,12 +16,12 @@ class Admin{
 
   Admin({
     required this.adminId,
-    this.roleId,
+    required this.roleId,
     required this.status,
     required this.email,
     required this.name,
     required this.mobile,
-    this.loginAt,
+    required this.loginAt,
     required this.createdAt,
     required this.updatedAt
   });

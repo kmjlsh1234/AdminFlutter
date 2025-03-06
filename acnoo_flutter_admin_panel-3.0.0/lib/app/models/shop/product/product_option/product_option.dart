@@ -1,3 +1,4 @@
+import 'package:acnoo_flutter_admin_panel/app/constants/shop/product/product_option_type.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'product_option.g.dart';
@@ -7,7 +8,7 @@ class ProductOption{
   final int id;
   final int productId;
   final String name;
-  final String type;
+  final ProductOptionType type;
   final int quantity;
   final DateTime createdAt;
 

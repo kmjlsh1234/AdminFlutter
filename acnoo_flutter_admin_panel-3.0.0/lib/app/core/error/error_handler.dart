@@ -11,14 +11,16 @@ class ErrorHandler{
     //api통신 오류일 경우
     if(e is DioException){
       if(e.response != null){
-        if(e.response?.statusCode == 401) {
+        final Map<String, dynamic> responseData = e.response?.data;
+        int code = responseData['errorCode'] ?? 0;
+        ErrorCode errorCode = ErrorCode.getByCode(code);
+
+        //토큰 오류
+        if(errorCode.errorCode >= 140001 && errorCode.errorCode <= 140003){
           GoRouter.of(context).go('/authentication/signin');
-        } else{
-          final Map<String, dynamic> responseData = e.response?.data;
-          int code = responseData['errorCode'] ?? 0;
-          ErrorCode errorCode = ErrorCode.getByCode(code);
-          showError(context, errorCode.message);
+          return;
         }
+        showError(context, errorCode.message);
       }else{
         showError(context, e.message.toString());
       }

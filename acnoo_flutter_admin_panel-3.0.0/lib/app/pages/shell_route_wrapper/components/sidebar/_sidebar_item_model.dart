@@ -269,22 +269,6 @@ List<GroupedMenuModel> get _groupedMenus {
           iconPath: 'assets/images/sidebar_icons/users-group.svg',
           navigationPath: '/admins',
         ),
-        /*
-        SidebarItemModel(
-          //name: 'Admins',
-          name: l.S.current.admins,
-          iconPath: 'assets/images/sidebar_icons/users-group.svg',
-          sidebarItemType: SidebarItemType.submenu,
-          navigationPath: '/admins',
-          submenus: [
-            SidebarSubmenuModel(
-              //name: "Admins List",
-              name: l.S.current.adminsList,
-              navigationPath: "admin-list",
-            ),
-          ],
-        ),
-        */
         SidebarItemModel(
           //name: 'Users',
           name: l.S.current.users,
@@ -364,11 +348,11 @@ List<GroupedMenuModel> get _groupedMenus {
           submenus: [
             SidebarSubmenuModel(
               name: l.S.current.menu,
-              navigationPath: "menus/menu-list",
+              navigationPath: "menu-list",
             ),
             SidebarSubmenuModel(
               name: l.S.current.role,
-              navigationPath: "menus/role-list",
+              navigationPath: "role-list",
             ),
             SidebarSubmenuModel(
               name: l.S.current.privilege,

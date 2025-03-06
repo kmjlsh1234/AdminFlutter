@@ -1,3 +1,5 @@
+import 'package:acnoo_flutter_admin_panel/app/constants/shop/item/currency_type.dart';
+import 'package:acnoo_flutter_admin_panel/app/constants/shop/item/item_period_type.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'item_mod_param.g.dart';
@@ -14,10 +16,10 @@ class ItemModParam {
   final String? thumbnail;
   final String? image;
   final String? info;
-  final String? periodType;
+  final ItemPeriodType? periodType;
   final int? period;
   final String? expiration;
-  final String? currencyType;
+  final CurrencyType? currencyType;
   final int? amount;
 
   ItemModParam({

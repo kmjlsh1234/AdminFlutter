@@ -20,12 +20,12 @@ class _CurrencyRepository implements CurrencyRepository {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<Chip> getChip(int userId) async {
+  Future<Chips> getChip(int userId) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<Chip>(
+    final _options = _setStreamType<Chips>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
@@ -36,9 +36,9 @@ class _CurrencyRepository implements CurrencyRepository {
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Chip _value;
+    late Chips _value;
     try {
-      _value = Chip.fromJson(_result.data!);
+      _value = Chips.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
@@ -47,12 +47,12 @@ class _CurrencyRepository implements CurrencyRepository {
   }
 
   @override
-  Future<Coin> getCoin(int userId) async {
+  Future<Coins> getCoin(int userId) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<Coin>(
+    final _options = _setStreamType<Coins>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
@@ -63,9 +63,9 @@ class _CurrencyRepository implements CurrencyRepository {
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Coin _value;
+    late Coins _value;
     try {
-      _value = Coin.fromJson(_result.data!);
+      _value = Coins.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
@@ -74,12 +74,12 @@ class _CurrencyRepository implements CurrencyRepository {
   }
 
   @override
-  Future<Diamond> getDiamond(int userId) async {
+  Future<Diamonds> getDiamond(int userId) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<Diamond>(
+    final _options = _setStreamType<Diamonds>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
@@ -90,9 +90,9 @@ class _CurrencyRepository implements CurrencyRepository {
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Diamond _value;
+    late Diamonds _value;
     try {
-      _value = Diamond.fromJson(_result.data!);
+      _value = Diamonds.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
@@ -155,13 +155,13 @@ class _CurrencyRepository implements CurrencyRepository {
   @override
   Future<HttpResponse<dynamic>> modDiamond(
     int userId,
-    CurrencyModParam currencyModParam,
+    DiamondModParam diamondModParam,
   ) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
-    _data.addAll(currencyModParam.toJson());
+    _data.addAll(diamondModParam.toJson());
     final _options = _setStreamType<HttpResponse<dynamic>>(
       Options(method: 'PUT', headers: _headers, extra: _extra)
           .compose(

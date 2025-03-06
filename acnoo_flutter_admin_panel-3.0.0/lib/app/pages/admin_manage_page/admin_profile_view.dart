@@ -9,11 +9,11 @@ import '../../../generated/l10n.dart' as l;
 import '../../constants/admin/admin_menu.dart';
 import '../../core/error/error_handler.dart';
 import '../../core/service/admin/admin_manage_service.dart';
-import '../../models/admin/admin.dart';
+import '../../models/admin/admin_detail.dart';
 import '../../widgets/widgets.dart';
 import '../common_widget/custom_button.dart';
 import 'component/admin_nav_bar.dart';
-import 'component/mod_admin_popup.dart';
+import 'component/popup/mod_admin_popup.dart';
 
 class AdminProfileView extends StatefulWidget {
   const AdminProfileView({super.key, required this.adminId});
@@ -25,11 +25,16 @@ class AdminProfileView extends StatefulWidget {
 
 class _AdminProfileViewState extends State<AdminProfileView> {
   final AdminManageService adminManageService = AdminManageService();
-  AdminMenu currentMenu = AdminMenu.profile;
-  late Future<Admin> admin;
+  AdminMenu currentMenu = AdminMenu.PROFILE;
+  late Future<AdminDetail> admin;
+
+  //Provider
+  late l.S lang;
+  late ThemeData theme;
+  late TextTheme textTheme;
 
   //ADMIN 단일 조회
-  Future<Admin> getAdmin() async {
+  Future<AdminDetail> getAdmin() async {
     try {
       return await adminManageService.getAdmin(widget.adminId);
     } catch (e) {
@@ -51,9 +56,9 @@ class _AdminProfileViewState extends State<AdminProfileView> {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    final TextTheme textTheme = Theme.of(context).textTheme;
-    final l.S lang = l.S.of(context);
+    lang = l.S.of(context);
+    theme = Theme.of(context);
+    textTheme = Theme.of(context).textTheme;
     final double padding = 16;
 
     return Scaffold(
@@ -69,7 +74,7 @@ class _AdminProfileViewState extends State<AdminProfileView> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
-                        child: AdminNavBar(adminMenu: AdminMenu.profile, adminId: widget.adminId),
+                        child: AdminNavBar(adminMenu: AdminMenu.PROFILE, adminId: widget.adminId),
                       ),
                     ],
                   ),
@@ -89,7 +94,6 @@ class _AdminProfileViewState extends State<AdminProfileView> {
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // 프로필 정보
                           Padding(
                             padding: const EdgeInsets.all(16),
                             child: Container(
@@ -103,21 +107,21 @@ class _AdminProfileViewState extends State<AdminProfileView> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  buildProfileDetailRow(lang.fullName, admin.name, padding, textTheme),
-                                  buildDivider(theme),
-                                  buildProfileDetailRow(lang.position, admin.roleId.toString(), padding, textTheme),
-                                  buildDivider(theme),
-                                  buildProfileDetailRow(lang.status, admin.status, padding, textTheme),
-                                  buildDivider(theme),
-                                  buildProfileDetailRow(lang.email, admin.email, padding, textTheme),
-                                  buildDivider(theme),
-                                  buildProfileDetailRow(lang.phoneNumber, admin.mobile, padding, textTheme),
-                                  buildDivider(theme),
-                                  buildProfileDetailRow(lang.loginAt, DateUtil.convertDateTimeToString(admin.loginAt), padding, textTheme),
-                                  buildDivider(theme),
-                                  buildProfileDetailRow(lang.createdAt, DateUtil.convertDateTimeToString(admin.createdAt), padding, textTheme),
-                                  buildDivider(theme),
-                                  buildProfileDetailRow(lang.updatedAt, DateUtil.convertDateTimeToString(admin.updatedAt), padding, textTheme),
+                                  buildProfileDetailRow(lang.name, admin.name, padding),
+                                  buildDivider(),
+                                  buildProfileDetailRow(lang.role, admin.roleName, padding),
+                                  buildDivider(),
+                                  buildProfileDetailRow(lang.status, admin.status.value, padding),
+                                  buildDivider(),
+                                  buildProfileDetailRow(lang.email, admin.email, padding),
+                                  buildDivider(),
+                                  buildProfileDetailRow(lang.phoneNumber, admin.mobile, padding),
+                                  buildDivider(),
+                                  buildProfileDetailRow(lang.loginAt, DateUtil.convertDateTimeToString(admin.loginAt), padding),
+                                  buildDivider(),
+                                  buildProfileDetailRow(lang.createdAt, DateUtil.convertDateTimeToString(admin.createdAt), padding),
+                                  buildDivider(),
+                                  buildProfileDetailRow(lang.updatedAt, DateUtil.convertDateTimeToString(admin.updatedAt), padding),
                                 ],
                               ),
                             ),
@@ -133,7 +137,7 @@ class _AdminProfileViewState extends State<AdminProfileView> {
                                   CustomButton(
                                     textTheme: textTheme,
                                     label: lang.modAdmin,
-                                    onPressed: () => showModDialog(context, admin),
+                                    onPressed: () => showModDialog(admin),
                                   ),
                                 ],
                               ),
@@ -151,18 +155,16 @@ class _AdminProfileViewState extends State<AdminProfileView> {
     );
   }
 
-  Widget buildProfileDetailRow(
-      String label, String? value, double padding, TextTheme textTheme) {
+  Widget buildProfileDetailRow(String label, String? value, double padding) {
     return Padding(
       padding: EdgeInsets.all(padding),
       child: Row(
         children: [
           Expanded(
             flex: 1,
-            child: Text(
+            child: SelectableText(
               label,
               style: textTheme.bodyLarge,
-              overflow: TextOverflow.ellipsis,
               maxLines: 1,
             ),
           ),
@@ -176,9 +178,8 @@ class _AdminProfileViewState extends State<AdminProfileView> {
                 ),
                 const SizedBox(width: 8.0),
                 Flexible(
-                  child: Text(
-                    value ?? "EMPTY",
-                    overflow: TextOverflow.ellipsis,
+                  child: SelectableText(
+                    value ?? lang.empty,
                     maxLines: 1,
                     style: textTheme.bodyLarge,
                   ),
@@ -191,14 +192,14 @@ class _AdminProfileViewState extends State<AdminProfileView> {
     );
   }
 
-  Widget buildDivider(ThemeData theme) {
+  Widget buildDivider() {
     return Divider(
       color: theme.colorScheme.outline,
       height: 0.0,
     );
   }
 
-  void showModDialog(BuildContext context, Admin admin) async {
+  void showModDialog(AdminDetail admin) async {
     bool? isSuccess = await showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -209,7 +210,10 @@ class _AdminProfileViewState extends State<AdminProfileView> {
     );
 
     if(isSuccess != null && isSuccess) {
-      this.admin = getAdmin();
+      setState(() {
+        this.admin = getAdmin();
+      });
+      
     }
   }
 }

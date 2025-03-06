@@ -1,0 +1,11 @@
+services:
+  flutter_web:
+    build:
+      context: .
+      args:
+        - BASE_URL=http://localhost:38084
+        - FILE_SERVER_URL=http://localhost:38082
+        - ADMIN_FILE_SERVER_KEY=myadmin
+
+    ports:
+      - "8080:80"

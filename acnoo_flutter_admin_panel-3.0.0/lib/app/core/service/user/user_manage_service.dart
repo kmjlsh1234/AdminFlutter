@@ -1,5 +1,4 @@
 
-import 'package:acnoo_flutter_admin_panel/app/models/user/user_mod_param.dart';
 import 'package:acnoo_flutter_admin_panel/app/models/user/user_mod_status_param.dart';
 import 'package:retrofit/retrofit.dart';
 
@@ -27,11 +26,6 @@ class UserManageService{
   //유저 단일 조회(detail)
   Future<UserDetail> getUser(int userId) async{
     return await repository.getUser(userId);
-  }
-
-  //유저 정보 수정
-  Future<UserProfile> modUser(int userId, UserModParam userModParam) async {
-    return await repository.modUser(userId, userModParam);
   }
 
   //유저 상태 변경

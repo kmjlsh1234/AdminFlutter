@@ -3,7 +3,6 @@ import 'package:retrofit/retrofit.dart';
 
 import '../../../models/common/count_vo.dart';
 import '../../../models/user/user_detail.dart';
-import '../../../models/user/user_mod_param.dart';
 import '../../../models/user/user_mod_status_param.dart';
 import '../../../models/user/user_profile.dart';
 import '../../../models/user/user_search_param.dart';
@@ -24,9 +23,6 @@ abstract class UserManageRepository {
 
   @GET("/admin/v1/users/{userId}")
   Future<UserDetail> getUser(@Path('userId') int userId);
-
-  @PUT("/admin/v1/users/{userId}")
-  Future<UserProfile> modUser(@Path('userId') int userId, @Body() UserModParam userModParam);
 
   @PUT("/admin/v1/users/{userId}/status")
   Future<HttpResponse> modUserStatus(@Path('userId') int userId, @Body() UserModStatusParam userModStatusParam);

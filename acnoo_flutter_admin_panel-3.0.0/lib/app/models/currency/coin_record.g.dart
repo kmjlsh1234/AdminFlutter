@@ -9,7 +9,7 @@ part of 'coin_record.dart';
 CoinRecord _$CoinRecordFromJson(Map<String, dynamic> json) => CoinRecord(
       id: (json['id'] as num).toInt(),
       userId: (json['userId'] as num).toInt(),
-      changeType: json['changeType'] as String,
+      changeType: $enumDecode(_$ChangeTypeEnumMap, json['changeType']),
       changeCoin: (json['changeCoin'] as num).toInt(),
       resultCoin: (json['resultCoin'] as num).toInt(),
       changeDesc: json['changeDesc'] as String,
@@ -21,10 +21,16 @@ Map<String, dynamic> _$CoinRecordToJson(CoinRecord instance) =>
     <String, dynamic>{
       'id': instance.id,
       'userId': instance.userId,
-      'changeType': instance.changeType,
+      'changeType': _$ChangeTypeEnumMap[instance.changeType]!,
+      'changeCoin': instance.changeCoin,
+      'resultCoin': instance.resultCoin,
       'changeDesc': instance.changeDesc,
       'idempotentKey': instance.idempotentKey,
       'createdAt': instance.createdAt.toIso8601String(),
-      'changeCoin': instance.changeCoin,
-      'resultCoin': instance.resultCoin,
     };
+
+const _$ChangeTypeEnumMap = {
+  ChangeType.NONE: 'NONE',
+  ChangeType.ADD: 'ADD',
+  ChangeType.USE: 'USE',
+};

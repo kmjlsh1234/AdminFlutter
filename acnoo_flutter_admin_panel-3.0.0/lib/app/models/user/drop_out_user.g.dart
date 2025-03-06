@@ -9,7 +9,7 @@ part of 'drop_out_user.dart';
 DropOutUser _$DropOutUserFromJson(Map<String, dynamic> json) => DropOutUser(
       (json['id'] as num).toInt(),
       (json['userId'] as num).toInt(),
-      (json['mobile'] as List<dynamic>).map((e) => (e as num).toInt()).toList(),
+      json['mobile'] as String,
       json['email'] as String,
       DateTime.parse(json['dropAt'] as String),
     );

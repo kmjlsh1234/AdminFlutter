@@ -1,6 +1,6 @@
 enum FileType{
-  image('image'),
-  csv('csv'),
+  IMAGE('image'),
+  CSV('csv'),
   ;
 
   final String value;

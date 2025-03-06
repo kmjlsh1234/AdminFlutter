@@ -8,22 +8,29 @@ part of 'board_search_param.dart';
 
 BoardSearchParam _$BoardSearchParamFromJson(Map<String, dynamic> json) =>
     BoardSearchParam(
-      json['boardType'] as String?,
-      json['boardStatus'] as String?,
-      json['searchDateType'] as String?,
-      json['startDate'] as String?,
-      json['endDate'] as String?,
-      (json['page'] as num).toInt(),
-      (json['limit'] as num).toInt(),
+      boardType: $enumDecodeNullable(_$BoardTypeEnumMap, json['boardType']),
+      boardStatus:
+          $enumDecodeNullable(_$BoardStatusEnumMap, json['boardStatus']),
+      searchValue: json['searchValue'] as String?,
+      page: (json['page'] as num).toInt(),
+      limit: (json['limit'] as num).toInt(),
     );
 
 Map<String, dynamic> _$BoardSearchParamToJson(BoardSearchParam instance) =>
     <String, dynamic>{
       'page': instance.page,
       'limit': instance.limit,
-      'boardType': instance.boardType,
-      'boardStatus': instance.boardStatus,
-      'searchDateType': instance.searchDateType,
-      'startDate': instance.startDate,
-      'endDate': instance.endDate,
+      'boardType': _$BoardTypeEnumMap[instance.boardType],
+      'boardStatus': _$BoardStatusEnumMap[instance.boardStatus],
+      'searchValue': instance.searchValue,
     };
+
+const _$BoardTypeEnumMap = {
+  BoardType.NOTICE: 'NOTICE',
+  BoardType.EVENT: 'EVENT',
+};
+
+const _$BoardStatusEnumMap = {
+  BoardStatus.PUBLISH: 'PUBLISH',
+  BoardStatus.NOT_PUBLISH: 'NOT_PUBLISH',
+};

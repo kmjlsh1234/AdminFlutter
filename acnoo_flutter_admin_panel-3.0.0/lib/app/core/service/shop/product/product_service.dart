@@ -6,7 +6,6 @@ import 'package:retrofit/retrofit.dart';
 
 import '../../../../models/common/count_vo.dart';
 import '../../../../models/shop/product/product/product.dart';
-import '../../../../models/shop/product/product/product_detail.dart';
 import '../../../repository/shop/product/product_repository.dart';
 import '../../../utils/dio_factory.dart';
 

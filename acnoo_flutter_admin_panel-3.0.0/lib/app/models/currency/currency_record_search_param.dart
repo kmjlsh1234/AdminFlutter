@@ -1,10 +1,12 @@
 import 'package:acnoo_flutter_admin_panel/app/models/common/paging_param.dart';
 import 'package:json_annotation/json_annotation.dart';
+
+import '../../constants/currency/change_type.dart';
 part 'currency_record_search_param.g.dart';
 @JsonSerializable(includeIfNull: true)
 class CurrencyRecordSearchParam extends PagingParam{
   final int userId;
-  final String? changeType;
+  final ChangeType? changeType;
   final String? startDate;
   final String? endDate;
 

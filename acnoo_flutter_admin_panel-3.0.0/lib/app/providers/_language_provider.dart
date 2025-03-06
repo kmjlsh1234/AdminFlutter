@@ -16,7 +16,7 @@ class AppLanguageProvider extends ChangeNotifier {
     "Urdu": Locale('ur', 'PK'), // Urdu, Pakistan
   };
 
-  Locale _currentLocale = const Locale("en", "US");
+  Locale _currentLocale = const Locale("ko", "KR");
   // Locale _currentLocale = const Locale('ar', 'SA');
   Locale get currentLocale => _currentLocale;
   bool isRTL = false;

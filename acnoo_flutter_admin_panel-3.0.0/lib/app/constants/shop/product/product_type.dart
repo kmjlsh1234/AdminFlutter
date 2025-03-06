@@ -1,13 +1,7 @@
 enum ProductType{
-  currency('CURRENCY'),
+  CURRENCY('재화 타입'),
   ;
   final String value;
 
   const ProductType(this.value);
-
-  static ProductType fromValue(String value) {
-    return ProductType.values.firstWhere((type) => type.value == value,
-      orElse: () => throw ArgumentError("Invalid ProductType: $value"),
-    );
-  }
 }

@@ -1,6 +1,9 @@
 // 📦 Package imports:
 import 'package:acnoo_flutter_admin_panel/app/pages/board_page/board_write_view.dart';
 import 'package:acnoo_flutter_admin_panel/app/pages/drop_out_user_page/drop_out_user_list_view.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/menus_page/menu/menu_list_view.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/menus_page/privilege/privilege_list_view.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/menus_page/role/role_list_view.dart';
 import 'package:acnoo_flutter_admin_panel/app/pages/shop/bundle/bundle_list_view.dart';
 import 'package:acnoo_flutter_admin_panel/app/pages/shop/item/item_add_view.dart';
 import 'package:acnoo_flutter_admin_panel/app/pages/shop/item_unit/item_unit_list_view.dart';
@@ -50,10 +53,9 @@ abstract class AcnooAppRoutes {
           if (state.uri.queryParameters['rtl'] == 'true') {
             _appLangProvider.isRTL = true;
           }
-          return '/admins/admin-list';
+          return '/admins';
         },
       ),
-
       // Global Shell Route
       ShellRoute(
         navigatorKey: _rootNavigatorKey,
@@ -63,6 +65,480 @@ abstract class AcnooAppRoutes {
           );
         },
         routes: [
+          //Admins Route
+          GoRoute(
+            path: '/admins',
+            redirect: (context, state) async {
+              if (state.fullPath == '/admins') {
+                return '/admins/admin-list';
+              }
+              return null;
+            },
+            routes: [
+              GoRoute(
+                path: 'admin-list',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: AdminsListView(),
+                ),
+              ),
+              GoRoute(
+                path: 'profile/:id',
+                pageBuilder: (context, state) {
+                  final String id = state.pathParameters['id']!;
+                  final int adminId = int.parse(id);
+                  return NoTransitionPage<void>(
+                    child: AdminProfileView(adminId: adminId),
+                  );
+                },
+              ),
+            ],
+          ),
+
+          // Users Route
+          GoRoute(
+            path: '/users',
+            redirect: (context, state) async {
+              if (state.fullPath == '/users') {
+                return '/users/user-list';
+              }
+              return null;
+            },
+            routes: [
+              GoRoute(
+                path: 'user-list',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: UserListView(),
+                ),
+              ),
+              GoRoute(
+                path: 'block-user-list',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: UserListView(),
+                ),
+              ),
+              GoRoute(
+                path: 'drop-out-user-list',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: DropOutUserListView(),
+                ),
+              ),
+              GoRoute(
+                path: 'profile/:id',
+                pageBuilder: (context, state) {
+                  final String id = state.pathParameters['id']!;
+                  final int userId = int.parse(id);
+                  return NoTransitionPage<void>(
+                    child: userMng.UserProfileView(userId: userId),
+                  );
+                },
+              ),
+              GoRoute(
+                path: 'currency/:id',
+                pageBuilder: (context, state) {
+                  final String id = state.pathParameters['id']!;
+                  final int userId = int.parse(id);
+                  return NoTransitionPage<void>(
+                    child: UserCurrencyView(userId: userId),
+                  );
+                },
+              ),
+              GoRoute(
+                path: 'currency/record/:id',
+                pageBuilder: (context, state) {
+                  final String id = state.pathParameters['id']!;
+                  final int userId = int.parse(id);
+                  return NoTransitionPage<void>(
+                    child: UserCurrencyRecordView(userId: userId)
+                  );
+                },
+              ),
+            ],
+          ),
+
+          //System Route
+          GoRoute(
+            path: '/systems',
+            redirect: (context, state) async {
+              if (state.fullPath == '/systems') {
+                return '/systems/version-list';
+              }
+              return null;
+            },
+            routes: [
+              GoRoute(
+                path: 'version-list',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: AppVersionListView(),
+                ),
+              ),
+            ],
+          ),
+
+          //Board Route
+          GoRoute(
+            path: '/boards',
+            redirect: (context, state) async {
+              if (state.fullPath == '/boards') {
+                return '/boards/board-list';
+              }
+              return null;
+            },
+            routes: [
+              GoRoute(
+                path: 'board-list',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: BoardListView(),
+                ),
+              ),
+              GoRoute(
+                path: 'write',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: BoardWriteView(),
+                ),
+              ),
+              GoRoute(
+                path: 'info/:id',
+                pageBuilder: (context, state) {
+                  final String id = state.pathParameters['id']!;
+                  final int boardId = int.parse(id);
+                  return NoTransitionPage<void>(
+                    child: BoardInfoView(boardId: boardId),
+                  );
+                },
+              ),
+            ],
+          ),
+
+          //Shops Route
+          GoRoute(
+            path: '/shops',
+            redirect: (context, state) async {
+              if (state.fullPath == '/shops') {
+                return '/shops/product-list';
+              }
+              return null;
+            },
+            routes: [
+              GoRoute(
+                path: 'item-unit-list',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: ItemUnitListView(),
+                ),
+              ),
+              GoRoute(
+                path: 'category-list',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: CategoryListView(),
+                ),
+              ),
+              GoRoute(
+                path: 'items',
+                redirect: (context, state) async {
+                  if (state.fullPath == '/shops/items') {
+                    return '/shops/items/item-list';
+                  }
+                  return null;
+                },
+                routes: [
+                  GoRoute(
+                    path: 'item-list',
+                    pageBuilder: (context, state) => const NoTransitionPage<void>(
+                      child: ItemListView(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'info/:id',
+                    pageBuilder: (context, state) {
+                      final String id = state.pathParameters['id']!;
+                      final int itemId = int.parse(id);
+                      return NoTransitionPage<void>(
+                        child: ItemInfoView(itemId: itemId),
+                      );
+                    },
+                  ),
+                  GoRoute(
+                    path: 'add',
+                    pageBuilder: (context, state) => const NoTransitionPage<void>(
+                      child: ItemAddView(),
+                    ),
+                  ),
+                ],
+              ),
+              GoRoute(
+                path: '/bundles',
+                redirect: (context, state) async {
+                  if (state.fullPath == '/shops/bundles') {
+                    return '/shops/bundles/bundle-list';
+                  }
+                  return null;
+                },
+                routes: [
+                  GoRoute(
+                    path: 'bundle-list',
+                    pageBuilder: (context, state) => const NoTransitionPage<void>(
+                      child: BundleListView(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'info/:id',
+                    pageBuilder: (context, state) {
+                      final String id = state.pathParameters['id']!;
+                      final int bundleId = int.parse(id);
+                      return NoTransitionPage<void>(
+                        child: BundleInfoView(bundleId: bundleId),
+                      );
+                    },
+                  ),
+                  GoRoute(
+                    path: 'add',
+                    pageBuilder: (context, state) => const NoTransitionPage<void>(
+                      child: BundleAddView(),
+                    ),
+                  ),
+                ],
+              ),
+              GoRoute(
+                path: '/products',
+                redirect: (context, state) async {
+                  if (state.fullPath == '/shops/products') {
+                    return '/shops/products/products-list';
+                  }
+                  return null;
+                },
+                routes: [
+                  GoRoute(
+                    path: 'products-list',
+                    pageBuilder: (context, state) => const NoTransitionPage<void>(
+                      child: ProductsListView(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'info/:id',
+                    pageBuilder: (context, state) {
+                      final String id = state.pathParameters['id']!;
+                      final int productId = int.parse(id);
+                      return NoTransitionPage<void>(
+                        child: ProductInfoView(productId: productId),
+                      );
+                    },
+                  ),
+                  GoRoute(
+                    path: 'add',
+                    pageBuilder: (context, state) => const NoTransitionPage<void>(
+                      child: ProductAddView(),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+
+          //Menus Route
+          GoRoute(
+            path: '/menus',
+            redirect: (context, state) async {
+              if (state.fullPath == '/menus') {
+                return '/menus/menu-list';
+              }
+              return null;
+            },
+            routes: [
+              GoRoute(
+                path: 'menu-list',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: MenuListView(),
+                ),
+              ),
+              GoRoute(
+                path: 'privilege-list',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: PrivilegeListView(),
+                ),
+              ),
+              GoRoute(
+                path: 'role-list',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: RoleListView(),
+                ),
+              ),
+            ],
+          ),
+          //--------------Application Section--------------//
+
+          //--------------Tables & Forms--------------//
+          GoRoute(
+            path: '/tables',
+            redirect: (context, state) async {
+              if (state.fullPath == '/tables') {
+                return '/tables/basic-table';
+              }
+              return null;
+            },
+            routes: [
+              GoRoute(
+                path: 'basic-table',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: BasicTableView(),
+                ),
+              ),
+              GoRoute(
+                path: 'data-table',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: DataTableView(),
+                ),
+              ),
+            ],
+          ),
+
+          GoRoute(
+            path: '/forms',
+            redirect: (context, state) async {
+              if (state.fullPath == '/forms') {
+                return '/forms/basic-forms';
+              }
+              return null;
+            },
+            routes: [
+              GoRoute(
+                path: 'basic-forms',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: BasicFormsView(),
+                ),
+              ),
+              GoRoute(
+                path: 'form-select',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: FormSelectView(),
+                ),
+              ),
+              GoRoute(
+                path: 'form-validation',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: FormValidationView(),
+                ),
+              ),
+            ],
+          ),
+          //--------------Tables & Forms--------------//
+
+          //--------------Components--------------//
+          GoRoute(
+            path: '/components',
+            redirect: (context, state) async {
+              if (state.fullPath == '/components') {
+                return '/components/buttons';
+              }
+              return null;
+            },
+            routes: [
+              GoRoute(
+                path: 'buttons',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: ButtonsView(),
+                ),
+              ),
+              GoRoute(
+                path: 'colors',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: ColorsView(),
+                ),
+              ),
+              GoRoute(
+                path: 'alerts',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: AlertsView(),
+                ),
+              ),
+              GoRoute(
+                path: 'typography',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: TypographyView(),
+                ),
+              ),
+              GoRoute(
+                path: 'cards',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: CardsView(),
+                ),
+              ),
+              GoRoute(
+                path: 'avatars',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: AvatarsView(),
+                ),
+              ),
+              GoRoute(
+                path: 'dragndrop',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: DragAndDropView(),
+                ),
+              ),
+            ],
+          ),
+          //--------------Components--------------//
+
+          //--------------Pages--------------//
+          GoRoute(
+            path: '/pages',
+            redirect: (context, state) async {
+              if (state.fullPath == '/pages') {
+                return '/pages/gallery';
+              }
+              return null;
+            },
+            routes: [
+              GoRoute(
+                path: 'gallery',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: GalleryView(),
+                ),
+              ),
+              GoRoute(
+                path: 'maps',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: MapsView(),
+                ),
+              ),
+              GoRoute(
+                path: 'pricing',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: PricingView(),
+                ),
+              ),
+              GoRoute(
+                path: 'tabs-and-pills',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: TabsNPillsView(),
+                ),
+              ),
+              GoRoute(
+                path: '404',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: NotFoundView(),
+                ),
+              ),
+              GoRoute(
+                path: 'faqs',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: FaqView(),
+                ),
+              ),
+              GoRoute(
+                path: 'privacy-policy',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: PrivacyPolicyView(),
+                ),
+              ),
+              GoRoute(
+                path: 'terms-conditions',
+                pageBuilder: (context, state) => const NoTransitionPage<void>(
+                  child: TermsConditionView(),
+                ),
+              ),
+            ],
+          ),
+
+
           // Dashboard Routes
           GoRoute(
             path: '/dashboard',
@@ -409,480 +885,11 @@ abstract class AcnooAppRoutes {
               ),
             ],
           ),
-          // Admins Route
-          GoRoute(
-            path: '/admins',
-            redirect: (context, state) async {
-              if (state.fullPath == '/admins') {
-                return '/admins/admin-list';
-              }
-              return null;
-            },
-            routes: [
-              GoRoute(
-                path: 'admin-list',
-                pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: AdminsListView(),
-                ),
-              ),
-              GoRoute(
-                path: 'profile/:id',
-                pageBuilder: (context, state) {
-                  final String id = state.pathParameters['id']!;
-                  final int adminId = int.parse(id);
-                  return NoTransitionPage<void>(
-                    child: AdminProfileView(adminId: adminId),
-                  );
-                },
-              ),
-            ],
-          ),
-          // Users Route
-          GoRoute(
-            path: '/users',
-            redirect: (context, state) async {
-              if (state.fullPath == '/users') {
-                return '/users/user-list';
-              }
-              return null;
-            },
-            routes: [
-              GoRoute(
-                path: 'user-list',
-                pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: UserListView(),
-                ),
-              ),
-              GoRoute(
-                path: 'user-block-list',
-                pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: UserListView(),
-                ),
-              ),
-              GoRoute(
-                path: 'drop-out-user-list',
-                pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: DropOutUserListView(),
-                ),
-              ),
-              GoRoute(
-                path: 'profile/:id',
-                pageBuilder: (context, state) {
-                  final String id = state.pathParameters['id']!;
-                  final int userId = int.parse(id);
-                  return NoTransitionPage<void>(
-                    child: userMng.UserProfileView(userId: userId),
-                  );
-                },
-              ),
-              GoRoute(
-                path: 'currency/:id',
-                pageBuilder: (context, state) {
-                  final String id = state.pathParameters['id']!;
-                  final int userId = int.parse(id);
-                  return NoTransitionPage<void>(
-                    child: UserCurrencyView(userId: userId),
-                  );
-                },
-              ),
-              GoRoute(
-                path: 'currency/record/:id',
-                pageBuilder: (context, state) {
-                  final String id = state.pathParameters['id']!;
-                  final int userId = int.parse(id);
-                  return NoTransitionPage<void>(
-                    child: UserCurrencyRecordView(userId: userId)
-                  );
-                },
-              ),
-              GoRoute(
-                path: 'user-grid',
-                pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: UsersGridView(),
-                ),
-              ),
-              GoRoute(
-                path: 'user-profile',
-                pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: UserProfileView(),
-                ),
-              ),
-            ],
-          ),
-          GoRoute(
-            path: '/version',
-            pageBuilder: (context, state) => const NoTransitionPage<void>(
-              child: AppVersionListView(),
-            ),
-          ),
-          GoRoute(
-            path: '/boards',
-            redirect: (context, state) async {
-              if (state.fullPath == '/boards') {
-                return '/boards/board-list';
-              }
-              return null;
-            },
-            routes: [
-              GoRoute(
-                path: 'board-list',
-                pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: BoardListView(),
-                ),
-              ),
-              GoRoute(
-                path: 'write',
-                pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: BoardWriteView(),
-                ),
-              ),
-              GoRoute(
-                path: 'info/:id',
-                pageBuilder: (context, state) {
-                  final String id = state.pathParameters['id']!;
-                  final int boardId = int.parse(id);
-                  return NoTransitionPage<void>(
-                    child: BoardInfoView(boardId: boardId),
-                  );
-                },
-              ),
-            ],
-          ),
-          GoRoute(
-            path: '/shops',
-            redirect: (context, state) async {
-              if (state.fullPath == '/shops') {
-                return '/shops/bundle-list';
-              }
-              return null;
-            },
-            routes: [
-              GoRoute(
-                path: '/bundles',
-                redirect: (context, state) async {
-                  if (state.fullPath == '/bundles') {
-                    return 'bundle-list';
-                  }
-                  return null;
-                },
-                routes: [
-                  GoRoute(
-                    path: 'bundle-list',
-                    pageBuilder: (context, state) => const NoTransitionPage<void>(
-                      child: BundleListView(),
-                    ),
-                  ),
-                  GoRoute(
-                    path: 'info/:id',
-                    pageBuilder: (context, state) {
-                      final String id = state.pathParameters['id']!;
-                      final int bundleId = int.parse(id);
-                      return NoTransitionPage<void>(
-                        child: BundleInfoView(bundleId: bundleId),
-                      );
-                    },
-                  ),
-                  GoRoute(
-                    path: 'add',
-                    pageBuilder: (context, state) => const NoTransitionPage<void>(
-                      child: BundleAddView(),
-                    ),
-                  ),
-                ],
-              ),
-              GoRoute(
-                path: '/products',
-                redirect: (context, state) async {
-                  if (state.fullPath == '/products') {
-                    return 'products-list';
-                  }
-                  return null;
-                },
-                routes: [
-                  GoRoute(
-                    path: 'products-list',
-                    pageBuilder: (context, state) => const NoTransitionPage<void>(
-                      child: ProductsListView(),
-                    ),
-                  ),
-                  GoRoute(
-                    path: 'info/:id',
-                    pageBuilder: (context, state) {
-                      final String id = state.pathParameters['id']!;
-                      final int productId = int.parse(id);
-                      return NoTransitionPage<void>(
-                        child: ProductInfoView(productId: productId),
-                      );
-                    },
-                  ),
-                  GoRoute(
-                    path: 'add',
-                    pageBuilder: (context, state) => const NoTransitionPage<void>(
-                      child: ProductAddView(),
-                    ),
-                  ),
-                ],
-              ),
-              GoRoute(
-                path: 'item-list',
-                pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: ItemListView(),
-                ),
-              ),
-              GoRoute(
-                path: 'items/add',
-                pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: ItemAddView(),
-                ),
-              ),
-              GoRoute(
-                path: 'item/info/:id',
-                pageBuilder: (context, state) {
-                  final String id = state.pathParameters['id']!;
-                  final int itemId = int.parse(id);
-                  return NoTransitionPage<void>(
-                    child: ItemInfoView(itemId: itemId),
-                  );
-                },
-              ),
-              GoRoute(
-                path: 'item-unit-list',
-                pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: ItemUnitListView(),
-                ),
-              ),
-              GoRoute(
-                path: 'category-list',
-                pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: CategoryListView(),
-                ),
-              ),
-              GoRoute(
-                path: '/menus',
-                redirect: (context, state) async {
-                  if (state.fullPath == '/menus') {
-                    return '/menus/menu-list';
-                  }
-                  return null;
-                },
-                routes: [
-                  GoRoute(
-                    path: 'menu-list',
-                    pageBuilder: (context, state) => const NoTransitionPage<void>(
-                      child: AdminsListView(),
-                    ),
-                  ),
-                  GoRoute(
-                    path: 'role-list',
-                    pageBuilder: (context, state) {
-                      final String id = state.pathParameters['id']!;
-                      final int adminId = int.parse(id);
-                      return NoTransitionPage<void>(
-                        child: AdminProfileView(adminId: adminId),
-                      );
-                    },
-                  ),
-                  GoRoute(
-                    path: 'privilege-list',
-                    pageBuilder: (context, state) {
-                      final String id = state.pathParameters['id']!;
-                      final int adminId = int.parse(id);
-                      return NoTransitionPage<void>(
-                        child: AdminProfileView(adminId: adminId),
-                      );
-                    },
-                  ),
-                  GoRoute(
-                    path: 'role-privilege-list',
-                    pageBuilder: (context, state) {
-                      final String id = state.pathParameters['id']!;
-                      final int adminId = int.parse(id);
-                      return NoTransitionPage<void>(
-                        child: AdminProfileView(adminId: adminId),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ],
-          ),
-          //--------------Application Section--------------//
 
-          //--------------Tables & Forms--------------//
-          GoRoute(
-            path: '/tables',
-            redirect: (context, state) async {
-              if (state.fullPath == '/tables') {
-                return '/tables/basic-table';
-              }
-              return null;
-            },
-            routes: [
-              GoRoute(
-                path: 'basic-table',
-                pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: BasicTableView(),
-                ),
-              ),
-              GoRoute(
-                path: 'data-table',
-                pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: DataTableView(),
-                ),
-              ),
-            ],
-          ),
-
-          GoRoute(
-            path: '/forms',
-            redirect: (context, state) async {
-              if (state.fullPath == '/forms') {
-                return '/forms/basic-forms';
-              }
-              return null;
-            },
-            routes: [
-              GoRoute(
-                path: 'basic-forms',
-                pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: BasicFormsView(),
-                ),
-              ),
-              GoRoute(
-                path: 'form-select',
-                pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: FormSelectView(),
-                ),
-              ),
-              GoRoute(
-                path: 'form-validation',
-                pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: FormValidationView(),
-                ),
-              ),
-            ],
-          ),
-          //--------------Tables & Forms--------------//
-
-          //--------------Components--------------//
-          GoRoute(
-            path: '/components',
-            redirect: (context, state) async {
-              if (state.fullPath == '/components') {
-                return '/components/buttons';
-              }
-              return null;
-            },
-            routes: [
-              GoRoute(
-                path: 'buttons',
-                pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: ButtonsView(),
-                ),
-              ),
-              GoRoute(
-                path: 'colors',
-                pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: ColorsView(),
-                ),
-              ),
-              GoRoute(
-                path: 'alerts',
-                pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: AlertsView(),
-                ),
-              ),
-              GoRoute(
-                path: 'typography',
-                pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: TypographyView(),
-                ),
-              ),
-              GoRoute(
-                path: 'cards',
-                pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: CardsView(),
-                ),
-              ),
-              GoRoute(
-                path: 'avatars',
-                pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: AvatarsView(),
-                ),
-              ),
-              GoRoute(
-                path: 'dragndrop',
-                pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: DragAndDropView(),
-                ),
-              ),
-            ],
-          ),
-          //--------------Components--------------//
-
-          //--------------Pages--------------//
-          GoRoute(
-            path: '/pages',
-            redirect: (context, state) async {
-              if (state.fullPath == '/pages') {
-                return '/pages/gallery';
-              }
-              return null;
-            },
-            routes: [
-              GoRoute(
-                path: 'gallery',
-                pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: GalleryView(),
-                ),
-              ),
-              GoRoute(
-                path: 'maps',
-                pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: MapsView(),
-                ),
-              ),
-              GoRoute(
-                path: 'pricing',
-                pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: PricingView(),
-                ),
-              ),
-              GoRoute(
-                path: 'tabs-and-pills',
-                pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: TabsNPillsView(),
-                ),
-              ),
-              GoRoute(
-                path: '404',
-                pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: NotFoundView(),
-                ),
-              ),
-              GoRoute(
-                path: 'faqs',
-                pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: FaqView(),
-                ),
-              ),
-              GoRoute(
-                path: 'privacy-policy',
-                pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: PrivacyPolicyView(),
-                ),
-              ),
-              GoRoute(
-                path: 'terms-conditions',
-                pageBuilder: (context, state) => const NoTransitionPage<void>(
-                  child: TermsConditionView(),
-                ),
-              ),
-            ],
-          ),
           //--------------Pages--------------//
         ],
       ),
+
 
       // Full Screen Pages
       GoRoute(
