@@ -39,13 +39,18 @@ class _BundleCurrencyWidgetState extends State<BundleCurrencyWidget> {
   //Future Model
   late Future<List<BundleCurrencyModel>> bundleCurrencyList;
 
+  //Provider
+  late l.S lang;
+  late ThemeData theme;
+  late TextTheme textTheme;
+
   //번들 재화 목록 조회
   Future<List<BundleCurrencyModel>> getBundleCurrencyList() async {
     try {
       List<BundleCurrencySimple> list = await bundleCurrencyService.getBundleCurrencyList(widget.bundleId);
       return list
           .map((currency) => BundleCurrencyModel(
-              currencyType: CurrencyType.fromValue(currency.currencyType),
+              currencyType: currency.currencyType,
               countController: TextEditingController(text: currency.count.toString())))
           .toList();
     } catch (e) {
@@ -62,7 +67,7 @@ class _BundleCurrencyWidgetState extends State<BundleCurrencyWidget> {
       for (BundleCurrencyModel model in list) {
         checkModParameter(model);
         bundleCurrencies.add(BundleCurrencySimple(
-            currencyType: model.currencyType.value,
+            currencyType: model.currencyType,
             count: int.parse(model.countController.text)));
       }
       BundleCurrencyModParam bundleCurrencyModParam =
@@ -96,10 +101,10 @@ class _BundleCurrencyWidgetState extends State<BundleCurrencyWidget> {
 
     const _lg = 4;
     const _md = 6;
-    final ThemeData _theme = Theme.of(context);
-    final _textTheme = Theme.of(context).textTheme;
+    lang = l.S.of(context);
+    theme = Theme.of(context);
+    textTheme = Theme.of(context).textTheme;
     final _sizeInfo = SizeConfig.getSizeInfo(context);
-    final l.S lang = l.S.of(context);
 
     return FutureBuilderFactory.createFutureBuilder(
         future: bundleCurrencyList,
@@ -124,7 +129,7 @@ class _BundleCurrencyWidgetState extends State<BundleCurrencyWidget> {
                               //color: _theme.colorScheme.surface,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                  color: _theme.colorScheme.primary),
+                                  color: theme.colorScheme.primary),
                             ),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -135,11 +140,11 @@ class _BundleCurrencyWidgetState extends State<BundleCurrencyWidget> {
                                   inputField:
                                   DropdownButtonFormField<CurrencyType>(
                                     dropdownColor:
-                                    _theme.colorScheme.primaryContainer,
+                                    theme.colorScheme.primaryContainer,
                                     value: currency.currencyType,
                                     hint: Text(
                                       lang.type,
-                                      style: _textTheme.bodySmall,
+                                      style: textTheme.bodySmall,
                                     ),
                                     items: CurrencyType.values.map((type) {
                                       return DropdownMenuItem<CurrencyType>(
@@ -171,7 +176,7 @@ class _BundleCurrencyWidgetState extends State<BundleCurrencyWidget> {
                                     decoration: InputDecoration(
                                       hintText: lang.quantity,
                                       filled: !isModState,
-                                      fillColor: _theme
+                                      fillColor: theme
                                           .colorScheme.tertiaryContainer,
                                     ),
                                   ),
@@ -225,7 +230,7 @@ class _BundleCurrencyWidgetState extends State<BundleCurrencyWidget> {
                           label: Text(
                             lang.addNewBundleCurrency,
                             maxLines: 1,
-                            style: _textTheme.bodySmall?.copyWith(
+                            style: textTheme.bodySmall?.copyWith(
                               color: AcnooAppColors.kWhiteColor,
                               fontWeight: FontWeight.bold,
                             ),
@@ -246,21 +251,51 @@ class _BundleCurrencyWidgetState extends State<BundleCurrencyWidget> {
                 child: Align(
                   alignment: Alignment.centerLeft, // 버튼을 가운데 정렬
                   child: SizedBox(
-                    width: 200, // 버튼 너비를 200px로 제한 (원하는 크기로 조정 가능)
-                    child: CustomButton(
-                      textTheme: _textTheme,
-                      label: lang.modProduct,
-                      onPressed: () {
-                        if (isModState) {
-                          modBundleCurrency();
-                        } else {
-                          setState(() {
-                            isModState = true;
-                          });
-                        }
-                      },
-                    ),
-                  ),
+                      width: 1000,
+                      child: Row(
+                        children: [
+                          CustomButton(
+                              textTheme: textTheme,
+                              label: lang.modBundleItem,
+                              onPressed: () => {
+                                if (isModState)
+                                  {
+                                    modBundleCurrency(),
+                                  }
+                                else
+                                  {
+                                    setState(() {
+                                      isModState = true;
+                                    }),
+                                  }
+                              }),
+                          const SizedBox(width: 50),
+                          Visibility(
+                              visible: isModState,
+                              child: OutlinedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: _sizeInfo.innerSpacing),
+                                    backgroundColor:
+                                    theme.colorScheme.primaryContainer,
+                                    textStyle: textTheme.bodySmall?.copyWith(
+                                        color: AcnooAppColors.kError),
+                                    side: const BorderSide(
+                                        color: AcnooAppColors.kError)),
+                                onPressed: () {
+                                  setState(() {
+                                    isModState = false;
+                                    this.bundleCurrencyList = getBundleCurrencyList();
+                                  });
+                                },
+                                label: Text(
+                                  lang.cancel,
+                                  style: textTheme.bodySmall?.copyWith(
+                                      color: AcnooAppColors.kError),
+                                ),
+                              ))
+                        ],
+                      )),
                 ),
               ),
             ],
@@ -269,7 +304,7 @@ class _BundleCurrencyWidgetState extends State<BundleCurrencyWidget> {
   }
 
   void buildBundleCurrencyField(List<BundleCurrencyModel> bundleCurrencyList) {
-    CurrencyType currencyType = CurrencyType.diamond;
+    CurrencyType currencyType = CurrencyType.DIAMOND;
     TextEditingController countController = TextEditingController();
     bundleCurrencyList.add(BundleCurrencyModel(
         currencyType: currencyType, countController: countController));

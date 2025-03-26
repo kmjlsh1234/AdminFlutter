@@ -1,4 +1,7 @@
+import 'package:acnoo_flutter_admin_panel/app/constants/user/user_status.dart';
 import 'package:json_annotation/json_annotation.dart';
+
+import '../../constants/user/login_type.dart';
 
 part 'user_detail.g.dart';
 
@@ -7,10 +10,10 @@ class UserDetail {
   //user
   final int userId;
   final String loginId;
-  final String status;
+  final UserStatus status;
   final String mobile;
   final String email;
-  final String loginType;
+  final LoginType loginType;
   final DateTime? initAt;
   final DateTime? loginAt;
   final DateTime? logoutAt;

@@ -1,11 +1,13 @@
 import 'package:acnoo_flutter_admin_panel/app/models/common/paging_param.dart';
 import 'package:json_annotation/json_annotation.dart';
 
+import '../../../constants/shop/item_unit/item_unit_search_type.dart';
+
 part 'item_unit_search_param.g.dart';
 
 @JsonSerializable(includeIfNull: true)
 class ItemUnitSearchParam extends PagingParam {
-  final String? searchType;
+  final ItemUnitSearchType? searchType;
   final String? searchValue;
 
   ItemUnitSearchParam({

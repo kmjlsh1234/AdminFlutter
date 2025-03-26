@@ -3,7 +3,7 @@ part 'admin_add_param.g.dart';
 
 @JsonSerializable(includeIfNull: false)
 class AdminAddParam{
-  final int roleId;
+  final int? roleId;
   final String email;
   final String password;
   final String name;

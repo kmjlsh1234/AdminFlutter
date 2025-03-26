@@ -36,7 +36,7 @@ class UserProfileView extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
-                        child: UserNavBar(userMenu: UserMenu.profile, userId: userId),
+                        child: UserNavBar(userMenu: UserMenu.PROFILE, userId: userId),
                       ),
                     ],
                   ),

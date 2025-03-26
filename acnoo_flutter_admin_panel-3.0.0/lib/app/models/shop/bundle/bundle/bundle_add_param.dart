@@ -1,4 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
+
+import '../../../../constants/shop/item/currency_type.dart';
 part 'bundle_add_param.g.dart';
 
 @JsonSerializable(includeIfNull: true)
@@ -12,7 +14,7 @@ class BundleAddParam{
   final int? countPerPerson;
   final String? saleStartDate;
   final String? saleEndDate;
-  final String currencyType;
+  final CurrencyType currencyType;
   final int amount;
   final int originAmount;
   final int? stockQuantity;

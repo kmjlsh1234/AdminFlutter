@@ -9,7 +9,7 @@ part of 'chip_record.dart';
 ChipRecord _$ChipRecordFromJson(Map<String, dynamic> json) => ChipRecord(
       id: (json['id'] as num).toInt(),
       userId: (json['userId'] as num).toInt(),
-      changeType: json['changeType'] as String,
+      changeType: $enumDecode(_$ChangeTypeEnumMap, json['changeType']),
       changeChip: (json['changeChip'] as num).toInt(),
       resultChip: (json['resultChip'] as num).toInt(),
       changeDesc: json['changeDesc'] as String,
@@ -21,10 +21,16 @@ Map<String, dynamic> _$ChipRecordToJson(ChipRecord instance) =>
     <String, dynamic>{
       'id': instance.id,
       'userId': instance.userId,
-      'changeType': instance.changeType,
+      'changeType': _$ChangeTypeEnumMap[instance.changeType]!,
+      'changeChip': instance.changeChip,
+      'resultChip': instance.resultChip,
       'changeDesc': instance.changeDesc,
       'idempotentKey': instance.idempotentKey,
       'createdAt': instance.createdAt.toIso8601String(),
-      'changeChip': instance.changeChip,
-      'resultChip': instance.resultChip,
     };
+
+const _$ChangeTypeEnumMap = {
+  ChangeType.NONE: 'NONE',
+  ChangeType.ADD: 'ADD',
+  ChangeType.USE: 'USE',
+};

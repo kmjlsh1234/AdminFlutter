@@ -1,13 +1,12 @@
-import 'package:acnoo_flutter_admin_panel/app/core/error/custom_exception.dart';
 import 'package:acnoo_flutter_admin_panel/app/models/admin/admin_mod_status_param.dart';
 import 'package:retrofit/retrofit.dart';
 
 import '../../../models/admin/admin.dart';
 import '../../../models/admin/admin_add_param.dart';
+import '../../../models/admin/admin_detail.dart';
 import '../../../models/admin/admin_mod_param.dart';
 import '../../../models/admin/admin_search_param.dart';
 import '../../../models/common/count_vo.dart';
-import '../../error/error_code.dart';
 import '../../repository/admin/admin_manage_repository.dart';
 import '../../utils/dio_factory.dart';
 
@@ -30,7 +29,6 @@ class AdminManageService{
 
   //ADMIN 추가
   Future<Admin> addAdmin(AdminAddParam adminAddParam) async {
-    checkAddParameter(adminAddParam);
     return await repository.addAdmin(adminAddParam);
   }
 
@@ -46,36 +44,7 @@ class AdminManageService{
   }
 
   //ADMIN 조회
-  Future<Admin> getAdmin(int adminId) async{
+  Future<AdminDetail> getAdmin(int adminId) async {
     return await repository.getAdmin(adminId);
-  }
-
-  //ADMIN 추가 파라미터 검사
-  void checkAddParameter(AdminAddParam adminAddParam) {
-
-    //TODO : 빈값 체크
-    if(adminAddParam.name.isEmpty || adminAddParam.email.isEmpty || adminAddParam.password.isEmpty) {
-      throw CustomException(ErrorCode.UNKNOWN_ERROR);
-    }
-    
-    //TODO : email 형식 검사
-    if(!emailRegex.hasMatch(adminAddParam.email)){
-      throw CustomException(ErrorCode.EMAIL_REGEX_VALIDATION);
-    }
-
-    //TODO : password 길이가 2~14 사이인지 검사
-    if(adminAddParam.password.length < 2 || adminAddParam.password.length > 14){
-      throw CustomException(ErrorCode.INVALID_PASSWORD_LENGTH);
-    }
-    
-    //TODO : password에 특수문자 들어가는지 검사
-    if(!specialCharRegex.hasMatch(adminAddParam.password)){
-      throw CustomException(ErrorCode.PASSWORD_REGEX_VALIDATION);
-    }
-      
-    //TODO : 전화번호 형식 검사
-    if(!mobileRegex.hasMatch(adminAddParam.mobile)){
-      throw CustomException(ErrorCode.MOBILE_REGEX_VALIDATION);
-    }
   }
 }

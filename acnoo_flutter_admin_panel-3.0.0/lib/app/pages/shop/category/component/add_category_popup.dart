@@ -1,6 +1,7 @@
 // 🐦 Flutter imports:
 import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 // 🌎 Project imports:
 import '../../../../../generated/l10n.dart' as l;
@@ -10,6 +11,7 @@ import '../../../../core/utils/alert_util.dart';
 import '../../../../core/utils/size_config.dart';
 import '../../../../models/shop/category/category.dart';
 import '../../../../models/shop/category/category_add_param.dart';
+import '../../../../widgets/textfield_wrapper/_textfield_wrapper.dart';
 
 class AddCategoryDialog extends StatefulWidget {
   const AddCategoryDialog({super.key});
@@ -20,9 +22,17 @@ class AddCategoryDialog extends StatefulWidget {
 
 class _AddCategoryDialogState extends State<AddCategoryDialog> {
 
-  final CategoryService categoryService = CategoryService();
+  //Input Controller
   final TextEditingController nameController = TextEditingController();
   final TextEditingController descController = TextEditingController();
+
+  //Service Layer
+  final CategoryService categoryService = CategoryService();
+
+  //Provider
+  late l.S lang;
+  late ThemeData theme;
+  late TextTheme textTheme;
 
   //카테고리 추가
   Future<void> addCategory() async {
@@ -33,7 +43,16 @@ class _AddCategoryDialogState extends State<AddCategoryDialog> {
       );
 
       Category category = await categoryService.addCategory(categoryAddParam);
-      AlertUtil.popupSuccessDialog(context, '카테고리 추가 성공');
+
+      AlertUtil.successDialog(
+          context: context,
+          message: lang.successAddCategory,
+          buttonText: lang.confirm,
+          onPressed: (){
+            GoRouter.of(context).pop();
+            GoRouter.of(context).pop(true);
+          }
+      );
     } catch (e) {
       ErrorHandler.handleError(e, context);
     }
@@ -53,10 +72,10 @@ class _AddCategoryDialogState extends State<AddCategoryDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final lang = l.S.of(context);
     final _sizeInfo = SizeConfig.getSizeInfo(context);
-    TextTheme textTheme = Theme.of(context).textTheme;
-    final theme = Theme.of(context);
+    lang = l.S.of(context);
+    theme = Theme.of(context);
+    textTheme = Theme.of(context).textTheme;
 
     return AlertDialog(
       contentPadding: EdgeInsets.zero,
@@ -75,10 +94,9 @@ class _AddCategoryDialogState extends State<AddCategoryDialog> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // const Text('Form Dialog'),
-                  Text(lang.formDialog),
+                  Text(lang.addNewCategory),
                   IconButton(
-                    onPressed: () => Navigator.of(context).pop(false),
+                    onPressed: () => GoRouter.of(context).pop(false),
                     icon: const Icon(
                       Icons.close,
                       color: AcnooAppColors.kError,
@@ -102,28 +120,37 @@ class _AddCategoryDialogState extends State<AddCategoryDialog> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ///---------------- Text Field section
-                    Text(lang.fullName, style: textTheme.bodySmall),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: nameController,
-                      decoration: InputDecoration(
-                          hintText: lang.enterYourFullName,
-                          hintStyle: textTheme.bodySmall),
-                      validator: (value) => value?.isEmpty ?? true
-                          ? lang.pleaseEnterYourFullName
-                          : null,
+
+                    // NAME
+                    TextFieldLabelWrapper(
+                      labelText: lang.name,
+                      inputField: TextFormField(
+                        controller: nameController,
+                        decoration: InputDecoration(
+                            hintText: lang.hintName,
+                            hintStyle: textTheme.bodySmall
+                        ),
+                        validator: (value) => value?.isEmpty ?? true ? lang.invalidName : null,
+                        autovalidateMode: AutovalidateMode.onUnfocus,
+                      ),
                     ),
+
                     const SizedBox(height: 20),
-                    Text(lang.description, style: textTheme.bodySmall),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: descController,
-                      decoration: InputDecoration(
-                        //hintText: 'Write Something',
-                          hintText: lang.writeSomething,
-                          hintStyle: textTheme.bodySmall),
-                      maxLines: 3,
+
+                    // DESCRIPTION
+                    TextFieldLabelWrapper(
+                      labelText: lang.description,
+                      inputField: TextFormField(
+                        controller: descController,
+                        decoration: InputDecoration(
+                            hintText: lang.hintDescription,
+                            hintStyle: textTheme.bodySmall),
+                        maxLines: 3,
+                        validator: (value) => value?.isEmpty ?? true ? lang.invalidDescription : null,
+                        autovalidateMode: AutovalidateMode.onUnfocus,
+                      ),
                     ),
+
                     const SizedBox(height: 24),
 
                     ///---------------- Submit Button section
@@ -143,7 +170,7 @@ class _AddCategoryDialogState extends State<AddCategoryDialog> {
                                     ?.copyWith(color: AcnooAppColors.kError),
                                 side: const BorderSide(
                                     color: AcnooAppColors.kError)),
-                            onPressed: () => Navigator.of(context).pop(false),
+                            onPressed: () => GoRouter.of(context).pop(false),
                             label: Text(
                               lang.cancel,
                               //'Cancel',

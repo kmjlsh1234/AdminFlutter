@@ -10,6 +10,7 @@ import 'package:responsive_framework/responsive_framework.dart' as rf;
 import '../../core/static/static.dart';
 import '../../core/theme/theme.dart';
 import 'components/_components.dart';
+import 'components/sidebar/custom_side_bar.dart';
 import 'models/models.dart';
 
 class ShellRouteWrapper extends StatefulWidget {
@@ -92,10 +93,12 @@ class _ShellRouteWrapperState extends State<ShellRouteWrapper> {
                 ),
 
                 // Footer
+                /*
                 if (_isLaptop)
                   const rf.ResponsiveRowColumnItem(
                     child: FooterWidget(),
                   )
+                 */
               ],
             ),
           ),
@@ -119,7 +122,7 @@ class _ShellRouteWrapperState extends State<ShellRouteWrapper> {
   }
 
   Widget buildSidebar(bool isExpanded) {
-    return SideBarWidget(
+    return CustomSideBarWidget(
       rootScaffoldKey: scaffoldKey,
       iconOnly: isExpanded,
     );

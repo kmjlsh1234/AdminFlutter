@@ -2,8 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:responsive_grid/responsive_grid.dart';
+
 import '../../../constants/admin/admin_menu.dart';
-import '../../../constants/user/user_menu.dart';
 import '../../../core/theme/_app_colors.dart';
 
 class AdminNavBar extends StatefulWidget {
@@ -19,11 +19,10 @@ class _AdminNavBarState extends State<AdminNavBar> {
 
   void selectMenu(AdminMenu menu){
     switch(menu){
-      case AdminMenu.profile:
+      case AdminMenu.PROFILE:
         GoRouter.of(context).go('/admins/profile/${widget.adminId}');
         break;
-      case AdminMenu.log:
-        //GoRouter.of(context).go('/users/currency/${widget.adminId}');
+      case AdminMenu.LOG:
         break;
     }
   }

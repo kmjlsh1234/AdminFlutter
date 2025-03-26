@@ -1,20 +1,24 @@
+import 'package:acnoo_flutter_admin_panel/app/models/common/paging_param.dart';
 import 'package:json_annotation/json_annotation.dart';
+
+import '../../constants/user/drop_out_user_search_type.dart';
 part 'drop_out_user_search_param.g.dart';
 
-@JsonSerializable()
-class DropOutUserSearchParam{
-  @JsonKey(includeIfNull: true)
-  final String? searchType;
-  @JsonKey(includeIfNull: true)
+@JsonSerializable(includeIfNull: true)
+class DropOutUserSearchParam extends PagingParam {
+  final DropOutUserSearchType? searchType;
   final String? searchValue;
-  @JsonKey(includeIfNull: true)
   final String? startDate;
-  @JsonKey(includeIfNull: true)
   final String? endDate;
-  final int page;
-  final int limit;
 
-  DropOutUserSearchParam(this.searchType, this.searchValue, this.startDate, this.endDate, this.page, this.limit);
+  DropOutUserSearchParam({
+    required this.searchType,
+    required this.searchValue,
+    required this.startDate,
+    required this.endDate,
+    required int page,
+    required int limit
+  }) : super(page, limit);
 
   factory DropOutUserSearchParam.fromJson(Map<String, dynamic> json) => _$DropOutUserSearchParamFromJson(json);
   Map<String, dynamic> toJson() => _$DropOutUserSearchParamToJson(this);

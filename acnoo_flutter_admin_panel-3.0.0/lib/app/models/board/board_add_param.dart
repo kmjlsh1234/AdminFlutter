@@ -1,12 +1,15 @@
 import 'package:json_annotation/json_annotation.dart';
+
+import '../../constants/board/board_status.dart';
+import '../../constants/board/board_type.dart';
 part 'board_add_param.g.dart';
 
 @JsonSerializable(includeIfNull:  true)
 class BoardAddParam{
   final String title;
   final String content;
-  final String boardType;
-  final String status;
+  final BoardType boardType;
+  final BoardStatus status;
   final String? image;
 
   BoardAddParam({

@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:responsive_grid/responsive_grid.dart';
 
-import '../../../../generated/l10n.dart' as l;
 import '../../constants/user/user_menu.dart';
 import '../../widgets/widgets.dart';
 import 'component/nav_bar/user_nav_bar.dart';
@@ -16,7 +15,6 @@ class UserCurrencyView extends StatelessWidget {
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
     final theme = Theme.of(context);
-    final lang = l.S.of(context);
     final double padding = responsiveValue<double>(
       context,
       xs: 16,
@@ -38,7 +36,7 @@ class UserCurrencyView extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
-                        child: UserNavBar(userMenu: UserMenu.currency, userId: userId),
+                        child: UserNavBar(userMenu: UserMenu.CURRENCY, userId: userId),
                       ),
                     ],
                   ),
@@ -55,7 +53,7 @@ class UserCurrencyView extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    UserCurrencyWidget(padding: padding, theme: theme, textTheme: textTheme, userId: userId, lang: lang)
+                    UserCurrencyWidget(userId: userId, padding: padding, theme: theme, textTheme: textTheme)
                   ],
                 ),
               ),

@@ -17,7 +17,8 @@ BundleModParam _$BundleModParamFromJson(Map<String, dynamic> json) =>
       countPerPerson: (json['countPerPerson'] as num?)?.toInt(),
       saleStartDate: json['saleStartDate'] as String?,
       saleEndDate: json['saleEndDate'] as String?,
-      currencyType: json['currencyType'] as String?,
+      currencyType:
+          $enumDecodeNullable(_$CurrencyTypeEnumMap, json['currencyType']),
       amount: (json['amount'] as num?)?.toInt(),
       originAmount: (json['originAmount'] as num?)?.toInt(),
       stockQuantity: (json['stockQuantity'] as num?)?.toInt(),
@@ -34,8 +35,16 @@ Map<String, dynamic> _$BundleModParamToJson(BundleModParam instance) =>
       'countPerPerson': instance.countPerPerson,
       'saleStartDate': instance.saleStartDate,
       'saleEndDate': instance.saleEndDate,
-      'currencyType': instance.currencyType,
+      'currencyType': _$CurrencyTypeEnumMap[instance.currencyType],
       'amount': instance.amount,
       'originAmount': instance.originAmount,
       'stockQuantity': instance.stockQuantity,
     };
+
+const _$CurrencyTypeEnumMap = {
+  CurrencyType.DIAMOND: 'DIAMOND',
+  CurrencyType.COIN: 'COIN',
+  CurrencyType.CHIP: 'CHIP',
+  CurrencyType.FREE: 'FREE',
+  CurrencyType.EVENT: 'EVENT',
+};

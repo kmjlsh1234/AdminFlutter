@@ -13,7 +13,7 @@ ItemUnit _$ItemUnitFromJson(Map<String, dynamic> json) => ItemUnit(
       image: json['image'] as String,
       description: json['description'] as String,
       attributes: json['attributes'] as String,
-      type: json['type'] as String,
+      type: $enumDecode(_$ItemUnitTypeEnumMap, json['type']),
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
     );
@@ -25,7 +25,13 @@ Map<String, dynamic> _$ItemUnitToJson(ItemUnit instance) => <String, dynamic>{
       'image': instance.image,
       'description': instance.description,
       'attributes': instance.attributes,
-      'type': instance.type,
+      'type': _$ItemUnitTypeEnumMap[instance.type]!,
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt.toIso8601String(),
     };
+
+const _$ItemUnitTypeEnumMap = {
+  ItemUnitType.CONSUMABLE: 'CONSUMABLE',
+  ItemUnitType.PERMANENT: 'PERMANENT',
+  ItemUnitType.EXPIRATION: 'EXPIRATION',
+};

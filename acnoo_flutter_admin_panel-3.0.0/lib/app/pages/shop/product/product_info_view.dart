@@ -2,8 +2,10 @@
 // 📦 Package imports:
 import 'package:acnoo_flutter_admin_panel/app/constants/shop/product/product_type.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/error/custom_exception.dart';
+import 'package:acnoo_flutter_admin_panel/app/core/utils/future_builder_factory.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:responsive_grid/responsive_grid.dart';
 
@@ -17,6 +19,8 @@ import '../../../core/error/error_code.dart';
 import '../../../core/error/error_handler.dart';
 import '../../../core/service/file/file_service.dart';
 import '../../../core/service/shop/product/product_service.dart';
+import '../../../core/theme/_app_colors.dart';
+import '../../../core/utils/alert_util.dart';
 import '../../../core/utils/size_config.dart';
 import '../../../models/shop/product/product/product.dart';
 import '../../../models/shop/product/product/product_mod_param.dart';
@@ -49,7 +53,7 @@ class _ProductInfoViewState extends State<ProductInfoView> {
   final TextEditingController originPriceController = TextEditingController();
 
   //DropDown Menu
-  ProductType productType = ProductType.currency;
+  ProductType productType = ProductType.CURRENCY;
 
   //Service
   final ProductService productService = ProductService();
@@ -65,6 +69,10 @@ class _ProductInfoViewState extends State<ProductInfoView> {
   XFile? imageFile;
   XFile? thumbnailFile;
 
+  //Provider
+  late l.S lang;
+  late ThemeData theme;
+  late TextTheme textTheme;
 
   //상품 단일 조회
   Future<Product> getProduct() async {
@@ -76,7 +84,7 @@ class _ProductInfoViewState extends State<ProductInfoView> {
     }
   }
 
-  //상품 정보 추가 OR 변경
+  //상품 정보 변경
   Future<void> modProduct(Product currentProduct) async {
     try {
       //TODO: 입력 파라미터 검사
@@ -87,17 +95,29 @@ class _ProductInfoViewState extends State<ProductInfoView> {
       String? remoteImagePath;
 
       if (thumbnailPath != null && (thumbnailPath != currentProduct.thumbnail)) {
-        remoteThumbnailPath = await fileService.uploadFileTest(thumbnailFile, FileCategory.profile, FileType.image);
+        remoteThumbnailPath = await fileService.uploadFileTest(thumbnailFile, FileCategory.PROFILE, FileType.IMAGE);
       }
 
       if (imagePath != null && (imagePath != currentProduct.image)) {
-        remoteImagePath = await fileService.uploadFileTest(imageFile, FileCategory.profile, FileType.image);
+        remoteImagePath = await fileService.uploadFileTest(imageFile, FileCategory.PROFILE, FileType.IMAGE);
       }
 
       //TODO: ADMIN서버에 상품 추가
       ProductModParam productModParam = getProductModParam(remoteThumbnailPath, remoteImagePath);
       Product product = await productService.modProduct(widget.productId, productModParam);
-      showSuccessDialog(context);
+
+      AlertUtil.successDialog(
+          context: context,
+          message: lang.successModProduct,
+          buttonText: lang.confirm,
+          onPressed: (){
+            setState(() {
+              isModState = false;
+              this.product = getProduct();
+              GoRouter.of(context).pop();
+            });
+          }
+      );
     } catch (e) {
       ErrorHandler.handleError(e, context);
     }
@@ -110,11 +130,11 @@ class _ProductInfoViewState extends State<ProductInfoView> {
       if (pickFile != null) {
         setState(() {
           switch (type) {
-            case ImageSelectType.thumbnail:
+            case ImageSelectType.THUMBNAIL:
               thumbnailFile = pickFile;
               thumbnailPath = pickFile.path;
               break;
-            case ImageSelectType.image:
+            case ImageSelectType.IMAGE:
               imageFile = pickFile;
               imagePath = pickFile.path;
               break;
@@ -133,7 +153,7 @@ class _ProductInfoViewState extends State<ProductInfoView> {
         thumbnail: thumbnail,
         image: image,
         info: infoController.text,
-        type: productType.value,
+        type: productType,
         stockQuantity: int.tryParse(stockQuantityController.text),
         price: int.parse(priceController.text),
         originPrice: int.parse(originPriceController.text)
@@ -178,7 +198,7 @@ class _ProductInfoViewState extends State<ProductInfoView> {
     stockQuantityController.text = product.stockQuantity?.toString() ?? '';
     priceController.text = product.price.toString();
     originPriceController.text = product.originPrice.toString();
-    productType = ProductType.fromValue(product.type);
+    productType = product.type;
     thumbnailPath = product.thumbnail;
     imagePath = product.image;
   }
@@ -205,32 +225,24 @@ class _ProductInfoViewState extends State<ProductInfoView> {
     const _lg = 4;
     const _md = 6;
 
-    final ThemeData _theme = Theme.of(context);
-    final _textTheme = Theme.of(context).textTheme;
+    lang = l.S.of(context);
+    theme = Theme.of(context);
+    textTheme = Theme.of(context).textTheme;
     final _sizeInfo = SizeConfig.getSizeInfo(context);
-    final l.S lang = l.S.of(context);
 
-    return FutureBuilder<Product>(
+    return FutureBuilderFactory.createFutureBuilder(
         future: product,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
-          final product = snapshot.data!;
+        onSuccess: (context, product){
           setData(product);
-
           return Scaffold(
             body: ListView(
               padding: _sizeInfo.padding,
               children: [
-                // Input Example
                 ShadowContainer(
-                  headerText: lang.product,
+                  headerText: !isModState ? lang.product : lang.infoModProduct,
                   child: ResponsiveGridRow(
                     children: [
+
                       //NAME
                       ResponsiveGridCol(
                         lg: _lg,
@@ -244,10 +256,12 @@ class _ProductInfoViewState extends State<ProductInfoView> {
                               enabled: isModState,
                               controller: nameController,
                               decoration: InputDecoration(
-                                hintText: lang.name,
+                                hintText: lang.hintName,
                                 filled: !isModState,
-                                fillColor: _theme.colorScheme.tertiaryContainer,
+                                fillColor: theme.colorScheme.tertiaryContainer,
                               ),
+                              validator: (value) => value?.isEmpty ?? true ? lang.invalidName : null,
+                              autovalidateMode: AutovalidateMode.onUnfocus,
                             ),
                           ),
                         ),
@@ -267,10 +281,12 @@ class _ProductInfoViewState extends State<ProductInfoView> {
                               enabled: isModState,
                               controller: descController,
                               decoration: InputDecoration(
-                                hintText: lang.description,
+                                hintText: lang.hintDescription,
                                 filled: !isModState,
-                                fillColor: _theme.colorScheme.tertiaryContainer,
+                                fillColor: theme.colorScheme.tertiaryContainer,
                               ),
+                              validator: (value) => value?.isEmpty ?? true ? lang.invalidDescription : null,
+                              autovalidateMode: AutovalidateMode.onUnfocus,
                             ),
                           ),
                         ),
@@ -290,10 +306,12 @@ class _ProductInfoViewState extends State<ProductInfoView> {
                               enabled: isModState,
                               controller: infoController,
                               decoration: InputDecoration(
-                                hintText: lang.info,
+                                hintText: lang.hintInfo,
                                 filled: !isModState,
-                                fillColor: _theme.colorScheme.tertiaryContainer,
+                                fillColor: theme.colorScheme.tertiaryContainer,
                               ),
+                              validator: (value) => value?.isEmpty ?? true ? lang.invalidInfo : null,
+                              autovalidateMode: AutovalidateMode.onUnfocus,
                             ),
                           ),
                         ),
@@ -318,10 +336,10 @@ class _ProductInfoViewState extends State<ProductInfoView> {
                                   enabled: isModState,
                                   controller: stockQuantityController,
                                   decoration: InputDecoration(
-                                    hintText: lang.stockQuantity,
+                                    hintText: lang.hintStockQuantity,
                                     filled: !isModState,
                                     fillColor:
-                                        _theme.colorScheme.tertiaryContainer,
+                                    theme.colorScheme.tertiaryContainer,
                                   ),
                                 ),
                               );
@@ -349,10 +367,10 @@ class _ProductInfoViewState extends State<ProductInfoView> {
                                   enabled: isModState,
                                   controller: priceController,
                                   decoration: InputDecoration(
-                                    hintText: lang.price,
+                                    hintText: lang.hintPrice,
                                     filled: !isModState,
                                     fillColor:
-                                        _theme.colorScheme.tertiaryContainer,
+                                    theme.colorScheme.tertiaryContainer,
                                   ),
                                 ),
                               );
@@ -380,10 +398,10 @@ class _ProductInfoViewState extends State<ProductInfoView> {
                                   enabled: isModState,
                                   controller: originPriceController,
                                   decoration: InputDecoration(
-                                    hintText: lang.originPrice,
+                                    hintText: lang.hintOriginPrice,
                                     filled: !isModState,
                                     fillColor:
-                                        _theme.colorScheme.tertiaryContainer,
+                                    theme.colorScheme.tertiaryContainer,
                                   ),
                                 ),
                               );
@@ -403,16 +421,16 @@ class _ProductInfoViewState extends State<ProductInfoView> {
                             labelText: lang.type,
                             inputField: DropdownButtonFormField<ProductType>(
                               dropdownColor:
-                                  _theme.colorScheme.primaryContainer,
+                              theme.colorScheme.primaryContainer,
                               value: productType,
                               hint: Text(
                                 lang.type,
-                                style: _textTheme.bodySmall,
+                                style: textTheme.bodySmall,
                               ),
                               decoration: InputDecoration(
                                 filled: !isModState,
                                 fillColor: isModState
-                                    ? _theme.colorScheme.tertiaryContainer
+                                    ? theme.colorScheme.tertiaryContainer
                                     : Colors.grey.shade300,
                               ),
                               items: ProductType.values.map((type) {
@@ -471,7 +489,7 @@ class _ProductInfoViewState extends State<ProductInfoView> {
                                   labelText: lang.thumbnail,
                                   inputField: DottedBorderContainer(
                                     child: GestureDetector(
-                                      onTap: () => pickImage(ImageSelectType.thumbnail),
+                                      onTap: () => pickImage(ImageSelectType.THUMBNAIL),
                                       child: thumbnailPath == null
                                           ? Column(
                                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -479,7 +497,7 @@ class _ProductInfoViewState extends State<ProductInfoView> {
                                         children: [
                                           Icon(
                                             Icons.camera_alt_outlined,
-                                            color: _theme.colorScheme.onTertiary,
+                                            color: theme.colorScheme.onTertiary,
                                           ),
                                           Text(lang.uploadImage),
                                         ],
@@ -502,7 +520,7 @@ class _ProductInfoViewState extends State<ProductInfoView> {
                                   labelText: lang.image,
                                   inputField: DottedBorderContainer(
                                     child: GestureDetector(
-                                      onTap: () => pickImage(ImageSelectType.image),
+                                      onTap: () => pickImage(ImageSelectType.IMAGE),
                                       child: imagePath == null
                                           ? Column(
                                         crossAxisAlignment:
@@ -511,7 +529,7 @@ class _ProductInfoViewState extends State<ProductInfoView> {
                                         children: [
                                           Icon(
                                             Icons.camera_alt_outlined,
-                                            color: _theme.colorScheme.onTertiary,
+                                            color: theme.colorScheme.onTertiary,
                                           ),
                                           Text(lang.uploadImage),
                                         ],
@@ -535,28 +553,58 @@ class _ProductInfoViewState extends State<ProductInfoView> {
                   ),
                 ),
 
-                SizedBox(height: _sizeInfo.innerSpacing), //간격 추가
-
+                SizedBox(height: _sizeInfo.innerSpacing), // 간격 추가
                 Padding(
                   padding: EdgeInsets.all(_sizeInfo.innerSpacing),
                   child: Align(
                     alignment: Alignment.centerLeft, // 버튼을 가운데 정렬
                     child: SizedBox(
-                      width: 200, // 버튼 너비를 200px로 제한 (원하는 크기로 조정 가능)
-                      child: CustomButton(
-                        textTheme: _textTheme,
-                        label: lang.modProduct,
-                        onPressed: () {
-                          if (isModState) {
-                            modProduct(product);
-                          } else {
-                            setState(() {
-                              isModState = true;
-                            });
-                          }
-                        },
-                      ),
-                    ),
+                        width: 1000,
+                        child: Row(
+                          children: [
+                            CustomButton(
+                                textTheme: textTheme,
+                                label: lang.modProduct,
+                                onPressed: () => {
+                                  if (isModState)
+                                    {
+                                      modProduct(product),
+                                    }
+                                  else
+                                    {
+                                      setState(() {
+                                        isModState = true;
+                                      }),
+                                    }
+                                }),
+                            const SizedBox(width: 50),
+                            Visibility(
+                                visible: isModState,
+                                child: OutlinedButton.icon(
+                                  style: ElevatedButton.styleFrom(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: _sizeInfo.innerSpacing),
+                                      backgroundColor:
+                                      theme.colorScheme.primaryContainer,
+                                      textStyle: textTheme.bodySmall?.copyWith(
+                                          color: AcnooAppColors.kError),
+                                      side: const BorderSide(
+                                          color: AcnooAppColors.kError)),
+                                  onPressed: () {
+                                    setState(() {
+                                      isModState = false;
+                                      setData(product);
+                                    });
+
+                                  },
+                                  label: Text(
+                                    lang.cancel,
+                                    style: textTheme.bodySmall?.copyWith(
+                                        color: AcnooAppColors.kError),
+                                  ),
+                                ))
+                          ],
+                        )),
                   ),
                 ),
 
@@ -566,40 +614,20 @@ class _ProductInfoViewState extends State<ProductInfoView> {
               ],
             ),
           );
-        });
+        }
+    );
   }
 
   void buildProductOptionField(List<ProductOptionModel> optionList) {
     TextEditingController optionNameController = TextEditingController();
     TextEditingController optionQuantityController = TextEditingController();
-    ProductOptionType type = ProductOptionType.diamond;
+    ProductOptionType type = ProductOptionType.DIAMOND;
     optionList.add(
         ProductOptionModel(
             nameController: optionNameController,
             quantityController: optionQuantityController,
             type: type
         )
-    );
-  }
-
-  void showSuccessDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(''),
-          content: Text('상품 변경 성공'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                isModState = false;
-              },
-              child: Text('확인'),
-            ),
-          ],
-        );
-      },
     );
   }
 }

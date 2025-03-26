@@ -67,6 +67,7 @@ class TopBarWidget extends StatelessWidget implements PreferredSizeWidget {
       surfaceTintColor: Colors.transparent,
       actions: [
         // Language Dropdown
+        /*
         Consumer<AppLanguageProvider>(
           builder: (context, lang, child) {
             return LanguageDropdownWidget(
@@ -76,6 +77,7 @@ class TopBarWidget extends StatelessWidget implements PreferredSizeWidget {
             );
           },
         ),
+        */
         const SizedBox(width: 8),
 
         // Toggle Theme Button

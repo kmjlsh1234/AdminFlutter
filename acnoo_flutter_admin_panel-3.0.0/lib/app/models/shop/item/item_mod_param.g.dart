@@ -17,10 +17,12 @@ ItemModParam _$ItemModParamFromJson(Map<String, dynamic> json) => ItemModParam(
       thumbnail: json['thumbnail'] as String?,
       image: json['image'] as String?,
       info: json['info'] as String?,
-      periodType: json['periodType'] as String?,
+      periodType:
+          $enumDecodeNullable(_$ItemPeriodTypeEnumMap, json['periodType']),
       period: (json['period'] as num?)?.toInt(),
       expiration: json['expiration'] as String?,
-      currencyType: json['currencyType'] as String?,
+      currencyType:
+          $enumDecodeNullable(_$CurrencyTypeEnumMap, json['currencyType']),
       amount: (json['amount'] as num?)?.toInt(),
     );
 
@@ -36,9 +38,24 @@ Map<String, dynamic> _$ItemModParamToJson(ItemModParam instance) =>
       'thumbnail': instance.thumbnail,
       'image': instance.image,
       'info': instance.info,
-      'periodType': instance.periodType,
+      'periodType': _$ItemPeriodTypeEnumMap[instance.periodType],
       'period': instance.period,
       'expiration': instance.expiration,
-      'currencyType': instance.currencyType,
+      'currencyType': _$CurrencyTypeEnumMap[instance.currencyType],
       'amount': instance.amount,
     };
+
+const _$ItemPeriodTypeEnumMap = {
+  ItemPeriodType.NONE: 'NONE',
+  ItemPeriodType.DAY: 'DAY',
+  ItemPeriodType.MONTH: 'MONTH',
+  ItemPeriodType.EXPIRATION: 'EXPIRATION',
+};
+
+const _$CurrencyTypeEnumMap = {
+  CurrencyType.DIAMOND: 'DIAMOND',
+  CurrencyType.COIN: 'COIN',
+  CurrencyType.CHIP: 'CHIP',
+  CurrencyType.FREE: 'FREE',
+  CurrencyType.EVENT: 'EVENT',
+};

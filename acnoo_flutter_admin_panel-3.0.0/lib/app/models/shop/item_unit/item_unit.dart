@@ -1,3 +1,4 @@
+import 'package:acnoo_flutter_admin_panel/app/constants/shop/item_unit/item_unit_type.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'item_unit.g.dart';
@@ -10,7 +11,7 @@ class ItemUnit {
   final String image;
   final String description;
   final String attributes;
-  final String type;
+  final ItemUnitType type;
   final DateTime createdAt;
   final DateTime updatedAt;
 

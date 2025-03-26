@@ -2,6 +2,7 @@ import 'package:acnoo_flutter_admin_panel/app/models/board/board_add_param.dart'
 import 'package:acnoo_flutter_admin_panel/app/models/board/board_search_param.dart';
 
 import '../../../models/board/board.dart';
+import '../../../models/board/board_simple.dart';
 import '../../../models/common/count_vo.dart';
 import '../../repository/board/board_repository.dart';
 import '../../utils/dio_factory.dart';
@@ -19,7 +20,7 @@ class BoardService{
   }
 
   //게시판 목록 조회
-  Future<List<Board>> getBoardList(BoardSearchParam boardSearchParam) async {
+  Future<List<BoardSimple>> getBoardList(BoardSearchParam boardSearchParam) async {
     return await repository.getBoardList(boardSearchParam);
   }
 

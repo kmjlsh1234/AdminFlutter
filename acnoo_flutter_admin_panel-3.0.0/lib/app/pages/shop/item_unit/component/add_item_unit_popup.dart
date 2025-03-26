@@ -1,9 +1,9 @@
 // 🐦 Flutter imports:
 import 'package:acnoo_flutter_admin_panel/app/core/error/custom_exception.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
-import 'package:dio/dio.dart';
+import 'package:acnoo_flutter_admin_panel/app/widgets/textfield_wrapper/_textfield_wrapper.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
 // 🌎 Project imports:
@@ -30,18 +30,79 @@ class AddItemUnitDialog extends StatefulWidget {
 
 class _AddItemUnitDialogState extends State<AddItemUnitDialog> {
 
+  //Input Controller
   final TextEditingController skuController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController descController = TextEditingController();
   final TextEditingController attributeController = TextEditingController();
+
+  //Service Layer
   final ItemUnitService itemUnitService = ItemUnitService();
   final FileService fileService = FileService();
+
+  //File
   final ImagePicker picker = ImagePicker();
-
-  ItemUnitType selectType = ItemUnitType.consumable;
-
   XFile? selectFile;
   String? imagePath;
+
+  //Provider
+  late l.S lang;
+  late ThemeData theme;
+  late TextTheme textTheme;
+
+  ItemUnitType selectType = ItemUnitType.CONSUMABLE;
+
+  //아이템 유닛 추가
+  Future<void> addItemUnit() async {
+    try{
+      checkAddParameter();
+      String remotePath = await fileService.uploadFileTest(selectFile, FileCategory.PROFILE, FileType.IMAGE);
+
+      ItemUnitAddParam itemUnitAddParam = ItemUnitAddParam(
+          sku: skuController.text,
+          name:  nameController.text,
+          image: remotePath,
+          description: descController.text,
+          attributes: attributeController.text,
+          type: selectType
+      );
+
+      ItemUnit itemUnit = await itemUnitService.addItemUnit(itemUnitAddParam);
+      AlertUtil.successDialog(
+          context: context,
+          message: lang.successAddItemUnit,
+          buttonText: lang.confirm,
+          onPressed: (){
+            GoRouter.of(context).pop();
+            GoRouter.of(context).pop(true);
+          }
+      );
+    } catch(e){
+      ErrorHandler.handleError(e, context);
+    }
+  }
+
+  void checkAddParameter(){
+    if(selectFile == null){
+      throw CustomException(ErrorCode.FAIL_TO_CONVERT_FILE);
+    }
+
+    if(skuController.text.isEmpty){
+      throw CustomException(ErrorCode.ITEM_SKU_EMPTY);
+    }
+
+    if(nameController.text.isEmpty){
+      throw CustomException(ErrorCode.ITEM_NAME_EMPTY);
+    }
+
+    if(descController.text.isEmpty){
+      throw CustomException(ErrorCode.ITEM_DESC_EMPTY);
+    }
+
+    if(attributeController.text.isEmpty){
+      throw CustomException(ErrorCode.ITEM_DESC_EMPTY);
+    }
+  }
 
   //이미지 로컬에서 가져오기
   Future<void> pickImage() async {
@@ -61,34 +122,6 @@ class _AddItemUnitDialogState extends State<AddItemUnitDialog> {
     }
   }
 
-  //아이템 유닛 추가
-  Future<void> addItemUnit() async {
-    try{
-      if(selectFile == null){
-        throw CustomException(ErrorCode.FAIL_TO_CONVERT_FILE);
-      }
-
-      Uint8List? bytes = await selectFile?.readAsBytes();
-      MultipartFile multipartFile = MultipartFile.fromBytes(bytes!, filename: selectFile!.name);
-      FormData formData = FormData.fromMap({"file": multipartFile});
-      String remotePath = await fileService.uploadFile(FileCategory.profile, FileType.image, formData);
-
-      ItemUnitAddParam itemUnitAddParam = ItemUnitAddParam(
-          sku: skuController.text,
-          name:  nameController.text,
-          image: remotePath,
-          description: descController.text,
-          attributes: attributeController.text,
-          type: selectType.value
-      );
-
-      ItemUnit itemUnit = await itemUnitService.addItemUnit(itemUnitAddParam);
-      AlertUtil.popupSuccessDialog(context, '아이템 유닛 추가 성공');
-    } catch(e){
-      ErrorHandler.handleError(ErrorCode.FAIL_TO_CONVERT_FILE, context);
-    }
-  }
-
   @override
   void initState(){
     super.initState();
@@ -105,10 +138,10 @@ class _AddItemUnitDialogState extends State<AddItemUnitDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final lang = l.S.of(context);
     final _sizeInfo = SizeConfig.getSizeInfo(context);
-    TextTheme textTheme = Theme.of(context).textTheme;
-    final theme = Theme.of(context);
+    lang = l.S.of(context);
+    theme = Theme.of(context);
+    textTheme = Theme.of(context).textTheme;
 
     return AlertDialog(
       contentPadding: EdgeInsets.zero,
@@ -127,10 +160,9 @@ class _AddItemUnitDialogState extends State<AddItemUnitDialog> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // const Text('Form Dialog'),
-                  Text(lang.formDialog),
+                  Text(lang.addNewItemUnit),
                   IconButton(
-                    onPressed: () => Navigator.of(context).pop(false),
+                    onPressed: () => GoRouter.of(context).pop(false),
                     icon: const Icon(
                       Icons.close,
                       color: AcnooAppColors.kError,
@@ -154,105 +186,137 @@ class _AddItemUnitDialogState extends State<AddItemUnitDialog> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ///---------------- image section
-                    Text(lang.image, style: textTheme.bodySmall),
-                    const SizedBox(height: 8),
-                    DottedBorderContainer(
-                      child: GestureDetector(
-                        onTap: () => pickImage(),
-                        child: imagePath == null
-                            ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.camera_alt_outlined,
-                              color: theme.colorScheme.onTertiary,
+
+                    //IMAGE
+                    TextFieldLabelWrapper(
+                      labelText: lang.image,
+                        inputField: DottedBorderContainer(
+                          child: GestureDetector(
+                            onTap: () => pickImage(),
+                            child: imagePath == null
+                                ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.camera_alt_outlined,
+                                  color: theme.colorScheme.onTertiary,
+                                ),
+                                Text(lang.uploadImage),
+                              ],
+                            ) : ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.network(
+                                  imagePath!,
+                                  width: 120,
+                                  height: 120,
+                                  fit: BoxFit.cover,
+                                )
                             ),
-                            Text(lang.uploadImage),
-                          ],
-                        ) : ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.network(
-                            imagePath!,
-                            width: 120,
-                            height: 120,
-                            fit: BoxFit.cover,
-                          )
-                        ),
-                      ),
+                          ),
+                        )
                     ),
-                    const SizedBox(height: 16),
+
+                    const SizedBox(height: 20),
 
                     ///---------------- Text Field section
-                    Text(lang.sku, style: textTheme.bodySmall),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: skuController,
-                      decoration: InputDecoration(
-                          hintText: lang.enterYourFullName,
-                          hintStyle: textTheme.bodySmall),
-                      validator: (value) => value?.isEmpty ?? true
-                          ? lang.pleaseEnterYourFullName
-                          : null,
-                    ),
-                    const SizedBox(height: 20),
-                    Text(lang.fullName, style: textTheme.bodySmall),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: nameController,
-                      decoration: InputDecoration(
-                          hintText: lang.enterYourFullName,
-                          hintStyle: textTheme.bodySmall),
-                      validator: (value) => value?.isEmpty ?? true
-                          ? lang.pleaseEnterYourFullName
-                          : null,
-                    ),
-                    const SizedBox(height: 20),
-                    Text(lang.description, style: textTheme.bodySmall),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: descController,
-                      decoration: InputDecoration(
-                        //hintText: 'Write Something',
-                          hintText: lang.writeSomething,
-                          hintStyle: textTheme.bodySmall),
-                      maxLines: 3,
-                    ),
-                    const SizedBox(height: 20),
-                    Text(lang.attributes, style: textTheme.bodySmall),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: attributeController,
-                      decoration: InputDecoration(
-                        //hintText: 'Write Something',
-                          hintText: lang.writeSomething,
-                          hintStyle: textTheme.bodySmall),
-                      maxLines: 3,
-                    ),
-                    const SizedBox(height: 20),
-                    Text(lang.type, style: textTheme.bodySmall),
-                    const SizedBox(height: 8),
-                    DropdownButtonFormField<ItemUnitType>(
-                      dropdownColor: theme.colorScheme.primaryContainer,
-                      value: selectType,
-                      hint: Text(
-                        lang.type,
-                        //'Select Type',
-                        style: textTheme.bodySmall,
+
+                    //UNIT SKU
+                    TextFieldLabelWrapper(
+                      labelText: lang.itemUnitSku,
+                      inputField: TextFormField(
+                        controller: skuController,
+                        decoration: InputDecoration(
+                            hintText: lang.hintSku,
+                            hintStyle: textTheme.bodySmall),
+                        validator: (value) => value?.isEmpty ?? true
+                            ? lang.invalidSku
+                            : null,
+                        autovalidateMode: AutovalidateMode.onUnfocus,
                       ),
-                      items: ItemUnitType.values.map((type) {
-                        return DropdownMenuItem<ItemUnitType>(
-                          value: type,
-                          child: Text(type.value),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          selectType = value??ItemUnitType.consumable;
-                        });
-                      },
-                      validator: (value) =>
-                          value == null ? lang.pleaseSelectAPosition : null,
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    //UNIT SKU
+                    TextFieldLabelWrapper(
+                      labelText: lang.name,
+                      inputField: TextFormField(
+                        controller: nameController,
+                        decoration: InputDecoration(
+                            hintText: lang.hintName,
+                            hintStyle: textTheme.bodySmall),
+                        validator: (value) => value?.isEmpty ?? true
+                            ? lang.invalidName
+                            : null,
+                        autovalidateMode: AutovalidateMode.onUnfocus,
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    //DESCRIPTION
+                    TextFieldLabelWrapper(
+                      labelText: lang.description,
+                      inputField: TextFormField(
+                        controller: descController,
+                        decoration: InputDecoration(
+                            hintText: lang.hintDescription,
+                            hintStyle: textTheme.bodySmall),
+                        maxLines: 3,
+                        validator: (value) => value?.isEmpty ?? true
+                            ? lang.invalidDescription
+                            : null,
+                        autovalidateMode: AutovalidateMode.onUnfocus,
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    //ATTRIBUTE
+                    TextFieldLabelWrapper(
+                      labelText: lang.attributes,
+                      inputField: TextFormField(
+                        controller: attributeController,
+                        decoration: InputDecoration(
+                            hintText: lang.hintAttribute,
+                            hintStyle: textTheme.bodySmall),
+                        maxLines: 3,
+                        validator: (value) => value?.isEmpty ?? true
+                            ? lang.invalidAttribute
+                            : null,
+                        autovalidateMode: AutovalidateMode.onUnfocus,
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    //Type
+                    TextFieldLabelWrapper(
+                      labelText: lang.type,
+                      inputField: DropdownButtonFormField<ItemUnitType>(
+                        dropdownColor: theme.colorScheme.primaryContainer,
+                        value: selectType,
+                        hint: Text(
+                          lang.select,
+                          //'Select Type',
+                          style: textTheme.bodySmall,
+                        ),
+                        items: ItemUnitType.values.map((type) {
+                          return DropdownMenuItem<ItemUnitType>(
+                            value: type,
+                            child: Text(type.value),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            selectType = value!;
+                          });
+                        },
+                        validator: (value) =>
+                        value == null ? lang.select : null,
+                        autovalidateMode: AutovalidateMode.onUnfocus,
+                      ),
                     ),
 
                     const SizedBox(height: 24),
@@ -274,7 +338,7 @@ class _AddItemUnitDialogState extends State<AddItemUnitDialog> {
                                     ?.copyWith(color: AcnooAppColors.kError),
                                 side: const BorderSide(
                                     color: AcnooAppColors.kError)),
-                            onPressed: () => Navigator.of(context).pop(false),
+                            onPressed: () => GoRouter.of(context).pop(false),
                             label: Text(
                               lang.cancel,
                               //'Cancel',

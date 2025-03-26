@@ -15,7 +15,6 @@ class CurrencyNavTabBar extends StatefulWidget {
 
 class _CurrencyNavTabBarState extends State<CurrencyNavTabBar> with SingleTickerProviderStateMixin {
   late TabController tabController;
-  //List<String> get menues => CurrencyType.values.map((e) => e.value).toList();
 
   @override
   void initState() {
@@ -27,7 +26,6 @@ class _CurrencyNavTabBarState extends State<CurrencyNavTabBar> with SingleTicker
   void dispose() {
     tabController.dispose();
     super.dispose();
-
   }
 
   @override

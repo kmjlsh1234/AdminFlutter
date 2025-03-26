@@ -107,34 +107,6 @@ class _UserManageRepository implements UserManageRepository {
   }
 
   @override
-  Future<UserProfile> modUser(int userId, UserModParam userModParam) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
-    final _data = <String, dynamic>{};
-    _data.addAll(userModParam.toJson());
-    final _options = _setStreamType<UserProfile>(
-      Options(method: 'PUT', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/admin/v1/users/${userId}',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late UserProfile _value;
-    try {
-      _value = UserProfile.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
   Future<HttpResponse<dynamic>> modUserStatus(
     int userId,
     UserModStatusParam userModStatusParam,

@@ -1,5 +1,8 @@
 import 'package:json_annotation/json_annotation.dart';
 
+import '../../../../constants/shop/bundle/bundle_status.dart';
+import '../../../../constants/shop/item/currency_type.dart';
+
 part 'bundle.g.dart';
 
 @JsonSerializable(includeIfNull: true)
@@ -8,14 +11,14 @@ class Bundle {
   final String name;
   final String sku;
   final String description;
-  final String status;
+  final BundleStatus status;
   final String thumbnail;
   final String image;
   final String info;
   final int? countPerPerson;
   final DateTime? saleStartDate;
   final DateTime? saleEndDate;
-  final String currencyType;
+  final CurrencyType currencyType;
   final int amount;
   final int originAmount;
   final int? stockQuantity;

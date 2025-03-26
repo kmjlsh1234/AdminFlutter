@@ -1,16 +1,9 @@
 enum ItemUnitType{
-  none('NONE'),
-  consumable('CONSUMABLE'),
-  permanent('PERMANENT'),
-  expiration('EXPIRATION'),
+  CONSUMABLE('소모성'),
+  PERMANENT('영구'),
+  EXPIRATION('기간제'),
   ;
 
   final String value;
   const ItemUnitType(this.value);
-
-  static ItemUnitType fromValue(String value) {
-    return ItemUnitType.values.firstWhere((type) => type.value == value,
-      orElse: () => throw ArgumentError("Invalid ItemUnitType: $value"),
-    );
-  }
 }

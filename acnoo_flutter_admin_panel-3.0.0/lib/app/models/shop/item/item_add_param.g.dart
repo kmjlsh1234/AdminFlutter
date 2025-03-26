@@ -9,7 +9,7 @@ part of 'item_add_param.dart';
 ItemAddParam _$ItemAddParamFromJson(Map<String, dynamic> json) => ItemAddParam(
       categoryId: (json['categoryId'] as num).toInt(),
       sku: json['sku'] as String,
-      unitSku: json['unitSku'] as String,
+      unitSku: json['unitSku'] as String?,
       name: json['name'] as String,
       description: json['description'] as String,
       num: (json['num'] as num?)?.toInt(),
@@ -17,11 +17,11 @@ ItemAddParam _$ItemAddParamFromJson(Map<String, dynamic> json) => ItemAddParam(
       thumbnail: json['thumbnail'] as String,
       image: json['image'] as String,
       info: json['info'] as String,
-      periodType: json['periodType'] as String,
+      periodType: $enumDecode(_$ItemPeriodTypeEnumMap, json['periodType']),
       period: (json['period'] as num?)?.toInt(),
       expiration: json['expiration'] as String?,
-      currencyType: json['currencyType'] as String,
-      amount: (json['amount'] as num).toInt(),
+      currencyType: $enumDecode(_$CurrencyTypeEnumMap, json['currencyType']),
+      amount: (json['amount'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$ItemAddParamToJson(ItemAddParam instance) =>
@@ -36,9 +36,24 @@ Map<String, dynamic> _$ItemAddParamToJson(ItemAddParam instance) =>
       'thumbnail': instance.thumbnail,
       'image': instance.image,
       'info': instance.info,
-      'periodType': instance.periodType,
+      'periodType': _$ItemPeriodTypeEnumMap[instance.periodType]!,
       'period': instance.period,
       'expiration': instance.expiration,
-      'currencyType': instance.currencyType,
+      'currencyType': _$CurrencyTypeEnumMap[instance.currencyType]!,
       'amount': instance.amount,
     };
+
+const _$ItemPeriodTypeEnumMap = {
+  ItemPeriodType.NONE: 'NONE',
+  ItemPeriodType.DAY: 'DAY',
+  ItemPeriodType.MONTH: 'MONTH',
+  ItemPeriodType.EXPIRATION: 'EXPIRATION',
+};
+
+const _$CurrencyTypeEnumMap = {
+  CurrencyType.DIAMOND: 'DIAMOND',
+  CurrencyType.COIN: 'COIN',
+  CurrencyType.CHIP: 'CHIP',
+  CurrencyType.FREE: 'FREE',
+  CurrencyType.EVENT: 'EVENT',
+};

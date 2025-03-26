@@ -22,10 +22,6 @@ abstract class CategoryRepository {
   @POST('/admin/v1/categories/list')
   Future<List<Category>> getCategoryList(@Body() PagingParam pagingParam);
 
-  //카테고리 리스트 조회
-  @GET('/admin/v1/categories/list/all')
-  Future<List<Category>> getAllCategoryList();
-
   //카테고리 갯수 조회
   @POST('/admin/v1/categories/list/count')
   Future<CountVo> getUserListCount();

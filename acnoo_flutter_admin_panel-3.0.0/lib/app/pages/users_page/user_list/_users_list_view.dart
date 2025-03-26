@@ -145,8 +145,7 @@ class _UsersListViewState extends State<UsersListView> {
             child: LayoutBuilder(
               builder: (BuildContext context, BoxConstraints constraints) {
                 final isMobile = constraints.maxWidth < 481;
-                final isTablet =
-                    constraints.maxWidth < 992 && constraints.maxWidth >= 481;
+                final isTablet = constraints.maxWidth < 992 && constraints.maxWidth >= 481;
 
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

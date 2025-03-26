@@ -1,13 +1,16 @@
+import 'package:acnoo_flutter_admin_panel/app/constants/app_version/publish_status.dart';
 import 'package:json_annotation/json_annotation.dart';
+
+import '../../constants/app_version/app_version_type.dart';
 
 part 'app_version_add_param.g.dart';
 
 @JsonSerializable(includeIfNull: false)
 class AppVersionAddParam {
   final String version;
-  final String versionType;
+  final AppVersionType versionType;
   final String? publishAt;
-  final String publishStatus;
+  final PublishStatus publishStatus;
 
   AppVersionAddParam({
     required this.version,

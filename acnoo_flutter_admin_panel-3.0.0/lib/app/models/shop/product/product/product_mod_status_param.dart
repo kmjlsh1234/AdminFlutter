@@ -1,9 +1,11 @@
 import 'package:json_annotation/json_annotation.dart';
+
+import '../../../../constants/shop/product/product_status.dart';
 part 'product_mod_status_param.g.dart';
 
 @JsonSerializable(includeIfNull: false)
 class ProductModStatusParam {
-  final String status;
+  final ProductStatus status;
 
   ProductModStatusParam({required this.status});
 

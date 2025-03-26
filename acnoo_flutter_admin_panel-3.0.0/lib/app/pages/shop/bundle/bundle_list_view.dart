@@ -7,15 +7,13 @@ import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/service/shop/bundle/bundle_service.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/utils/date_util.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/utils/future_builder_factory.dart';
-import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/common_widget/generic_drop_down.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 // 🌎 Project imports:
 import '../../../../generated/l10n.dart' as l;
 import '../../../constants/shop/bundle/bundle_status.dart';
-import '../../../constants/shop/product/product_status.dart';
-import '../../../core/helpers/field_styles/_dropdown_styles.dart';
 import '../../../core/theme/_app_colors.dart';
 import '../../../core/utils/size_config.dart';
 import '../../../models/shop/bundle/bundle/bundle.dart';
@@ -45,9 +43,14 @@ class _BundleListViewState extends State<BundleListView> {
   late Future<int> totalPage;
 
   //Search
-  BundleStatus bundleStatus = BundleStatus.none;
-  BundleSearchType bundleSearchType = BundleSearchType.none;
-  String searchValue = "";
+  BundleStatus bundleStatus = BundleStatus.READY;
+  BundleSearchType bundleSearchType = BundleSearchType.NAME;
+  String? searchValue;
+
+  //Provider
+  late l.S lang;
+  late ThemeData theme;
+  late TextTheme textTheme;
 
   //번들 리스트 조회
   Future<List<Bundle>> getBundleList() async {
@@ -89,11 +92,9 @@ class _BundleListViewState extends State<BundleListView> {
   }
 
   BundleSearchParam getBundleSearchParam() {
-    String? status = bundleStatus == BundleStatus.none ? null : bundleStatus.value;
-    String? searchType = bundleSearchType == BundleSearchType.none ? null : bundleSearchType.value;
     return BundleSearchParam(
-        searchStatus: status,
-        searchType: searchType,
+        searchStatus: bundleStatus,
+        searchType: bundleSearchType,
         searchValue: searchValue,
         page: currentPage,
         limit: rowsPerPage
@@ -114,10 +115,10 @@ class _BundleListViewState extends State<BundleListView> {
 
   @override
   Widget build(BuildContext context) {
+    lang = l.S.of(context);
+    theme = Theme.of(context);
+    TextTheme textTheme = Theme.of(context).textTheme;
     final _sizeInfo = SizeConfig.getSizeInfo(context);
-    final TextTheme textTheme = Theme.of(context).textTheme;
-    final theme = Theme.of(context);
-    final lang = l.S.of(context);
 
     return Scaffold(
       body: Padding(
@@ -143,11 +144,18 @@ class _BundleListViewState extends State<BundleListView> {
                               children: [
                                 Expanded(
                                   flex: 1,
-                                  child: searchTypeDropDown(textTheme),
+                                  child: GenericDropDown<BundleStatus>(
+                                      labelText: lang.status,
+                                      searchType: bundleStatus,
+                                      searchList: BundleStatus.values,
+                                      callBack: (BundleStatus value) {
+                                        bundleStatus = value;
+                                      }
+                                  ),
                                 ),
                                 const SizedBox(width: 16.0),
                                 Expanded(
-                                  flex: 3,
+                                  flex: 2,
                                   child: SearchFormField(
                                       textTheme: textTheme,
                                       lang: lang,
@@ -156,7 +164,7 @@ class _BundleListViewState extends State<BundleListView> {
                                         loadAllData();
                                       }),
                                 ),
-                                Spacer(flex: 2),
+                                Spacer(flex: 4),
                                 CustomButton(
                                     textTheme: textTheme,
                                     label: lang.addNewBundle,
@@ -254,36 +262,6 @@ class _BundleListViewState extends State<BundleListView> {
     );
   }
 
-  ///_______________________________________________________________DropDownList___________________________________
-  Container searchTypeDropDown(TextTheme textTheme) {
-    final dropdownStyle = AcnooDropdownStyle(context);
-    return Container(
-      constraints: const BoxConstraints(maxWidth: 100, minWidth: 100),
-      child: DropdownButtonFormField2<BundleStatus>(
-        hint: Text('검색 조건'),
-        style: dropdownStyle.textStyle,
-        iconStyleData: dropdownStyle.iconStyle,
-        buttonStyleData: dropdownStyle.buttonStyle,
-        dropdownStyleData: dropdownStyle.dropdownStyle,
-        menuItemStyleData: dropdownStyle.menuItemStyle,
-        isExpanded: true,
-        value: bundleStatus,
-        items: BundleStatus.values.map((BundleStatus status) {
-          return DropdownMenuItem<BundleStatus>(
-            value: status,
-            child: Text(
-              status.value,
-              style: textTheme.bodySmall,
-            ),
-          );
-        }).toList(),
-        onChanged: (value) {
-          bundleStatus = value!;
-        },
-      ),
-    );
-  }
-
   Theme dataTable(List<Bundle> adminList,ThemeData theme, TextTheme textTheme,l.S lang) {
     return Theme(
       data: ThemeData(
@@ -298,9 +276,8 @@ class _BundleListViewState extends State<BundleListView> {
         headingRowColor: WidgetStateProperty.all(theme.colorScheme.surface),
         showBottomBorder: true,
         columns: [
-          DataColumn(label: Text(lang.serial)),
+          DataColumn(label: Text(lang.bundleId)),
           DataColumn(label: Text(lang.name)),
-          DataColumn(label: Text(lang.sku)),
           DataColumn(label: Text(lang.status)),
           DataColumn(label: Text(lang.createdAt)),
           DataColumn(label: Text(lang.updatedAt)),
@@ -313,21 +290,20 @@ class _BundleListViewState extends State<BundleListView> {
               cells: [
                 DataCell(Text(data.id.toString())),
                 DataCell(Text(data.name)),
-                DataCell(Text(data.sku)),
                 DataCell(
                   Container(
                     padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                     decoration: BoxDecoration(
-                      color: data.status == ProductStatus.onSale.value
-                          ? AcnooAppColors.kSuccess.withOpacity(0.2)
-                          : AcnooAppColors.kError.withOpacity(0.2),
+                      color: data.status == BundleStatus.ON_SALE
+                          ? AcnooAppColors.kSuccess.withValues(alpha: 0.2)
+                          : AcnooAppColors.kError.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(16.0),
                     ),
                     child: Text(
-                      data.status,
+                      data.status.value,
                       style: textTheme.bodySmall?.copyWith(
-                          color: data.status == ProductStatus.onSale.value
+                          color: data.status == BundleStatus.ON_SALE
                               ? AcnooAppColors.kSuccess
                               : AcnooAppColors.kError),
                     ),

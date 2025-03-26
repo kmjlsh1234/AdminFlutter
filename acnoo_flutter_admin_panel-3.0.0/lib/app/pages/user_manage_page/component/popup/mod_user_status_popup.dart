@@ -1,13 +1,13 @@
 import 'package:acnoo_flutter_admin_panel/app/core/utils/size_config.dart';
 import 'package:acnoo_flutter_admin_panel/app/models/user/user_mod_status_param.dart';
 import 'package:flutter/material.dart';
-import 'package:responsive_framework/responsive_framework.dart' as rf;
 
 import '../../../../../../generated/l10n.dart' as l;
 import '../../../../constants/user/user_status.dart';
 import '../../../../core/error/error_handler.dart';
 import '../../../../core/service/user/user_manage_service.dart';
 import '../../../../core/theme/_app_colors.dart';
+import '../../../../core/utils/alert_util.dart';
 import '../../../../models/user/user_profile.dart';
 
 class ModUserStatusDialog extends StatefulWidget {
@@ -19,17 +19,28 @@ class ModUserStatusDialog extends StatefulWidget {
 
 class _ModUserStatusDialogState extends State<ModUserStatusDialog> {
 
-  //Service
   final UserManageService userManageService = UserManageService();
-
   late UserStatus userStatus;
 
+  //Provider
+  late l.S lang;
+  late ThemeData theme;
+  late TextTheme textTheme;
+
   //유저 상태 변경
-  Future<void> modUserStatus(BuildContext context) async {
+  Future<void> modUserStatus() async {
     try {
-      UserModStatusParam userModStatusParam = UserModStatusParam(userStatus.value);
+      UserModStatusParam userModStatusParam = UserModStatusParam(userStatus);
       await userManageService.modUserStatus(widget.userProfile.userId, userModStatusParam);
-      showSuccessDialog(context);
+      AlertUtil.successDialog(
+          context: context,
+          message: lang.successModUserStatus,
+          buttonText: lang.confirm,
+          onPressed: (){
+            Navigator.of(context).pop();
+            Navigator.of(context).pop(true);
+          }
+      );
     } catch (e) {
       ErrorHandler.handleError(e, context);
     }
@@ -38,15 +49,15 @@ class _ModUserStatusDialogState extends State<ModUserStatusDialog> {
   @override
   void initState() {
     super.initState();
-    userStatus = UserStatus.fromValue(widget.userProfile.status);
+    userStatus = widget.userProfile.status;
   }
 
   @override
   Widget build(BuildContext context) {
-    final lang = l.S.of(context);
     final _sizeInfo = SizeConfig.getSizeInfo(context);
-    TextTheme textTheme = Theme.of(context).textTheme;
-    final theme = Theme.of(context);
+    lang = l.S.of(context);
+    theme = Theme.of(context);
+    textTheme = Theme.of(context).textTheme;
 
     return AlertDialog(
       contentPadding: EdgeInsets.zero,
@@ -65,7 +76,7 @@ class _ModUserStatusDialogState extends State<ModUserStatusDialog> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(lang.formDialog),
+                  Text(lang.modUserStatus),
                   IconButton(
                     onPressed: () => Navigator.of(context).pop(false),
                     icon: const Icon(
@@ -91,7 +102,6 @@ class _ModUserStatusDialogState extends State<ModUserStatusDialog> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ///---------------- Text Field section
-                    const SizedBox(height: 20),
                     Text(lang.status, style: textTheme.bodySmall),
                     const SizedBox(height: 8),
                     DropdownButtonFormField<UserStatus>(
@@ -148,7 +158,7 @@ class _ModUserStatusDialogState extends State<ModUserStatusDialog> {
                               padding: EdgeInsets.symmetric(
                                   horizontal: _sizeInfo.innerSpacing),
                             ),
-                            onPressed: () => modUserStatus(context),
+                            onPressed: () => modUserStatus(),
                             //label: const Text('Save'),
                             label: Text(lang.save),
                           )
@@ -162,27 +172,6 @@ class _ModUserStatusDialogState extends State<ModUserStatusDialog> {
           ],
         ),
       ),
-    );
-  }
-
-  void showSuccessDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(''),
-          content: Text('유저 상태 변경 성공'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pop(true);
-              },
-              child: Text('확인'),
-            ),
-          ],
-        );
-      },
     );
   }
 }

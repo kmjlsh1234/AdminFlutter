@@ -1,12 +1,22 @@
+// 🐦 Flutter imports:
+import 'package:acnoo_flutter_admin_panel/app/core/error/error_handler.dart';
+import 'package:acnoo_flutter_admin_panel/app/core/service/shop/item_unit/item_unit_service.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
-import '../../../../../../generated/l10n.dart' as l;
+// 🌎 Project imports:
+import '../../../../../generated/l10n.dart' as l;
 import '../../../../constants/shop/item_unit/item_unit_search_type.dart';
-import '../../../../core/error/error_handler.dart';
-import '../../../../core/service/shop/item_unit/item_unit_service.dart';
+import '../../../../core/helpers/field_styles/_dropdown_styles.dart';
 import '../../../../core/theme/_app_colors.dart';
+import '../../../../core/utils/date_util.dart';
+import '../../../../core/utils/future_builder_factory.dart';
+import '../../../../core/utils/size_config.dart';
 import '../../../../models/shop/item_unit/item_unit.dart';
 import '../../../../models/shop/item_unit/item_unit_search_param.dart';
+import '../../../../widgets/pagination_widgets/_pagination_widget.dart';
+import '../../../common_widget/search_form_field.dart';
 
 class SearchItemUnitDialog extends StatefulWidget {
   const SearchItemUnitDialog({super.key});
@@ -16,42 +26,69 @@ class SearchItemUnitDialog extends StatefulWidget {
 }
 
 class _SearchItemUnitDialogState extends State<SearchItemUnitDialog> {
-
-  final TextEditingController searchController = TextEditingController();
   final ItemUnitService itemUnitService = ItemUnitService();
+  late Future<List<ItemUnit>> itemUnitList;
 
-  //Search
-  ItemUnitSearchType itemUnitSearchType = ItemUnitSearchType.name;
-  List<ItemUnit> searchResults = [];
+  ItemUnitSearchType searchType = ItemUnitSearchType.NAME;
+  String? searchValue;
 
-  //아이템 유닛 검색
-  Future<void> searchItemUnit() async {
-    try{
-      ItemUnitSearchParam itemUnitSearchParam = ItemUnitSearchParam(
-          searchType: itemUnitSearchType.value,
-          searchValue: searchController.text,
-          page: 1,
-          limit: 10
-      );
+  //Paging
+  int currentPage = 1;
+  int rowsPerPage = 10;
+  late Future<int> totalPage;
 
-      List<ItemUnit> itemUnitList = await itemUnitService.getItemUnitList(itemUnitSearchParam);
-
-      setState(() {
-        searchResults = itemUnitList;
-      });
-    } catch(e) {
+  //아이템 유닛 리스트 조회
+  Future<List<ItemUnit>> getItemUnitList() async {
+    try {
+      return await itemUnitService.getItemUnitList(getItemUnitSearchParam());
+    } catch (e) {
       ErrorHandler.handleError(e, context);
+      return [];
     }
+  }
+
+  //아이템 유닛 리스트 갯수 조회
+  Future<int> getTotalCount() async {
+    try {
+      int count =
+          await itemUnitService.getItemUnitListCount(getItemUnitSearchParam());
+      return (count / rowsPerPage).ceil();
+    } catch (e) {
+      ErrorHandler.handleError(e, context);
+      return 0;
+    }
+  }
+
+  ItemUnitSearchParam getItemUnitSearchParam() {
+    return ItemUnitSearchParam(
+        searchType: searchType,
+        searchValue: searchValue,
+        page: currentPage,
+        limit: rowsPerPage);
+  }
+
+  void loadAllData() {
+    setState(() {
+      itemUnitList = getItemUnitList();
+      totalPage = getTotalCount();
+    });
   }
 
   @override
   void initState() {
     super.initState();
+    loadAllData();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final lang = l.S.of(context);
+    final _sizeInfo = SizeConfig.getSizeInfo(context);
     TextTheme textTheme = Theme.of(context).textTheme;
     final theme = Theme.of(context);
 
@@ -72,9 +109,9 @@ class _SearchItemUnitDialogState extends State<SearchItemUnitDialog> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(lang.formDialog),
+                  Text(lang.itemUnit),
                   IconButton(
-                    onPressed: () => Navigator.of(context).pop(null),
+                    onPressed: () => GoRouter.of(context).pop(null),
                     icon: const Icon(
                       Icons.close,
                       color: AcnooAppColors.kError,
@@ -89,109 +126,178 @@ class _SearchItemUnitDialogState extends State<SearchItemUnitDialog> {
               height: 0,
             ),
 
-            ///---------------- Search Section
+            ///---------------- header section
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: SizedBox(
-                width: 606,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ///---------------- 검색 타입 선택 (Dropdown)
-                    Text(lang.type, style: textTheme.bodySmall),
-                    const SizedBox(height: 8),
-                    DropdownButtonFormField<ItemUnitSearchType>(
-                      dropdownColor: theme.colorScheme.primaryContainer,
-                      value: itemUnitSearchType,
-                      hint: Text(
-                        lang.selectYouStatus,
-                        style: textTheme.bodySmall,
-                      ),
-                      items: ItemUnitSearchType.values.map((type) {
-                        return DropdownMenuItem<ItemUnitSearchType>(
-                          value: type,
-                          child: Text(type.value),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          itemUnitSearchType = value!;
-                        });
-                      },
-                      validator: (value) =>
-                      value == null ? lang.pleaseSelectAPosition : null,
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: theme.colorScheme.primary, width: 1), // 외곽선 추가
-                        borderRadius: BorderRadius.circular(8), // 모서리 둥글게
-                        color: theme.colorScheme.surfaceVariant, // 배경색 추가 (선택적)
-                      ),
-                      child: Column(
-                        children: [
-                          ///---------------- 검색 입력 필드
-                          TextFormField(
-                            controller: searchController,
-                            decoration: InputDecoration(
-                              hintText: lang.enterYourFullName,
-                              hintStyle: textTheme.bodySmall,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(8),
-                                  topRight: Radius.circular(8),
-                                  bottomLeft: Radius.zero,
-                                  bottomRight: Radius.zero,
-                                ),
-                              ),
-                              filled: true,
-                              fillColor: theme.colorScheme.surface,
-                              suffixIcon: IconButton(
-                                icon: Icon(Icons.search, color: theme.colorScheme.primary),
-                                onPressed: () => searchItemUnit(),
-                              ),
+                width: MediaQuery.of(context).size.width * 0.8,
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      //______________________________________________________________________Header__________________
+                      Padding(
+                        padding: _sizeInfo.padding,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              flex: 1,
+                              child: searchTypeDropDown(
+                                  textTheme: textTheme, lang: lang),
                             ),
-                            validator: (value) =>
-                            value?.isEmpty ?? true ? lang.pleaseEnterYourFullName : null,
-                          ),
-
-                          ///---------------- 검색 결과 리스트
-                          if (searchResults.isNotEmpty)
-                            Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.only(
-                                  bottomLeft: Radius.circular(8),
-                                  bottomRight: Radius.circular(8),
-                                ),
-                                color: theme.colorScheme.surface, // 배경색 통일
-                              ),
-                              height: 200,
-                              child: ListView.builder(
-                                itemCount: searchResults.length,
-                                itemBuilder: (context, index) {
-                                  final item = searchResults[index];
-                                  return ListTile(
-                                    title: Text(item.name, style: textTheme.bodyMedium),
-                                    trailing: Icon(Icons.arrow_forward_ios, size: 16),
-                                    onTap: () {
-                                      Navigator.of(context).pop(item);
-                                    },
-                                  );
-                                },
-                              ),
+                            const SizedBox(width: 16.0),
+                            Expanded(
+                              flex: 3,
+                              child: SearchFormField(
+                                  textTheme: textTheme,
+                                  lang: lang,
+                                  onPressed: (searchValue) {
+                                    setState(() {
+                                      this.searchValue = searchValue;
+                                      loadAllData();
+                                    });
+                                  }),
                             ),
-                        ],
+                            Spacer(flex: 2),
+                          ],
+                        ),
                       ),
-                    )
-                  ],
+
+                      //______________________________________________________________________Data_table__________________
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              minWidth: MediaQuery.of(context).size.width * 0.8,
+                            ),
+                            child: FutureBuilderFactory.createFutureBuilder(
+                                future: itemUnitList,
+                                onSuccess: (context, itemUnitList){
+                                  return dataTable(itemUnitList, theme, textTheme, lang);
+                                }),
+                        ),
+                      ),
+
+                      //______________________________________________________________________footer__________________
+                      Padding(
+                        padding: _sizeInfo.padding,
+                        child: FutureBuilderFactory.createFutureBuilder(
+                            future: totalPage,
+                            onSuccess: (context, totalPage) {
+                              return paginatedSection(totalPage);
+                            }),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  ///_______________________________________________________________DropDownList___________________________________
+  Container searchTypeDropDown(
+      {required TextTheme textTheme, required l.S lang}) {
+    final _dropdownStyle = AcnooDropdownStyle(context);
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 100, minWidth: 100),
+      child: DropdownButtonFormField2<ItemUnitSearchType>(
+        decoration: InputDecoration(labelText: lang.type),
+        style: _dropdownStyle.textStyle,
+        iconStyleData: _dropdownStyle.iconStyle,
+        buttonStyleData: _dropdownStyle.buttonStyle,
+        dropdownStyleData: _dropdownStyle.dropdownStyle,
+        menuItemStyleData: _dropdownStyle.menuItemStyle,
+        isExpanded: true,
+        value: searchType,
+        items: ItemUnitSearchType.values.map((ItemUnitSearchType searchType) {
+          return DropdownMenuItem<ItemUnitSearchType>(
+            value: searchType,
+            child: Text(
+              searchType.value,
+              style: textTheme.bodySmall,
+            ),
+          );
+        }).toList(),
+        onChanged: (value) {
+          if (value != null) {
+            searchType = value;
+          }
+        },
+      ),
+    );
+  }
+
+  Theme dataTable(List<ItemUnit> itemUnitList, ThemeData theme,
+      TextTheme textTheme, l.S lang) {
+    return Theme(
+      data: ThemeData(
+          dividerColor: theme.colorScheme.outline,
+          dividerTheme: DividerThemeData(
+            color: theme.colorScheme.outline,
+          )),
+      child: DataTable(
+        checkboxHorizontalMargin: 16,
+        headingTextStyle: textTheme.titleMedium,
+        dataTextStyle: textTheme.bodySmall,
+        headingRowColor: WidgetStateProperty.all(theme.colorScheme.surface),
+        showBottomBorder: true,
+        columns: [
+          DataColumn(label: Text(lang.itemUnitId)),
+          DataColumn(label: Text(lang.itemUnitSku)),
+          DataColumn(label: Text(lang.name)),
+          DataColumn(label: Text(lang.createdAt)),
+        ],
+        rows: itemUnitList.map(
+          (data) {
+            return DataRow(
+              onSelectChanged: (bool? selected) =>
+                  GoRouter.of(context).pop(data),
+              color: WidgetStateColor.transparent,
+              cells: [
+                DataCell(Text(data.id.toString())),
+                DataCell(Text(data.sku)),
+                DataCell(Text(data.name)),
+                DataCell(
+                    Text(DateUtil.convertDateTimeToString(data.createdAt))),
+              ],
+            );
+          },
+        ).toList(),
+      ),
+    );
+  }
+
+  Row paginatedSection(int totalPage) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        DataTablePaginator(
+          currentPage: currentPage,
+          totalPages: totalPage,
+          onPreviousTap: () {
+            if (currentPage > 1) {
+              setState(() {
+                currentPage--;
+                itemUnitList = getItemUnitList();
+              });
+            }
+          },
+          onNextTap: () {
+            if (currentPage < totalPage) {
+              setState(() {
+                currentPage++;
+                itemUnitList = getItemUnitList();
+              });
+            }
+          },
+        )
+      ],
     );
   }
 }

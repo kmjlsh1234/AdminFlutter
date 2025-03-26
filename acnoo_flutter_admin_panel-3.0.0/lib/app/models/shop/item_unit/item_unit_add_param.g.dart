@@ -13,7 +13,7 @@ ItemUnitAddParam _$ItemUnitAddParamFromJson(Map<String, dynamic> json) =>
       image: json['image'] as String,
       description: json['description'] as String,
       attributes: json['attributes'] as String,
-      type: json['type'] as String,
+      type: $enumDecode(_$ItemUnitTypeEnumMap, json['type']),
     );
 
 Map<String, dynamic> _$ItemUnitAddParamToJson(ItemUnitAddParam instance) =>
@@ -23,5 +23,11 @@ Map<String, dynamic> _$ItemUnitAddParamToJson(ItemUnitAddParam instance) =>
       'image': instance.image,
       'description': instance.description,
       'attributes': instance.attributes,
-      'type': instance.type,
+      'type': _$ItemUnitTypeEnumMap[instance.type]!,
     };
+
+const _$ItemUnitTypeEnumMap = {
+  ItemUnitType.CONSUMABLE: 'CONSUMABLE',
+  ItemUnitType.PERMANENT: 'PERMANENT',
+  ItemUnitType.EXPIRATION: 'EXPIRATION',
+};

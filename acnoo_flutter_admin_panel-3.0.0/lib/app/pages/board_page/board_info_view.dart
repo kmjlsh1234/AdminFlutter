@@ -8,13 +8,13 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_quill/quill_delta.dart';
 import 'package:flutter_quill_delta_from_html/flutter_quill_delta_from_html.dart';
 import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
-import 'package:responsive_framework/responsive_framework.dart' as rf;
 import 'package:responsive_grid/responsive_grid.dart';
 
 import '../../../generated/l10n.dart' as l;
 import '../../constants/board/board_status.dart';
 import '../../constants/board/board_type.dart';
 import '../../core/theme/_app_colors.dart';
+import '../../core/utils/size_config.dart';
 import '../../models/board/board.dart';
 import '../../widgets/shadow_container/_shadow_container.dart';
 
@@ -33,8 +33,8 @@ class _BoardInfoViewState extends State<BoardInfoView> {
   final FileService fileService = FileService();
 
   //SearchType
-  BoardType selectType = BoardType.notice;
-  BoardStatus selectStatus = BoardStatus.publish;
+  BoardType selectType = BoardType.NOTICE;
+  BoardStatus selectStatus = BoardStatus.PUBLISH;
 
   List<String> imageFiles = [];
   late Board board;
@@ -89,42 +89,8 @@ class _BoardInfoViewState extends State<BoardInfoView> {
         : Scaffold(
       body: LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
-          final _sizeInfo = rf.ResponsiveValue<_SizeInfo>(
-            context,
-            conditionalValues: [
-              const rf.Condition.between(
-                start: 0,
-                end: 480,
-                value: _SizeInfo(
-                  alertFontSize: 12,
-                  padding: EdgeInsets.all(16),
-                  innerSpacing: 16,
-                ),
-              ),
-              const rf.Condition.between(
-                start: 481,
-                end: 576,
-                value: _SizeInfo(
-                  alertFontSize: 14,
-                  padding: EdgeInsets.all(16),
-                  innerSpacing: 16,
-                ),
-              ),
-              const rf.Condition.between(
-                start: 577,
-                end: 992,
-                value: _SizeInfo(
-                  alertFontSize: 14,
-                  padding: EdgeInsets.all(16),
-                  innerSpacing: 16,
-                ),
-              ),
-            ],
-            defaultValue: const _SizeInfo(),
-          ).value;
-
+          final _sizeInfo = SizeConfig.getSizeInfo(context);
           TextTheme textTheme = Theme.of(context).textTheme;
-          final theme = Theme.of(context);
 
           return Scaffold(
             body: Padding(
@@ -135,12 +101,7 @@ class _BoardInfoViewState extends State<BoardInfoView> {
                 child: SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   child: LayoutBuilder(
-                    builder:
-                        (BuildContext context, BoxConstraints constraints) {
-                      final isMobile = constraints.maxWidth < 481;
-                      final isTablet = constraints.maxWidth < 992 &&
-                          constraints.maxWidth >= 481;
-
+                    builder: (BuildContext context, BoxConstraints constraints) {
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -166,9 +127,9 @@ class _BoardInfoViewState extends State<BoardInfoView> {
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                buildStatusCheckbox(BoardStatus.publish),
+                                buildStatusCheckbox(BoardStatus.PUBLISH),
                                 const SizedBox(width: 10),
-                                buildStatusCheckbox(BoardStatus.notPublish),
+                                buildStatusCheckbox(BoardStatus.NOT_PUBLISH),
                               ],
                             ),
                           ),
@@ -177,9 +138,9 @@ class _BoardInfoViewState extends State<BoardInfoView> {
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                buildTypeCheckbox(BoardType.notice),
+                                buildTypeCheckbox(BoardType.NOTICE),
                                 const SizedBox(width: 10),
-                                buildTypeCheckbox(BoardType.event),
+                                buildTypeCheckbox(BoardType.EVENT),
                               ],
                             ),
                           ),

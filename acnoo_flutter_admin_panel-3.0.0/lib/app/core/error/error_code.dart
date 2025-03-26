@@ -32,13 +32,35 @@ enum ErrorCode {
   LOGIN_FAILURE_ADMIN_STATUS_BAN(403, 140209, '강제 차단 당한 유저의 로그인 시도'),
   LOGIN_FAILURE_BAD_CREDENTIAL(403, 140210, "패스워드 틀림 등 인증 정보 불일치"),
 
-  //ADMIN_MANAGE
+  //ADMIN_MANAGE(1408XX)
+  ADMIN_NOT_EXIST(401,140801, "ADMIN_NOT_EXIST"),
+  NO_CHANGE_STATUS(401,140802, "NO_CHANGE_STATUS"),
+  EXIST_CTI_INFO_ID(400,140803, "EXIST_CTI_INFO_ID"),
+  NOT_SELECT_ROLE(400, 140804, "관리자 역할을 선택하지 않음"),
+
+  // Admin menu (1409XX)
+  ADMIN_MENU_NOT_EXIST(404,140901, "해당 메뉴가 존재하지 않음"),
+  PARENT_ADMIN_MENU_NOT_EXIST(404,140902, "부모 메뉴가 존재하지 않음"),
+  ADMIN_PRIVILEGE_NOT_EXIST(404,140903, "해당 권한이 존재하지 않음"),
+  ADMIN_ROLE_NOT_EXIST(404,140904, "해당 역할이 존재하지 않음"),
+  PRIVILEGE_HAS_MAPPING_WITH_ROLE(400,140905, "권한이 역할에 매핑되어 있음"),
+  ADMIN_ROLE_PRIVILEGE_INVALID_PARAMETER(401,140906, "올바르지 않은 역할권한"),
+  ADMIN_ROLE_HAS_MAPPING_WITH_ADMIN(401,140907, "역할이 관리자와 매핑되어 있음"),
+  ADMIN_MENU_PRIVILEGE_EXIST(401,140908 , "관리자 권한이 존재함"),
+  DUPLICATE_ADMIN_MENU_NAME(401, 140910, "중복된 메뉴 이름이 존재함"),
+  DUPLICATE_ADMIN_MENU_PATH(401, 140911, "중복된 메뉴 경로가 존재함"),
+  DUPLICATE_ADMIN_MENU_SORT_ORDER(401, 140912, "중복된 메뉴 순서가 존재함"),
 
   //APP_VERSION
   APP_VERSION_NOT_EXIST(404, 141101, "존재하지 않는 앱 버전"),
   APP_VERSION_REGEX_VALIDATION(400, 141102, "버전 형식이 맞지 않음"),
   INVALID_VERSION_PARAMETER(400, 141103, "이전 버전보다 낮음"),
   NOT_FOUND_ANY_PUBLISH_VERSION(404, 141104, "해당 버전을 제외하고 출시된 버전이 존재하지 않음"),
+
+  //Board manage(1421XX)
+  BOARD_NOT_EXIST(404, 142101, "게시글이 존재하지 않음"),
+  BOARD_TITLE_EMPTY(400, 142102, "게시글 제목 형식이 올바르지 않습니다.(공백)"),
+  BOARD_CONTENT_EMPTY(400, 142103, "게시글 본문 형식이 올바르지 않습니다.(공백)"),
 
   //Product(1500XX)
   PRODUCT_NOT_EXIST(404, 150001, '상품이 존재하지 않음'),
@@ -60,6 +82,43 @@ enum ErrorCode {
   CATEGORY_NOT_EXIST(404, 150101, "해당 카테고리가 존재하지 않음"),
   DUPLICATE_CATEGORY_NAME(400,150102, "중복된 이름의 카테고리가 존재함"),
   CATEGORY_HAS_MAPPING_WITH_ITEM(400,150103, "카테고리가 아이템에 매핑되어 있음"),
+
+  // CURRENCY(1502XX)
+  COIN_LOCK_FAIL(400, 150201, "코인 락 획득 실패"),
+  NOT_FOUND_COIN_INFO(404, 150202, "코인 정보가 존재하지 않음"),
+  NOT_ENOUGH_COIN(400, 150203, "코인이 충분하지 않음"),
+  NOT_ALLOWED_CHEAT(400, 150204, "치트가 허용되지 않음"),
+  DUPLICATED_COIN_REQUEST(400, 150205, "중복된 코인 요청"),
+  DIAMOND_LOCK_FAIL(400, 150206, "다이아 락 획득 실패"),
+  NOT_FOUND_DIAMOND_INFO(404, 150207, "다이아 정보가 존재하지 않음"),
+  NOT_ENOUGH_DIAMOND(400, 150208, "다이아가 충분하지 않음"),
+  DUPLICATED_DIAMOND_REQUEST(400, 150209, "중복된 다이아 요청"),
+  CHIP_LOCK_FAIL(400, 150210, "칩 락 획득 실패"),
+  NOT_FOUND_CHIP_INFO(404, 150211, "칩 정보가 존재하지 않음"),
+  NOT_ENOUGH_CHIP(400, 150212, "칩이 충분하지 않음"),
+  DUPLICATED_CHIP_REQUEST(400, 150213, "중복된 칩 요청"),
+  INVALID_CURRENCY_PARAMETER(400, 150214, "잘못된 수량 형식"),
+
+  // BUNDLE(1503XX)
+  BUNDLE_NOT_EXIST(404, 150301, "해당 번들이 존재하지 않음"),
+  DUPLICATE_BUNDLE_NAME(400, 150302, "중복된 이름의 번들이 존재함"),
+  DUPLICATE_BUNDLE_SKU(400, 150303, "중복된 SKU의 번들이 존재함"),
+  INVALID_BUNDLE_STOCK_QUANTITY(400, 150304, "번들 재고 수량이 적합하지 않음"),
+  INVALID_BUNDLE_END_DATE(400, 150305, "번들 종료 날짜가 올바르지 않음"),
+  INVALID_BUNDLE_COUNT_PER_PERSON(400, 150306, "인당 구매제한 횟수가 올바르지 않음"),
+  BUNDLE_NOT_MAPPED_WITH_ITEM_AND_CURRENCY(400, 150307, "번들이 아이템, 재화 모두와 매핑되어 있지 않음"),
+  EMPTY_BUNDLE_PARAMETER(400, 150308, "번들 파라미터가 비었음"),
+  BUNDLE_STATUS_NOT_READY(400, 150309, "번들의 상태가 준비중이 아님"),
+  INVALID_BUNDLE_STATUS(400, 150310, "올바르지 않은 번들 상태"),
+  INVALID_BUNDLE_MOD_PARAMETER(400, 150311, "올바르지 않은 번들 정보 변경 파라미터"),
+
+  BUNDLE_CURRENCY_NOT_EXIST(404, 150312, "번들 재화가 존재하지 않음"),
+  BUNDLE_CURRENCY_TYPE_ALREADY_MAPPED(400, 150313, "번들 재화 타입이 이미 매핑되어 있음"),
+  BUNDLE_CURRENCY_COUNT_EMPTY(400, 150314, "번들 재화 수량이 비어있음"),
+
+  BUNDLE_ITEM_COUNT_EMPTY(400, 150315, "번들 아이템 수량이 비어있음"),
+  BUNDLE_ITEM_ALREADY_MAPPED(400, 150316, "번들 아이템이 이미 매핑되어 있음"),
+  BUNDLE_ITEM_NOT_EXIST(404, 150317, "번들 아이템이 존재하지 않음"),
 
   // ITEM_UNIT(1504XX)
   ITEM_UNIT_NOT_EXIST(404, 150401, '아이템 유닛이 존재하지 않음'),

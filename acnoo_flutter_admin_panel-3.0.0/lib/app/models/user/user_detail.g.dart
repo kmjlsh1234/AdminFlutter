@@ -9,10 +9,10 @@ part of 'user_detail.dart';
 UserDetail _$UserDetailFromJson(Map<String, dynamic> json) => UserDetail(
       (json['userId'] as num).toInt(),
       json['loginId'] as String,
-      json['status'] as String,
+      $enumDecode(_$UserStatusEnumMap, json['status']),
       json['mobile'] as String,
       json['email'] as String,
-      json['loginType'] as String,
+      $enumDecode(_$LoginTypeEnumMap, json['loginType']),
       json['initAt'] == null ? null : DateTime.parse(json['initAt'] as String),
       json['loginAt'] == null
           ? null
@@ -38,10 +38,10 @@ Map<String, dynamic> _$UserDetailToJson(UserDetail instance) =>
     <String, dynamic>{
       'userId': instance.userId,
       'loginId': instance.loginId,
-      'status': instance.status,
+      'status': _$UserStatusEnumMap[instance.status]!,
       'mobile': instance.mobile,
       'email': instance.email,
-      'loginType': instance.loginType,
+      'loginType': _$LoginTypeEnumMap[instance.loginType]!,
       'initAt': instance.initAt?.toIso8601String(),
       'loginAt': instance.loginAt?.toIso8601String(),
       'logoutAt': instance.logoutAt?.toIso8601String(),
@@ -56,3 +56,20 @@ Map<String, dynamic> _$UserDetailToJson(UserDetail instance) =>
       'agreeMarketing': instance.agreeMarketing,
       'marketingModifiedAt': instance.marketingModifiedAt?.toIso8601String(),
     };
+
+const _$UserStatusEnumMap = {
+  UserStatus.NORMAL: 'NORMAL',
+  UserStatus.LOGOUT: 'LOGOUT',
+  UserStatus.STOP: 'STOP',
+  UserStatus.BAN: 'BAN',
+  UserStatus.TRY_EXIT: 'TRY_EXIT',
+  UserStatus.EXIT: 'EXIT',
+};
+
+const _$LoginTypeEnumMap = {
+  LoginType.EMAIL: 'EMAIL',
+  LoginType.MOBILE: 'MOBILE',
+  LoginType.SOCIAL: 'SOCIAL',
+  LoginType.ID_PASS: 'ID_PASS',
+  LoginType.GUEST: 'GUEST',
+};

@@ -1,4 +1,8 @@
+import 'package:acnoo_flutter_admin_panel/app/constants/shop/item/item_period_type.dart';
+import 'package:acnoo_flutter_admin_panel/app/constants/shop/item/item_status.dart';
 import 'package:json_annotation/json_annotation.dart';
+
+import '../../../constants/shop/item/currency_type.dart';
 
 part 'item.g.dart';
 
@@ -13,14 +17,14 @@ class Item {
   final String description;
   final int? num;
   final int? stockQuantity;
-  final String status;
+  final ItemStatus status;
   final String thumbnail;
   final String image;
   final String info;
-  final String periodType;
+  final ItemPeriodType periodType;
   final int? period;
   final DateTime? expiration;
-  final String currencyType;
+  final CurrencyType currencyType;
   final int? amount;
   final DateTime createdAt;
   final DateTime updatedAt;

@@ -1,3 +1,5 @@
+import 'package:acnoo_flutter_admin_panel/app/constants/shop/product/product_status.dart';
+import 'package:acnoo_flutter_admin_panel/app/constants/shop/product/product_type.dart';
 import 'package:acnoo_flutter_admin_panel/app/models/shop/product/product_option/product_option.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -8,11 +10,11 @@ class ProductDetail {
   final int id;
   final String name;
   final String description;
-  final String status;
+  final ProductStatus status;
   final String thumbnail;
   final String image;
   final String info;
-  final String type;
+  final ProductType type;
   final int? stockQuantity;
   final int price;
   final int originPrice;

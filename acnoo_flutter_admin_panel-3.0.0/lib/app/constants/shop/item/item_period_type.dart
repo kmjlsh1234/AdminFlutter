@@ -1,16 +1,10 @@
 enum ItemPeriodType{
-  none('NONE'),
-  day('DAY'),
-  month('MONTH'),
-  expiration('EXPIRATION'),
+  NONE('없음'),
+  DAY('일 별'),
+  MONTH('월 별'),
+  EXPIRATION('기한'),
   ;
 
   final String value;
   const ItemPeriodType(this.value);
-
-  static ItemPeriodType fromValue(String value) {
-    return ItemPeriodType.values.firstWhere((type) => type.value == value,
-      orElse: () => throw ArgumentError("Invalid ItemPeriodType: $value"),
-    );
-  }
 }

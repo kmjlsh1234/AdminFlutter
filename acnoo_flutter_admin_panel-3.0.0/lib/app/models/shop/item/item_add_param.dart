@@ -1,4 +1,7 @@
+import 'package:acnoo_flutter_admin_panel/app/constants/shop/item/item_period_type.dart';
 import 'package:json_annotation/json_annotation.dart';
+
+import '../../../constants/shop/item/currency_type.dart';
 
 part 'item_add_param.g.dart';
 
@@ -6,7 +9,7 @@ part 'item_add_param.g.dart';
 class ItemAddParam {
   final int categoryId;
   final String sku;
-  final String unitSku;
+  final String? unitSku;
   final String name;
   final String description;
   final int? num;
@@ -14,11 +17,11 @@ class ItemAddParam {
   final String thumbnail;
   final String image;
   final String info;
-  final String periodType;
+  final ItemPeriodType periodType;
   final int? period;
   final String? expiration;
-  final String currencyType;
-  final int amount;
+  final CurrencyType currencyType;
+  final int? amount;
 
   ItemAddParam({
     required this.categoryId,

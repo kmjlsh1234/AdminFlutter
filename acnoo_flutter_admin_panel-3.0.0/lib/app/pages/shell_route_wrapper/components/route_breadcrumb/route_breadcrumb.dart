@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 // 📦 Package imports:
 import 'package:go_router/go_router.dart';
 import 'package:iconly/iconly.dart';
+import 'package:provider/provider.dart';
 import 'package:responsive_framework/responsive_framework.dart' as rf;
 
 // 🌎 Project imports:
 import '../../../../core/static/static.dart';
+import '../../../../providers/menu/menu_provider.dart';
 import '../../models/models.dart';
 
 class RouteBreadcrumbWidget extends StatelessWidget {
@@ -17,11 +19,11 @@ class RouteBreadcrumbWidget extends StatelessWidget {
   });
   final RouteBreadcrumbModel breadcrumbModel;
 
+
   @override
   Widget build(BuildContext context) {
     final _theme = Theme.of(context);
     final _mqSize = MediaQuery.sizeOf(context);
-
     final _breadcrumbTextStyle = _theme.textTheme.bodyLarge?.copyWith(
       fontSize: rf.ResponsiveValue<double?>(
         context,
@@ -43,9 +45,10 @@ class RouteBreadcrumbWidget extends StatelessWidget {
     );
 
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisAlignment: MainAxisAlignment.end,
       children: [
         // Title
+        /*
         Text(
           breadcrumbModel.title,
           style: _theme.textTheme.headlineSmall?.copyWith(
@@ -68,6 +71,8 @@ class RouteBreadcrumbWidget extends StatelessWidget {
           ),
         ),
 
+
+         */
         if (_mqSize.width >= 576)
           // Current Route
           Directionality(
@@ -78,7 +83,7 @@ class RouteBreadcrumbWidget extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(right: 6),
                   child: GestureDetector(
-                    onTap: () => context.go('/dashboard/ecommerce-admin'),
+                    onTap: () => context.go('/admins/admin-list'),
                     child: MouseRegion(
                       cursor: SystemMouseCursors.click,
                       child: Icon(
@@ -97,6 +102,13 @@ class RouteBreadcrumbWidget extends StatelessWidget {
                     ),
                   ),
                 ),
+                Text(
+                  GoRouter.of(context).state.uri.path,
+                  style: _breadcrumbTextStyle?.copyWith(
+                    color: _theme.primaryColor,
+                  ),
+                )
+                /*
                 Text.rich(
                   TextSpan(
                     text: '/ ${breadcrumbModel.parentRoute} / ',
@@ -112,9 +124,12 @@ class RouteBreadcrumbWidget extends StatelessWidget {
                   textDirection: TextDirection.ltr,
                   style: _breadcrumbTextStyle,
                 )
+                 */
+
               ],
             ),
           ),
+
       ],
     );
   }

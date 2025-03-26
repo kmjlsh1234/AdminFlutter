@@ -8,8 +8,9 @@ import 'package:acnoo_flutter_admin_panel/app/models/shop/bundle/bundle_item/bun
 import 'package:acnoo_flutter_admin_panel/app/models/shop/bundle/bundle_item/bundle_item_mod_param.dart';
 import 'package:acnoo_flutter_admin_panel/app/models/shop/bundle/bundle_item/bundle_item_simple.dart';
 import 'package:acnoo_flutter_admin_panel/app/pages/shop/bundle/component/bundle_item_info_popup.dart';
-import 'package:acnoo_flutter_admin_panel/app/pages/shop/bundle/component/search_bundle_item_popup.dart';
+import 'package:acnoo_flutter_admin_panel/app/pages/shop/bundle/component/search_item_popup.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:responsive_grid/responsive_grid.dart';
 
@@ -18,6 +19,7 @@ import '../../../../core/error/error_code.dart';
 import '../../../../core/error/error_handler.dart';
 import '../../../../core/service/shop/bundle/bundle_item_service.dart';
 import '../../../../core/theme/_app_colors.dart';
+import '../../../../core/utils/alert_util.dart';
 import '../../../../core/utils/size_config.dart';
 import '../../../../models/shop/bundle/bundle_item/bundle_item_model.dart';
 import '../../../../models/shop/item/item.dart';
@@ -44,18 +46,20 @@ class _BundleItemWidgetState extends State<BundleItemWidget> {
   //Future Model
   late Future<List<BundleItemModel>> bundleItemList;
 
+  //Provider
+  late l.S lang;
+  late ThemeData theme;
+  late TextTheme textTheme;
+
   //번들 아이템 목록 조회
   Future<List<BundleItemModel>> getBundleItemList() async {
     try {
-      List<BundleItemDetail> list =
-          await bundleItemService.getBundleItemList(widget.bundleId);
+      List<BundleItemDetail> list = await bundleItemService.getBundleItemList(widget.bundleId);
 
-      return list
-          .map((item) => BundleItemModel(
+      return list.map((item) => BundleItemModel(
               item: item.item,
               nameController: TextEditingController(text: item.item.name),
-              countController:
-                  TextEditingController(text: item.count.toString())))
+              countController: TextEditingController(text: item.count.toString())))
           .toList();
     } catch (e) {
       ErrorHandler.handleError(e, context);
@@ -77,9 +81,19 @@ class _BundleItemWidgetState extends State<BundleItemWidget> {
       }
       BundleItemModParam bundleItemModParam =
           BundleItemModParam(bundleItems: bundleItems);
-      await bundleItemService.modBundleItem(
-          widget.bundleId, bundleItemModParam);
-      showSuccessDialog(context);
+      await bundleItemService.modBundleItem(widget.bundleId, bundleItemModParam);
+      AlertUtil.successDialog(
+          context: context,
+          message: lang.successModBundleItem,
+          buttonText: lang.confirm,
+          onPressed: () {
+            GoRouter.of(context).pop();
+            setState(() {
+              isModState = false;
+              bundleItemList = getBundleItemList();
+            });
+          }
+      );
     } catch (e) {
       ErrorHandler.handleError(e, context);
     }
@@ -106,10 +120,10 @@ class _BundleItemWidgetState extends State<BundleItemWidget> {
   Widget build(BuildContext context) {
     const _lg = 4;
     const _md = 6;
-    final ThemeData _theme = Theme.of(context);
-    final _textTheme = Theme.of(context).textTheme;
+    lang = l.S.of(context);
+    theme = Theme.of(context);
+    textTheme = Theme.of(context).textTheme;
     final _sizeInfo = SizeConfig.getSizeInfo(context);
-    final l.S lang = l.S.of(context);
 
     return FutureBuilderFactory.createFutureBuilder(
         future: bundleItemList,
@@ -133,7 +147,7 @@ class _BundleItemWidgetState extends State<BundleItemWidget> {
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                  color: _theme.colorScheme.primary),
+                                  color: theme.colorScheme.primary),
                             ),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -144,34 +158,40 @@ class _BundleItemWidgetState extends State<BundleItemWidget> {
                                     readOnly: true,
                                     controller: model.nameController,
                                     decoration: InputDecoration(
-                                      hintText: lang.name,
+                                      hintText: lang.hintName,
                                       filled: true,
-                                      fillColor: _theme
-                                          .colorScheme.tertiaryContainer,
+                                      fillColor: theme.colorScheme.tertiaryContainer,
                                       suffixIcon: IconButton(
                                         icon: Icon(
                                             Icons.search,
-                                            color: _theme.colorScheme.primary
+                                            color: theme.colorScheme.primary
                                         ),
                                         onPressed: () {
                                           showSearchDialog(context, model);
                                         },
                                       ),
                                     ),
+                                    validator: (value) => value?.isEmpty ?? true ? lang.invalidName : null,
+                                    autovalidateMode: AutovalidateMode.onUnfocus,
                                   ),
                                 ),
                                 const SizedBox(height: 20),
                                 TextFieldLabelWrapper(
-                                  labelText: lang.amount,
+                                  labelText: lang.count,
                                   inputField: TextFormField(
+                                    keyboardType: TextInputType.number,
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.digitsOnly
+                                    ],
                                     controller: model.countController,
                                     enabled: isModState,
                                     decoration: InputDecoration(
-                                      hintText: lang.amount,
+                                      hintText: lang.hintCount,
                                       filled: !isModState,
-                                      fillColor: _theme
-                                          .colorScheme.tertiaryContainer,
+                                      fillColor: theme.colorScheme.tertiaryContainer,
                                     ),
+                                    validator: (value) => value?.isEmpty ?? true ? lang.invalidCount : null,
+                                    autovalidateMode: AutovalidateMode.onUnfocus,
                                   ),
                                 ),
                               ],
@@ -187,7 +207,7 @@ class _BundleItemWidgetState extends State<BundleItemWidget> {
                                 children: [
                                   IconButton(
                                     icon: Icon(Icons.info_outline,
-                                        color: _theme.colorScheme.primary),
+                                        color: theme.colorScheme.primary),
                                     onPressed: () {
                                       if (model.item != null) {
                                         showInfoFormDialog(model.item!);
@@ -240,7 +260,7 @@ class _BundleItemWidgetState extends State<BundleItemWidget> {
                           label: Text(
                             lang.addNewBundleItem,
                             maxLines: 1,
-                            style: _textTheme.bodySmall?.copyWith(
+                            style: textTheme.bodySmall?.copyWith(
                               color: AcnooAppColors.kWhiteColor,
                               fontWeight: FontWeight.bold,
                             ),
@@ -261,23 +281,53 @@ class _BundleItemWidgetState extends State<BundleItemWidget> {
               Padding(
                 padding: EdgeInsets.all(_sizeInfo.innerSpacing),
                 child: Align(
-                  alignment: Alignment.centerLeft,
+                  alignment: Alignment.centerLeft, // 버튼을 가운데 정렬
                   child: SizedBox(
-                    width: 200,
-                    child: CustomButton(
-                      textTheme: _textTheme,
-                      label: lang.modProduct,
-                      onPressed: () {
-                        if (isModState) {
-                          modBundleItem();
-                        } else {
-                          setState(() {
-                            isModState = true;
-                          });
-                        }
-                      },
-                    ),
-                  ),
+                      width: 1000,
+                      child: Row(
+                        children: [
+                          CustomButton(
+                              textTheme: textTheme,
+                              label: lang.modBundleItem,
+                              onPressed: () => {
+                                if (isModState)
+                                  {
+                                    modBundleItem(),
+                                  }
+                                else
+                                  {
+                                    setState(() {
+                                      isModState = true;
+                                    }),
+                                  }
+                              }),
+                          const SizedBox(width: 50),
+                          Visibility(
+                              visible: isModState,
+                              child: OutlinedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: _sizeInfo.innerSpacing),
+                                    backgroundColor:
+                                    theme.colorScheme.primaryContainer,
+                                    textStyle: textTheme.bodySmall?.copyWith(
+                                        color: AcnooAppColors.kError),
+                                    side: const BorderSide(
+                                        color: AcnooAppColors.kError)),
+                                onPressed: () {
+                                  setState(() {
+                                    isModState = false;
+                                    this.bundleItemList = getBundleItemList();
+                                  });
+                                },
+                                label: Text(
+                                  lang.cancel,
+                                  style: textTheme.bodySmall?.copyWith(
+                                      color: AcnooAppColors.kError),
+                                ),
+                              ))
+                        ],
+                      )),
                 ),
               ),
             ],
@@ -298,7 +348,7 @@ class _BundleItemWidgetState extends State<BundleItemWidget> {
     Item? item = await showDialog(
       context: context,
       builder: (BuildContext context) {
-        return const SearchBundleItemDialog();
+        return const SearchItemDialog();
       },
     );
 
@@ -320,28 +370,6 @@ class _BundleItemWidgetState extends State<BundleItemWidget> {
               sigmaY: 5,
             ),
             child: BundleItemInfoDialog(item: item)
-        );
-      },
-    );
-  }
-
-  void showSuccessDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(''),
-          content: Text('번들 변경 성공'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                isModState = false;
-                isModState = false;
-              },
-              child: Text('확인'),
-            ),
-          ],
         );
       },
     );

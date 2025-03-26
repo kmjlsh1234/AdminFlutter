@@ -3,9 +3,10 @@
 import 'package:acnoo_flutter_admin_panel/app/constants/shop/product/product_type.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/error/custom_exception.dart';
 import 'package:acnoo_flutter_admin_panel/app/core/service/shop/product/product_option_service.dart';
-import 'package:dio/dio.dart';
+import 'package:acnoo_flutter_admin_panel/app/core/utils/alert_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:responsive_grid/responsive_grid.dart';
 
@@ -16,8 +17,6 @@ import '../../../constants/file/file_type.dart';
 import '../../../constants/shop/item/image_select_type.dart';
 import '../../../core/error/error_code.dart';
 import '../../../core/error/error_handler.dart';
-import '../../../core/helpers/field_styles/_dropdown_styles.dart';
-import '../../../core/helpers/field_styles/_input_field_styles.dart';
 import '../../../core/service/file/file_service.dart';
 import '../../../core/service/shop/product/product_service.dart';
 import '../../../core/utils/size_config.dart';
@@ -45,13 +44,13 @@ class _ProductAddViewState extends State<ProductAddView> {
   final TextEditingController priceController = TextEditingController();
   final TextEditingController originPriceController = TextEditingController();
 
-  //DropDown Menu
-  ProductType productType = ProductType.currency;
-
   //Service
   final ProductService productService = ProductService();
   final ProductOptionService productOptionService = ProductOptionService();
   final FileService fileService = FileService();
+
+  //DropDown Menu
+  ProductType productType = ProductType.CURRENCY;
 
   //File
   final ImagePicker picker = ImagePicker();
@@ -60,6 +59,11 @@ class _ProductAddViewState extends State<ProductAddView> {
   XFile? imageFile;
   XFile? thumbnailFile;
 
+  //Provider
+  late l.S lang;
+  late ThemeData theme;
+  late TextTheme textTheme;
+
   //상품 추가
   Future<void> addProduct() async {
     try {
@@ -67,25 +71,23 @@ class _ProductAddViewState extends State<ProductAddView> {
       checkAddParameter();
 
       //TODO: 파일 서버에 파일 전송 후 경로 받기
-      String thumbnailPath = await uploadFile(thumbnailFile!);
-      String imagePath = await uploadFile(imageFile!);
+      String thumbnailPath = await fileService.uploadFileTest(thumbnailFile, FileCategory.PROFILE, FileType.IMAGE);
+      String imagePath = await fileService.uploadFileTest(imageFile, FileCategory.PROFILE, FileType.IMAGE);
 
       //TODO: ADMIN서버에 상품 추가
       Product product = await productService.addProduct(getProductAddParam(thumbnailPath, imagePath));
-      showSuccessDialog(context);
+      AlertUtil.successDialog(
+          context: context,
+          message: lang.successAddProduct,
+          buttonText: lang.confirm,
+          onPressed: () {
+            GoRouter.of(context).pop();
+            GoRouter.of(context).go('/shops/products/products-list');
+          }
+      );
     } catch (e) {
       ErrorHandler.handleError(e, context);
     }
-  }
-
-  //파일 업로드
-  Future<String> uploadFile(XFile file) async {
-    Uint8List? bytes = await file.readAsBytes();
-    MultipartFile multipartFile = MultipartFile.fromBytes(bytes, filename: file.name);
-    FormData formData = FormData.fromMap({"file": multipartFile});
-    String remotePath = await fileService.uploadFile(
-        FileCategory.profile, FileType.image, formData);
-    return remotePath;
   }
 
   //이미지 로컬에서 가져오기
@@ -95,11 +97,11 @@ class _ProductAddViewState extends State<ProductAddView> {
       if (pickFile != null) {
         setState(() {
           switch (type) {
-            case ImageSelectType.thumbnail:
+            case ImageSelectType.THUMBNAIL:
               thumbnailFile = pickFile;
               thumbnailPath = pickFile.path;
               break;
-            case ImageSelectType.image:
+            case ImageSelectType.IMAGE:
               imageFile = pickFile;
               imagePath = pickFile.path;
               break;
@@ -113,16 +115,18 @@ class _ProductAddViewState extends State<ProductAddView> {
 
   ProductAddParam getProductAddParam(String thumbnail, String image) {
     int? stockQuantity = stockQuantityController.text.isNotEmpty ? int.parse(stockQuantityController.text) : null;
+    int? price = priceController.text.isNotEmpty ? int.parse(priceController.text) : 0;
+    int? originPrice = originPriceController.text.isNotEmpty ? int.parse(originPriceController.text) : 0;
     return ProductAddParam(
         name: nameController.text,
         description: descController.text,
         thumbnail: thumbnail,
         image: image,
         info: infoController.text,
-        type: productType.value,
+        type: productType,
         stockQuantity: stockQuantity,
-        price: int.parse(priceController.text),
-        originPrice: int.parse(originPriceController.text)
+        price: price,
+        originPrice: originPrice
     );
   }
 
@@ -138,14 +142,6 @@ class _ProductAddViewState extends State<ProductAddView> {
 
     if (infoController.text.isEmpty) {
       throw CustomException(ErrorCode.PRODUCT_INFO_EMPTY);
-    }
-
-    if (priceController.text.isEmpty) {
-      throw CustomException(ErrorCode.PRODUCT_PRICE_EMPTY);
-    }
-
-    if (originPriceController.text.isEmpty) {
-      throw CustomException(ErrorCode.PRODUCT_ORIGIN_PRICE_EMPTY);
     }
 
     if (thumbnailPath == null) {
@@ -178,13 +174,10 @@ class _ProductAddViewState extends State<ProductAddView> {
     const _lg = 4;
     const _md = 6;
 
-    final AcnooDropdownStyle _dropdownStyle = AcnooDropdownStyle(context);
-    final AcnooInputFieldStyles _inputFieldStyle =
-        AcnooInputFieldStyles(context);
-    final ThemeData _theme = Theme.of(context);
-    final _textTheme = Theme.of(context).textTheme;
+    lang = l.S.of(context);
+    theme = Theme.of(context);
+    textTheme = Theme.of(context).textTheme;
     final _sizeInfo = SizeConfig.getSizeInfo(context);
-    final l.S lang = l.S.of(context);
 
     return Scaffold(
       body: ListView(
@@ -207,7 +200,9 @@ class _ProductAddViewState extends State<ProductAddView> {
                       labelText: lang.name,
                       inputField: TextFormField(
                         controller: nameController,
-                        decoration: InputDecoration(hintText: lang.name),
+                        decoration: InputDecoration(hintText: lang.hintName),
+                        validator: (value) => value?.isEmpty ?? true ? lang.invalidName : null,
+                        autovalidateMode: AutovalidateMode.onUnfocus,
                       ),
                     ),
                   ),
@@ -225,9 +220,9 @@ class _ProductAddViewState extends State<ProductAddView> {
                       inputField: TextFormField(
                         maxLines: 2,
                         controller: descController,
-                        decoration: InputDecoration(
-                          hintText: lang.description,
-                        ),
+                        decoration: InputDecoration(hintText: lang.hintDescription),
+                        validator: (value) => value?.isEmpty ?? true ? lang.invalidDescription : null,
+                        autovalidateMode: AutovalidateMode.onUnfocus,
                       ),
                     ),
                   ),
@@ -245,9 +240,9 @@ class _ProductAddViewState extends State<ProductAddView> {
                       inputField: TextFormField(
                         maxLines: 2,
                         controller: infoController,
-                        decoration: InputDecoration(
-                          hintText: lang.info,
-                        ),
+                        decoration: InputDecoration(hintText: lang.hintInfo),
+                        validator: (value) => value?.isEmpty ?? true ? lang.invalidInfo : null,
+                        autovalidateMode: AutovalidateMode.onUnfocus,
                       ),
                     ),
                   ),
@@ -271,7 +266,7 @@ class _ProductAddViewState extends State<ProductAddView> {
                             ],
                             controller: stockQuantityController,
                             decoration:
-                            InputDecoration(hintText: lang.stockQuantity),
+                            InputDecoration(hintText: lang.hintStockQuantity),
                           ),
                         );
                       },
@@ -296,7 +291,7 @@ class _ProductAddViewState extends State<ProductAddView> {
                               FilteringTextInputFormatter.digitsOnly
                             ],
                             controller: priceController,
-                            decoration: InputDecoration(hintText: lang.price),
+                            decoration: InputDecoration(hintText: lang.hintPrice),
                           ),
                         );
                       },
@@ -321,7 +316,7 @@ class _ProductAddViewState extends State<ProductAddView> {
                               FilteringTextInputFormatter.digitsOnly
                             ],
                             controller: originPriceController,
-                            decoration: InputDecoration(hintText: lang.originPrice),
+                            decoration: InputDecoration(hintText: lang.hintOriginPrice),
                           ),
                         );
                       },
@@ -339,11 +334,11 @@ class _ProductAddViewState extends State<ProductAddView> {
                     child: TextFieldLabelWrapper(
                       labelText: lang.type,
                       inputField: DropdownButtonFormField<ProductType>(
-                        dropdownColor: _theme.colorScheme.primaryContainer,
+                        dropdownColor: theme.colorScheme.primaryContainer,
                         value: productType,
                         hint: Text(
                           lang.type,
-                          style: _textTheme.bodySmall,
+                          style: textTheme.bodySmall,
                         ),
                         items: ProductType.values.map((type) {
                           return DropdownMenuItem<ProductType>(
@@ -397,7 +392,7 @@ class _ProductAddViewState extends State<ProductAddView> {
                             labelText: lang.thumbnail,
                             inputField: DottedBorderContainer(
                               child: GestureDetector(
-                                onTap: () => pickImage(ImageSelectType.thumbnail),
+                                onTap: () => pickImage(ImageSelectType.THUMBNAIL),
                                 child: thumbnailPath == null
                                     ? Column(
                                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -405,7 +400,7 @@ class _ProductAddViewState extends State<ProductAddView> {
                                   children: [
                                     Icon(
                                       Icons.camera_alt_outlined,
-                                      color: _theme.colorScheme.onTertiary,
+                                      color: theme.colorScheme.onTertiary,
                                     ),
                                     Text(lang.uploadImage),
                                   ],
@@ -428,7 +423,7 @@ class _ProductAddViewState extends State<ProductAddView> {
                             labelText: lang.image,
                             inputField: DottedBorderContainer(
                               child: GestureDetector(
-                                onTap: () => pickImage(ImageSelectType.image),
+                                onTap: () => pickImage(ImageSelectType.IMAGE),
                                 child: imagePath == null
                                     ? Column(
                                   crossAxisAlignment:
@@ -437,7 +432,7 @@ class _ProductAddViewState extends State<ProductAddView> {
                                   children: [
                                     Icon(
                                       Icons.camera_alt_outlined,
-                                      color: _theme.colorScheme.onTertiary,
+                                      color: theme.colorScheme.onTertiary,
                                     ),
                                     Text(lang.uploadImage),
                                   ],
@@ -467,8 +462,8 @@ class _ProductAddViewState extends State<ProductAddView> {
               child: SizedBox(
                 width: 200, // 버튼 너비를 200px로 제한 (원하는 크기로 조정 가능)
                 child: CustomButton(
-                  textTheme: _textTheme,
-                  label: lang.addNewItem,
+                  textTheme: textTheme,
+                  label: lang.addNewProduct,
                   onPressed: () => addProduct(),
                 ),
               ),
@@ -476,26 +471,6 @@ class _ProductAddViewState extends State<ProductAddView> {
           ),
         ],
       ),
-    );
-  }
-
-  void showSuccessDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(''),
-          content: Text('아이템 추가 성공'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('확인'),
-            ),
-          ],
-        );
-      },
     );
   }
 }
